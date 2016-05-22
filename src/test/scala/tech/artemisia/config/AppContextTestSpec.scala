@@ -1,12 +1,12 @@
 package tech.artemisia.config
 
 import java.io.{File, FileNotFoundException}
-
 import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import tech.artemisia.TestSpec
 import tech.artemisia.core.dag.Message.TaskStats
 import tech.artemisia.core.{Keywords, env}
 import tech.artemisia.util.FileSystemUtil
+import tech.artemisia.util.FileSystemUtil.FileEnhancer
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 
@@ -108,6 +108,34 @@ class AppContextTestSpec extends TestSpec {
     task_stats.endTime must be ("2016-01-18 22:27:52")
     info("validating start_time")
     task_stats.startTime must be ("2016-01-18 22:27:51")
+  }
+
+  it must "make working_dir is configurable from cmdline" in {
+    val workingDir = "/var/tmp"
+    val cmdLineParam = AppContextTestSpec.defualtTestCmdLineParams.copy(working_dir = Some(workingDir))
+    val appContext = new AppContext(cmdLineParam)
+    appContext.workingDir must be (workingDir)
+  }
+
+  it must "make working_dir is configurable via settings node in payload" in {
+    val workingDir = "/var/tmp/artemisia"
+    val runID = "qwertyuiop"
+    FileSystemUtil.withTempFile(fileName = "appcontext_working_dir_test") {
+      file => {
+        file <<=
+         s"""
+            |__setting__.core.working_dir = $workingDir
+            |
+            |step1 = {
+            | Component = SomeDummyComponent
+            |}
+          """.stripMargin
+        val appSetting = AppSetting(cmd=Some("run"), value = Some(file.toString), run_id = Some(runID))
+        info(appSetting.value.get)
+        val appContext = new AppContext(appSetting)
+        appContext.workingDir must be (FileSystemUtil.joinPath(workingDir,runID))
+      }
+    }
   }
 
 

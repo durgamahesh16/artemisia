@@ -2,6 +2,9 @@ package tech.artemisia.util
 
 import java.io._
 import java.net.URI
+import java.nio.file.Paths
+
+import tech.artemisia.core.Keywords
 
 import scala.io.Source
 
@@ -28,6 +31,14 @@ object FileSystemUtil {
     val resource_stream = this.getClass.getResourceAsStream(resource)
     val buffered = new BufferedReader(new InputStreamReader(resource_stream))
     buffered.lines().toArray.mkString("\n")
+  }
+
+  /**
+   * get the basedir inside which the application can creates temp/checkpoint files required for execution
+   * @return basedir for the application
+   */
+  def baseDir = {
+    Paths.get(joinPath(System.getProperty("java.io.tmpdir"),Keywords.APP.toLowerCase))
   }
 
   /**

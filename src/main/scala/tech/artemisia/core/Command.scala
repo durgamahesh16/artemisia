@@ -38,7 +38,7 @@ object Command {
       context.reset()
       context.putProperty("log.console.level", app_context.logging.console_trace_level)
       context.putProperty("log.file.level", app_context.logging.file_trace_level)
-      context.putProperty("env.working_dir", app_context.coreSetting.working_dir)
+      context.putProperty("env.working_dir", app_context.workingDir)
       context.putProperty("workflow_id", app_context.runId)
       jc.doConfigure(this.getClass.getResourceAsStream("/logback_config.xml"))
   }

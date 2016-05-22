@@ -16,7 +16,6 @@ case class ConnectionProfile(hostname: String, username: String, password: Strin
 object ConnectionProfile {
 
   def apply(config: Config): ConnectionProfile = {
-      println(config.root().render(ConfigRenderOptions.concise()))
        ConnectionProfile(
       hostname = config.as[String](Connection.HOSTNAME),
       username = config.as[String](Keywords.Connection.USERNAME),
