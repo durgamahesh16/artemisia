@@ -24,7 +24,7 @@ object Main {
       head(Keywords.APP, "0.1")
       cmd("run") action { (x, c) => c.copy(cmd = Some("run")) } children {
         opt[String]('l', "location") required() action { (x, c) => c.copy(value = Some(x)) } text "location of the job conf"
-        opt[String]('d',"workdir") action { (x,c) => c.copy( working_dir = Some(x) ) } text "set the working directory for the current job"
+        opt[String]('w',"workdir") action { (x,c) => c.copy( working_dir = Some(x) ) } text "set the working directory for the current job"
         opt[Unit]('n',"no-checkpoint") action { (x,c) => c.copy(skip_checkpoints = true) } text "set this property skip checkpoints"
       } text "Execute Dag workflow"
       cmd("doc") action { (x, c) => c.copy(cmd = Some("doc")) } children {
@@ -32,7 +32,7 @@ object Main {
       } text "display Documentation"
       opt [String]("context") valueName "k1=v1,k2=v2..." action { (x, c) => c.copy(context = Some(x)) }
       opt[String]('c', "config") action { (x, c) => c.copy(config = Some(x)) } text "configuration file"
-      opt[String]('w', "workflow_id") action { (x, c) => c.copy(run_id = Some(x)) } text "workflow_id for execution"
+      opt[String]('r', "run-id") action { (x, c) => c.copy(run_id = Some(x)) } text "run_id for execution"
 
       override def showUsageOnError = usageOnError
 

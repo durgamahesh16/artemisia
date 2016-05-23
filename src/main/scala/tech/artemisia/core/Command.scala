@@ -46,12 +46,12 @@ object Command {
 
   def run(cmd_line_params: AppSetting) = {
     AppLogger info "request for run command acknowledged"
-    val app_context = prepareAppContext(cmd_line_params)
+    val appContext = prepareAppContext(cmd_line_params)
     AppLogger debug "context object created"
-    TaskContext.setWorkingDir(Paths.get(app_context.workingDir))
-    val dag = Dag(app_context)
+    TaskContext.setWorkingDir(Paths.get(appContext.workingDir))
+    val dag = Dag(appContext)
     AppLogger debug "starting Actor System"
-    val actor_sys_manager =  new ActorSysManager(app_context)
+    val actor_sys_manager =  new ActorSysManager(appContext)
     val workers = actor_sys_manager.createWorker(Keywords.ActorSys.CUSTOM_DISPATCHER)
     val dag_player = actor_sys_manager.createPlayer(dag,workers)
     dag_player ! 'Play

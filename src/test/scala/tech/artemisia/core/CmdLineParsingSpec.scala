@@ -10,7 +10,7 @@ class CmdLineParsingSpec extends TestSpec {
   var arr: Array[String] = _
 
   override def beforeEach() = {
-     arr  = Array("run","--location","/var/tmp","--workflow_id","5f40e8c3-59c2-4548-8e51-71980c657bc0",
+     arr  = Array("run","--location","/var/tmp","--run-id","5f40e8c3-59c2-4548-8e51-71980c657bc0",
       "--config","/home/user/config.yml","--context","k1=v1,k2=v2")
   }
 

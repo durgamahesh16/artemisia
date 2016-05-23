@@ -7,6 +7,7 @@ import tech.artemisia.core.dag.Message.TaskStats
 import tech.artemisia.core.{AppLogger, Keywords}
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.{LinearSeq, mutable}
@@ -41,19 +42,19 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpoints: mutable.Map[Stri
     }
   }
 
-  protected[dag] def resolveDependencies(node_list: LinearSeq[Node]): Unit = {
-    val node_map = (node_list map { x => { x.name -> x } } ).toMap
-    node_list map { x => x -> x.payload.getAs[List[String]](Keywords.Task.DEPENDENCY) } filter {
+  protected[dag] def resolveDependencies(nodeList: LinearSeq[Node]): Unit = {
+    val nodeMap = (nodeList map { x => { x.name -> x } } ).toMap
+    nodeList map { x => x -> x.payload.getAs[List[String]](Keywords.Task.DEPENDENCY) } filter {
       x => x._2.nonEmpty
     } foreach {
       case (node,dependency) => {
         node.parents = dependency.get map {
           x => {
-            if ((node_map get x).isEmpty) {
+            if ((nodeMap get x).isEmpty) {
               AppLogger error s"invalid dependency reference for $x in ${node.name}"
               throw new DagException(s"invalid dependency reference for $x in ${node.name}")
             }
-            node_map(x)
+            nodeMap(x)
           }
         }
       }
@@ -72,8 +73,8 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpoints: mutable.Map[Stri
         case (task_name,task_stats: TaskStats) => {
           val node = this.getNodeByName(task_name)
           node.applyStatusFromCheckpoint(task_stats.status)
-        }
       }
+    }
   }
 
   def getNodeByName(name: String) = {
