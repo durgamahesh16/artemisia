@@ -1,11 +1,9 @@
-package tech.artemisia.config
+package tech.artemisia.core
 
 import java.io.File
-
 import com.typesafe.config.{Config, ConfigFactory, ConfigObject, ConfigRenderOptions}
-import tech.artemisia.config.AppContext.{DagSetting, Logging}
+import tech.artemisia.core.AppContext.{Logging, DagSetting}
 import tech.artemisia.core.dag.Message.TaskStats
-import tech.artemisia.core.{AppLogger, Keywords}
 import tech.artemisia.task.Component
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.{FileSystemUtil, Util}
@@ -37,7 +35,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
    * merge all config objects (Global, Code, Context) to provide unified code config object
    * @return full unified config object
    */
-  private[config] def getConfigObject: Config = {
+  private[core] def getConfigObject: Config = {
     val empty_object = ConfigFactory.empty()
     val reference = ConfigFactory parseString FileSystemUtil.readResource("/reference.conf")
     val context = (cmdLineParam.context map ( ConfigFactory parseString _ )).getOrElse(empty_object)
@@ -64,7 +62,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
    *
    * @return read checkpoint and return a map of [[TaskStats]]
    */
-  protected[config] def readCheckpoint: mutable.Map[String,TaskStats] = {
+  protected[core] def readCheckpoint: mutable.Map[String,TaskStats] = {
     val checkpoints = mutable.Map[String,TaskStats]()
     if (checkpointFile.exists()) {
       AppLogger info s"checkpoint file $checkpointFile detected"
@@ -101,7 +99,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
    *  c) deterministic folder created in the temp directory of the system
    * @return working dir selected for the job
    */
-  private[config] def computeWorkingDir = {
+  private[core] def computeWorkingDir = {
     val configAssigned  = payload.getAs[String]("__setting__.core.working_dir") map { FileSystemUtil.joinPath(_,runId) }
     val cmdLineAssigned = cmdLineParam.working_dir
     val defaultAssigned = FileSystemUtil.joinPath(FileSystemUtil.baseDir.toString,runId)
@@ -113,9 +111,9 @@ class AppContext(private val cmdLineParam: AppSetting) {
 
 object AppContext {
 
-  private[config] case class DagSetting(attempts: Int, concurrency: Int, heartbeat_cycle: FiniteDuration,
+  private[core] case class DagSetting(attempts: Int, concurrency: Int, heartbeat_cycle: FiniteDuration,
                                         cooldown: FiniteDuration, disable_assertions: Boolean, ignore_conditions: Boolean)
-  private[config] case class Logging(console_trace_level: String, file_trace_level: String)
+  private[core] case class Logging(console_trace_level: String, file_trace_level: String)
 
   def parseLoggingFromPayload(payload: Config) = {
     Logging(console_trace_level = payload.as[String]("console_trace_level"), file_trace_level = payload.as[String]("file_trace_level"))
@@ -129,6 +127,4 @@ object AppContext {
 
 }
 
-case class AppSetting(cmd: Option[String] = Some("run"), value: Option[String] = None, context: Option[String] = None
-                      , config: Option[String] = None, run_id: Option[String] = None, working_dir: Option[String] = None,
-                      skip_checkpoints: Boolean = false)
+

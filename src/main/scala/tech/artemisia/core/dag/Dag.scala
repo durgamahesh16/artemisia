@@ -1,10 +1,9 @@
 package tech.artemisia.core.dag
 
 import com.typesafe.config.{Config, ConfigObject, ConfigValueType}
-import tech.artemisia.config.AppContext
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core.dag.Message.TaskStats
-import tech.artemisia.core.{AppLogger, Keywords}
+import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 

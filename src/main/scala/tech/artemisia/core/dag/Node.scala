@@ -1,10 +1,9 @@
 package tech.artemisia.core.dag
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.config.AppContext
 import tech.artemisia.core
 import tech.artemisia.core.Keywords.Task
-import tech.artemisia.core.{AppLogger, Keywords}
+import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.{TaskConfig, TaskHandler}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import scala.collection.LinearSeq

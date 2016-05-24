@@ -3,9 +3,8 @@ package tech.artemisia.core.dag
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{Actor, ActorRef}
-import tech.artemisia.config.AppContext
 import tech.artemisia.core.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, Tick, _}
-import tech.artemisia.core.{AppLogger, Keywords}
+import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 
 import scala.concurrent.duration._
 

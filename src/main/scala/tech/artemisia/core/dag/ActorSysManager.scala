@@ -3,8 +3,7 @@ package tech.artemisia.core.dag
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.routing.BalancingPool
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.config.AppContext
-import tech.artemisia.core.{AppLogger, Keywords}
+import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 
 /**
  * Created by chlr on 1/18/16.

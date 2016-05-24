@@ -1,8 +1,6 @@
 package tech.artemisia.core
 
 import scopt.OptionParser
-import tech.artemisia.config.AppSetting
-
 
 object Main {
 

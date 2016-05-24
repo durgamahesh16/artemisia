@@ -3,8 +3,7 @@ package tech.artemisia.task
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.util.HoconConfigUtil
 import HoconConfigUtil.Handler
-import tech.artemisia.config.AppContext
-import tech.artemisia.core.Keywords
+import tech.artemisia.core.{AppContext, Keywords}
 import tech.artemisia.core.Keywords.Task
 
 import scala.concurrent.duration.FiniteDuration

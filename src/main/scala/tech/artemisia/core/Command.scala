@@ -1,11 +1,11 @@
 package tech.artemisia.core
 
 import java.nio.file.Paths
+
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
 import com.typesafe.config.Config
 import org.slf4j.LoggerFactory
-import tech.artemisia.config.{AppContext, AppSetting}
 import tech.artemisia.core.dag.{ActorSysManager, Dag}
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler

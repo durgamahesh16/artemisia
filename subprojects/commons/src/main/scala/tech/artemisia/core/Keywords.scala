@@ -51,4 +51,9 @@ object Keywords {
     val ATTEMPT = "attempts"
     val TASK_OUTPUT = "task_output"
   }
+
+  object Checkpoint {
+    val TASK_STATES = "__taskstates__"
+    val PAYLOAD = "__payload__"
+  }
 }
