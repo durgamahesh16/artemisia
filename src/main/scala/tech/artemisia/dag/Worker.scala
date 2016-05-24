@@ -1,10 +1,10 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import akka.actor.Actor
 import com.typesafe.config.{Config, ConfigFactory}
 import Message._
 import tech.artemisia.core.AppLogger
-import tech.artemisia.core.dag.Message.{TaskCompleted, TaskWrapper}
+import tech.artemisia.dag.Message.{TaskCompleted, TaskWrapper}
 import tech.artemisia.util.Util
 
 import scala.util.Try

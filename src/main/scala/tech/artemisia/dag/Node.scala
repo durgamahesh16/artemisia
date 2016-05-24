@@ -1,11 +1,11 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.{TaskConfig, TaskHandler}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.collection.LinearSeq
 
 /**
@@ -23,7 +23,7 @@ class Node(val name: String, var payload: Config) {
   var parents: LinearSeq[Node] = Nil
 
   def isRunnable = {
-    (parents forall { _.isComplete }) && this.status == core.dag.Status.READY // forall for Nil returns true
+    (parents forall { _.isComplete }) && this.status == Status.READY // forall for Nil returns true
   }
 
   def isComplete = {

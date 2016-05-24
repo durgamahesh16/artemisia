@@ -2,7 +2,7 @@ package tech.artemisia.task
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.TestSpec
-import tech.artemisia.core.dag.Status
+import tech.artemisia.dag.Status
 
 import scala.concurrent.duration._
 /**

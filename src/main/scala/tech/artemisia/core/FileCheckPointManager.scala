@@ -2,7 +2,7 @@ package tech.artemisia.core
 
 import java.io.{PrintWriter, File}
 import com.typesafe.config.{ConfigRenderOptions, Config, ConfigFactory, ConfigObject}
-import tech.artemisia.core.dag.Message.TaskStats
+import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.util.HoconConfigUtil.Handler
 import scala.collection.JavaConverters._
 
@@ -37,7 +37,7 @@ class FileCheckPointManager(checkpointFile: File) extends CheckpointManager {
    * @param taskName name of the task
    * @param taskStat task's stats
    */
-  override def save(taskName: String, taskStat: TaskStats): Unit = {
+  override private[core] def save(taskName: String, taskStat: TaskStats): Unit = {
     adhocPayload = taskStat.taskOutput withFallback adhocPayload
     taskStatRepo = taskStatRepo + (taskName -> taskStat)
     flush()

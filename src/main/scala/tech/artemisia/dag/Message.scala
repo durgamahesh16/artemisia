@@ -1,4 +1,4 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import com.typesafe.config.{ConfigRenderOptions, Config, ConfigFactory}
 import tech.artemisia.core.Keywords

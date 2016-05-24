@@ -1,10 +1,10 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import akka.actor.Props
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.ActorTestSpec
 import tech.artemisia.core.Keywords
-import tech.artemisia.core.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, TaskWrapper}
+import tech.artemisia.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, TaskWrapper}
 import tech.artemisia.task.{GenericTaskSpec, Task, TaskHandler}
 import scala.concurrent.duration._
 

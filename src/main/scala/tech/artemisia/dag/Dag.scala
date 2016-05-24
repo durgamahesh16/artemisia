@@ -1,9 +1,9 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import com.typesafe.config.{Config, ConfigObject, ConfigValueType}
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
-import tech.artemisia.core.dag.Message.TaskStats
+import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 
@@ -115,11 +115,11 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointMgr: CheckpointMana
 
 object Dag {
 
-  def apply(appContext: AppContext) = {
-   val node_list = parseNodeFromConfig(appContext.checkpointMgr.adhocPayload withFallback  appContext.payload) map {
+  def apply(appContext: AppContext, checkpointMgr: CheckpointManager) = {
+   val node_list = parseNodeFromConfig(checkpointMgr.adhocPayload withFallback  appContext.payload) map {
      case (name,payload) => Node(name,payload)
    }
-   new Dag(node_list.toList,appContext.checkpointMgr)
+   new Dag(node_list.toList,checkpointMgr)
   }
 
   def apply(node_list: LinearSeq[Node], checkpointMgr: CheckpointManager = NopCheckPointManager) = {

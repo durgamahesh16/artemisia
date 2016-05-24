@@ -1,4 +1,4 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.routing.BalancingPool

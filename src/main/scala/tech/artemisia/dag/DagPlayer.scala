@@ -1,11 +1,9 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import java.util.concurrent.TimeUnit
-
 import akka.actor.{Actor, ActorRef}
-import tech.artemisia.core.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, Tick, _}
+import tech.artemisia.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, Tick, _}
 import tech.artemisia.core.{AppContext, AppLogger, Keywords}
-
 import scala.concurrent.duration._
 
 
@@ -92,7 +90,7 @@ class DagPlayer(dag: Dag, app_context: AppContext, val router: ActorRef) extends
 
     AppLogger debug s"running checkpoint for $name"
     dag.getNodeByName(name).setStatus(task_stats.status)
-    app_context.checkpointMgr.save(name,task_stats)
+    app_context.commitCheckpoint(name,task_stats)
     dag.updateNodePayloads(app_context.payload)
   }
 

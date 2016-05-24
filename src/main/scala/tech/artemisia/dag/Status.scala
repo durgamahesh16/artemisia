@@ -1,4 +1,4 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 /**
  * Created by chlr on 1/7/16.

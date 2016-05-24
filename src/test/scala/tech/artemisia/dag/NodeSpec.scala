@@ -1,4 +1,4 @@
-package tech.artemisia.core.dag
+package tech.artemisia.dag
 
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec

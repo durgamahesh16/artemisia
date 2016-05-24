@@ -6,7 +6,7 @@ import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
 import com.typesafe.config.Config
 import org.slf4j.LoggerFactory
-import tech.artemisia.core.dag.{ActorSysManager, Dag}
+import tech.artemisia.dag.{ActorSysManager, Dag}
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -49,7 +49,7 @@ object Command {
     val appContext = prepareAppContext(cmd_line_params)
     AppLogger debug "context object created"
     TaskContext.setWorkingDir(Paths.get(appContext.workingDir))
-    val dag = Dag(appContext)
+    val dag = Dag(appContext, appContext.checkpointMgr)
     AppLogger debug "starting Actor System"
     val actor_sys_manager =  new ActorSysManager(appContext)
     val workers = actor_sys_manager.createWorker(Keywords.ActorSys.CUSTOM_DISPATCHER)

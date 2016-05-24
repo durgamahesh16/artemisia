@@ -1,7 +1,7 @@
 package tech.artemisia.core
 
 import com.typesafe.config.{ConfigFactory, Config}
-import tech.artemisia.core.dag.Message.TaskStats
+import tech.artemisia.dag.Message.TaskStats
 
 /**
  * Created by chlr on 5/23/16.
