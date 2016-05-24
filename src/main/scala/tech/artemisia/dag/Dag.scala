@@ -1,6 +1,7 @@
 package tech.artemisia.dag
 
 import com.typesafe.config.{Config, ConfigObject, ConfigValueType}
+import tech.artemisia.core.CheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
 import tech.artemisia.dag.Message.TaskStats
@@ -15,13 +16,13 @@ import scala.collection.LinearSeq
  * Created by chlr on 1/3/16.
  */
 
-private[dag] class Dag(node_list: LinearSeq[Node], checkpointMgr: CheckpointManager) extends Iterable[LinearSeq[Node]] {
+private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointData) extends Iterable[LinearSeq[Node]] {
 
   this.resolveDependencies(node_list)
   AppLogger debug "resolved all task dependency"
   val graph = topSort(node_list)
   AppLogger debug "no cyclic dependency detected"
-  this.applyCheckpoints(checkpointMgr)
+  this.applyCheckpoints(checkpointData)
 
   @tailrec
   private def topSort(unsorted_graph: LinearSeq[Node], sorted_graph: LinearSeq[Node] = Nil):LinearSeq[Node] = {
@@ -66,9 +67,9 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointMgr: CheckpointMana
     }
   }
 
-  private def applyCheckpoints(checkpointMgr: CheckpointManager): Unit = {
+  private def applyCheckpoints(checkpointData: CheckpointData): Unit = {
     AppLogger info "applying checkpoints"
-    checkpointMgr.taskStatRepo foreach {
+    checkpointData.taskStatRepo foreach {
         case (task_name,task_stats: TaskStats) => {
           val node = this.getNodeByName(task_name)
           node.applyStatusFromCheckpoint(task_stats.status)
@@ -115,15 +116,15 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointMgr: CheckpointMana
 
 object Dag {
 
-  def apply(appContext: AppContext, checkpointMgr: CheckpointManager) = {
-   val node_list = parseNodeFromConfig(checkpointMgr.adhocPayload withFallback  appContext.payload) map {
+  def apply(appContext: AppContext) = {
+   val node_list = parseNodeFromConfig(appContext.checkpoints.adhocPayload withFallback  appContext.payload) map {
      case (name,payload) => Node(name,payload)
    }
-   new Dag(node_list.toList,checkpointMgr)
+   new Dag(node_list.toList,appContext.checkpoints)
   }
 
-  def apply(node_list: LinearSeq[Node], checkpointMgr: CheckpointManager = NopCheckPointManager) = {
-    new Dag(node_list,checkpointMgr)
+  def apply(node_list: LinearSeq[Node], checkpointData: CheckpointData = CheckpointData()) = {
+    new Dag(node_list,checkpointData)
   }
 
   def parseNodeFromConfig(code: Config): Map[String, Config] = {

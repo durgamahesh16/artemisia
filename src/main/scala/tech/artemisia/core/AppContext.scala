@@ -4,6 +4,7 @@ import java.io.File
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
 import tech.artemisia.core.AppContext.{DagSetting, Logging}
+import tech.artemisia.core.CheckpointManager.CheckpointData
 import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.task.Component
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -26,7 +27,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
   val dagSetting: DagSetting = AppContext.parseDagSettingFromPayload(payload.as[Config]("__setting__.dag"))
   val runId: String = cmdLineParam.run_id.getOrElse(Util.getUUID)
   val workingDir: String = computeWorkingDir
-  private[core] val checkpointMgr = if (skipCheckpoints) NopCheckPointManager else new FileCheckPointManager(checkpointFile)
+  private val checkpointMgr = if (skipCheckpoints) NopCheckPointManager else new FileCheckPointManager(checkpointFile)
   val componentMapper: Map[String,Component] = payload.asMap[String]("__setting__.components") map {
     case (name,component) => { (name, Class.forName(component).getConstructor().newInstance().asInstanceOf[Component] ) }
   }
@@ -63,7 +64,15 @@ class AppContext(private val cmdLineParam: AppSetting) {
    */
   def commitCheckpoint(taskName: String, taskStats: TaskStats) = {
     checkpointMgr.save(taskName, taskStats)
-    payload = checkpointMgr.adhocPayload withFallback payload
+    payload = checkpointMgr.checkpoints.adhocPayload withFallback payload
+  }
+
+  /**
+   * 
+   * @return checkpoint data encapsulated in CheckPointData object
+   */
+  def checkpoints: CheckpointData = {
+    checkpointMgr.checkpoints
   }
 
 

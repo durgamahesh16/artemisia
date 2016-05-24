@@ -49,7 +49,7 @@ object Command {
     val appContext = prepareAppContext(cmd_line_params)
     AppLogger debug "context object created"
     TaskContext.setWorkingDir(Paths.get(appContext.workingDir))
-    val dag = Dag(appContext, appContext.checkpointMgr)
+    val dag = Dag(appContext)
     AppLogger debug "starting Actor System"
     val actor_sys_manager =  new ActorSysManager(appContext)
     val workers = actor_sys_manager.createWorker(Keywords.ActorSys.CUSTOM_DISPATCHER)

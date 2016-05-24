@@ -5,8 +5,8 @@ import java.io.File
 import com.typesafe.config.{Config, ConfigFactory}
 import Message.TaskStats
 import tech.artemisia.TestSpec
+import tech.artemisia.core.CheckpointManager.CheckpointData
 import tech.artemisia.util.Util
-
 import scala.collection.mutable
 
 /**
@@ -103,11 +103,11 @@ class DagSpec extends TestSpec {
     val node2 = NodeSpec.makeNode("node2","[node1]")
     val node3 = NodeSpec.makeNode("node3","[node2]")
     val node4 = NodeSpec.makeNode("node4","[node3]")
-    val checkpoints = mutable.Map(
+    val checkpoints = Map(
                           "node1" -> DagSpec.taskStats("node1",Status.SUCCEEDED),
                           "node2" -> DagSpec.taskStats("node2",Status.SUCCEEDED)
                                   )
-    val dag = Dag(node1 :: node2 :: node3 :: node4 :: Nil, checkpoints)
+    val dag = Dag(node1 :: node2 :: node3 :: node4 :: Nil, CheckpointData(taskStatRepo = checkpoints))
     dag.getNodeByName("node1").getStatus must be (Status.SUCCEEDED)
     dag.getNodeByName("node2").getStatus must be (Status.SUCCEEDED)
     dag.getNodeByName("node3").getStatus must be (Status.READY)

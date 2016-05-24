@@ -4,12 +4,10 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.routing.BalancingPool
 import akka.testkit.TestProbe
 import tech.artemisia.ActorTestSpec
-import tech.artemisia.config.AppSetting
 import tech.artemisia.core.{AppSetting, AppContext}
 import tech.artemisia.dag.Message.{Messageable, TaskStats, _}
 import tech.artemisia.task.{TaskHandler, TestAdderTask, TestFailTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 import scala.concurrent.duration._
 
 /**

@@ -1,6 +1,7 @@
 package tech.artemisia.core
 
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.ConfigFactory
+import tech.artemisia.core.CheckpointManager.CheckpointData
 import tech.artemisia.dag.Message.TaskStats
 
 /**
@@ -13,8 +14,6 @@ import tech.artemisia.dag.Message.TaskStats
  */
 object NopCheckPointManager extends CheckpointManager {
 
-  override var adhocPayload: Config = ConfigFactory.empty()
-
   /**
    * empty implementation of this task that does nothing
    * @param taskName name of the task
@@ -22,5 +21,12 @@ object NopCheckPointManager extends CheckpointManager {
    */
   override def save(taskName: String, taskStats: TaskStats): Unit = {}
 
-  override var taskStatRepo: Map[String, TaskStats] = Map()
+  /**
+   *
+   * @return a empty checkpoint data
+   */
+  override private[core] def checkpoints: CheckpointData = {
+    CheckpointData(adhocPayload = ConfigFactory.empty(), taskStatRepo = Map())
+  }
+
 }

@@ -1,6 +1,6 @@
 package tech.artemisia.core
 
-import com.typesafe.config.Config
+import com.typesafe.config.{ConfigFactory, Config}
 import tech.artemisia.dag.Message.TaskStats
 
 /**
@@ -8,10 +8,15 @@ import tech.artemisia.dag.Message.TaskStats
  */
 trait CheckpointManager {
 
-  var adhocPayload: Config
-
-  var taskStatRepo: Map[String, TaskStats]
-
   private[core] def save(taskName: String, taskStats: TaskStats)
+
+  private[core] def checkpoints: CheckpointManager.CheckpointData
+
+}
+
+
+object CheckpointManager {
+
+  case class CheckpointData(adhocPayload: Config = ConfigFactory.empty(), taskStatRepo: Map[String, TaskStats] = Map())
 
 }

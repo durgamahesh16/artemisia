@@ -1,10 +1,10 @@
-package tech.artemisia.config
+package tech.artemisia.core
 
 import java.io.{File, FileNotFoundException}
+
 import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import tech.artemisia.TestSpec
 import tech.artemisia.dag.Message.TaskStats
-import tech.artemisia.core.{AppSetting, AppContext, Keywords, env}
 import tech.artemisia.util.FileSystemUtil
 import tech.artemisia.util.FileSystemUtil.FileEnhancer
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -87,7 +87,7 @@ class AppContextTestSpec extends TestSpec {
     val test_working_dir = this.getClass.getResource("/test_working_dir/appcontext/slot1").getFile
     val cmd = cmd_line_params.copy(working_dir = Some(test_working_dir))
     app_context = new AppContext(cmd)
-    app_context.writeCheckpoint(task_name,AppContextTestSpec.getTaskStatsConfigObject)
+    app_context.commitCheckpoint(task_name,AppContextTestSpec.getTaskStatsConfigObject)
     val checkpoint = ConfigFactory.parseFile(new File(FileSystemUtil.joinPath(test_working_dir,"checkpoint.conf")))
     info("validating end-time")
     checkpoint.getString(s"$task_name.${Keywords.TaskStats.END_TIME}") must be ("2016-01-18 22:27:52")
@@ -102,8 +102,7 @@ class AppContextTestSpec extends TestSpec {
     val test_working_dir = this.getClass.getResource("/test_working_dir/appcontext/slot2").getFile
     val cmd = cmd_line_params.copy(working_dir = Some(test_working_dir))
     app_context = new AppContext(cmd)
-    val checkpoints = app_context.readCheckpoint
-    val task_stats = checkpoints(task_name)
+    val task_stats = app_context.checkpoints.taskStatRepo(task_name)
     info("validating end_time")
     task_stats.endTime must be ("2016-01-18 22:27:52")
     info("validating start_time")

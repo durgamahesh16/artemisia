@@ -2,6 +2,7 @@ package tech.artemisia.core
 
 import java.io.{PrintWriter, File}
 import com.typesafe.config.{ConfigRenderOptions, Config, ConfigFactory, ConfigObject}
+import tech.artemisia.core.CheckpointManager.CheckpointData
 import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.util.HoconConfigUtil.Handler
 import scala.collection.JavaConverters._
@@ -23,7 +24,7 @@ import scala.collection.JavaConverters._
  */
 class FileCheckPointManager(checkpointFile: File) extends CheckpointManager {
 
-   override var (adhocPayload, taskStatRepo) =
+    private var (adhocPayload, taskStatRepo) =
     if (checkpointFile.exists())
     this.parseCheckPointFile
     else
@@ -43,12 +44,20 @@ class FileCheckPointManager(checkpointFile: File) extends CheckpointManager {
     flush()
   }
 
+  /**
+   * 
+   * @return Checkpoint data
+   */
+  override private[core] def checkpoints: CheckpointData = {
+    CheckpointData(adhocPayload, taskStatRepo)
+  }
+
 
   /**
    * parse a standard checkpoint file and construct the checkpoint data-structure
    * @return a tuple of adhoc payload and a map of taskname and task stats
    */
-  private[core] def parseCheckPointFile = {
+  private def parseCheckPointFile = {
     val config = ConfigFactory parseFile checkpointFile
     val taskStats = config.as[Config](Keywords.Checkpoint.TASK_STATES)
     val taskStatMap = taskStats.root().asScala map {
@@ -63,7 +72,7 @@ class FileCheckPointManager(checkpointFile: File) extends CheckpointManager {
    * serialize the checkpoint data-structure to a standard checkpoint config object
    * @return
    */
-  private[core] def serializeCheckPointConfig: Config = {
+  private def serializeCheckPointConfig: Config = {
     var config = ConfigFactory.empty()
     val taskStateConfig = taskStatRepo.foldLeft(ConfigFactory.empty()) {
       case (transitiveConfig, ( taskName, taskStat: TaskStats)) => taskStat.toConfig(taskName) withFallback transitiveConfig
