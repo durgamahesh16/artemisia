@@ -92,7 +92,7 @@ class DagPlayer(dag: Dag, app_context: AppContext, val router: ActorRef) extends
 
     AppLogger debug s"running checkpoint for $name"
     dag.getNodeByName(name).setStatus(task_stats.status)
-    app_context.writeCheckpoint(name,task_stats)
+    app_context.checkpointMgr.save(name,task_stats)
     dag.updateNodePayloads(app_context.payload)
   }
 

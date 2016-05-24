@@ -2,26 +2,26 @@ package tech.artemisia.core.dag
 
 import com.typesafe.config.{Config, ConfigObject, ConfigValueType}
 import tech.artemisia.core.Keywords.Task
+import tech.artemisia.core._
 import tech.artemisia.core.dag.Message.TaskStats
-import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import scala.collection.{LinearSeq, mutable}
+import scala.collection.LinearSeq
 
 /**
  * Created by chlr on 1/3/16.
  */
 
-private[dag] class Dag(node_list: LinearSeq[Node], checkpoints: mutable.Map[String,TaskStats]) extends Iterable[LinearSeq[Node]] {
+private[dag] class Dag(node_list: LinearSeq[Node], checkpointMgr: CheckpointManager) extends Iterable[LinearSeq[Node]] {
 
   this.resolveDependencies(node_list)
   AppLogger debug "resolved all task dependency"
   val graph = topSort(node_list)
   AppLogger debug "no cyclic dependency detected"
-  this.applyCheckpoints(checkpoints)
+  this.applyCheckpoints(checkpointMgr)
 
   @tailrec
   private def topSort(unsorted_graph: LinearSeq[Node], sorted_graph: LinearSeq[Node] = Nil):LinearSeq[Node] = {
@@ -66,9 +66,9 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpoints: mutable.Map[Stri
     }
   }
 
-  private def applyCheckpoints(checkpoints: mutable.Map[String,TaskStats]): Unit = {
+  private def applyCheckpoints(checkpointMgr: CheckpointManager): Unit = {
     AppLogger info "applying checkpoints"
-    checkpoints foreach {
+    checkpointMgr.taskStatRepo foreach {
         case (task_name,task_stats: TaskStats) => {
           val node = this.getNodeByName(task_name)
           node.applyStatusFromCheckpoint(task_stats.status)
@@ -115,13 +115,15 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpoints: mutable.Map[Stri
 
 object Dag {
 
-  def apply(app_context: AppContext) = {
-   val node_list = parseNodeFromConfig(app_context.payload) map { case (name,payload) => Node(name,payload) }
-   new Dag(node_list.toList,app_context.checkpoints)
+  def apply(appContext: AppContext) = {
+   val node_list = parseNodeFromConfig(appContext.checkpointMgr.adhocPayload withFallback  appContext.payload) map {
+     case (name,payload) => Node(name,payload)
+   }
+   new Dag(node_list.toList,appContext.checkpointMgr)
   }
 
-  def apply(node_list: LinearSeq[Node], checkpoints: mutable.Map[String,TaskStats] = mutable.Map()) = {
-    new Dag(node_list,checkpoints)
+  def apply(node_list: LinearSeq[Node], checkpointMgr: CheckpointManager = NopCheckPointManager) = {
+    new Dag(node_list,checkpointMgr)
   }
 
   def parseNodeFromConfig(code: Config): Map[String, Config] = {

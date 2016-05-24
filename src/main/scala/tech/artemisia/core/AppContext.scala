@@ -1,14 +1,13 @@
 package tech.artemisia.core
 
 import java.io.File
-import com.typesafe.config.{Config, ConfigFactory, ConfigObject, ConfigRenderOptions}
-import tech.artemisia.core.AppContext.{Logging, DagSetting}
-import tech.artemisia.core.dag.Message.TaskStats
+
+import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
+import tech.artemisia.core.AppContext.{DagSetting, Logging}
 import tech.artemisia.task.Component
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.{FileSystemUtil, Util}
-import scala.collection.JavaConversions._
-import scala.collection.mutable
+
 import scala.concurrent.duration.FiniteDuration
 
 
@@ -26,7 +25,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
   val dagSetting: DagSetting = AppContext.parseDagSettingFromPayload(payload.as[Config]("__setting__.dag"))
   val runId: String = cmdLineParam.run_id.getOrElse(Util.getUUID)
   val workingDir: String = computeWorkingDir
-  val checkpoints: mutable.Map[String,TaskStats] = if (skipCheckpoints) mutable.Map() else readCheckpoint
+  val checkpointMgr = if (skipCheckpoints) NopCheckPointManager else new FileCheckPointManager(checkpointFile)
   val componentMapper: Map[String,Component] = payload.asMap[String]("__setting__.components") map {
     case (name,component) => { (name, Class.forName(component).getConstructor().newInstance().asInstanceOf[Component] ) }
   }
@@ -46,7 +45,6 @@ class AppContext(private val cmdLineParam: AppSetting) {
     context withFallback config_file withFallback code withFallback global_config_option withFallback reference
   }
 
-
   override def toString = {
     val options = ConfigRenderOptions.defaults() setComments false setFormatted true setOriginComments false setJson true
     payload.root().render(options)
@@ -57,39 +55,6 @@ class AppContext(private val cmdLineParam: AppSetting) {
    * @return checkpoint file for the session
    */
   def checkpointFile = new File(FileSystemUtil.joinPath(workingDir,Keywords.Config.CHECKPOINT_FILE))
-
-  /**
-   *
-   * @return read checkpoint and return a map of [[TaskStats]]
-   */
-  protected[core] def readCheckpoint: mutable.Map[String,TaskStats] = {
-    val checkpoints = mutable.Map[String,TaskStats]()
-    if (checkpointFile.exists()) {
-      AppLogger info s"checkpoint file $checkpointFile detected"
-      Util.readConfigFile(checkpointFile).root() foreach {
-        case (key,value: ConfigObject) => checkpoints += (key -> TaskStats(value.toConfig))
-      }
-    }
-    checkpoints
-  }
-
-  /**
-   *
-   * @param task_name
-   * @param task_stats
-   */
-  def writeCheckpoint(task_name: String, task_stats: TaskStats): Unit = {
-    checkpoints += (task_name -> task_stats)
-    payload = task_stats.taskOutput withFallback payload
-    val content = checkpoints.foldLeft(ConfigFactory.empty()) {
-      (cp_config: Config, cp: (String, TaskStats)) => {
-        ConfigFactory.parseString(cp._2.toConfig(cp._1).root().render(ConfigRenderOptions.concise())) withFallback cp_config
-      }
-    }
-    if (!this.skipCheckpoints) {
-      FileSystemUtil.writeFile(content.root().render(ConfigRenderOptions.concise()), checkpointFile, append = false)
-    }
-  }
 
 
   /**
