@@ -5,7 +5,7 @@ import java.io.File
 import com.typesafe.config.{Config, ConfigFactory}
 import Message.TaskStats
 import tech.artemisia.TestSpec
-import tech.artemisia.core.CheckpointManager.CheckpointData
+import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.util.Util
 import scala.collection.mutable
 

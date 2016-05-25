@@ -1,7 +1,7 @@
 package tech.artemisia.dag
 
 import com.typesafe.config.{Config, ConfigObject, ConfigValueType}
-import tech.artemisia.core.CheckpointManager.CheckpointData
+import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
 import tech.artemisia.dag.Message.TaskStats

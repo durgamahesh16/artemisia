@@ -1,10 +1,11 @@
 package tech.artemisia.core
 
-import java.io.{PrintWriter, File}
-import com.typesafe.config.{ConfigRenderOptions, Config, ConfigFactory, ConfigObject}
-import tech.artemisia.core.CheckpointManager.CheckpointData
+import java.io.{File, PrintWriter}
+
+import com.typesafe.config.{Config, ConfigFactory, ConfigObject, ConfigRenderOptions}
 import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.collection.JavaConverters._
 
 /**
@@ -22,14 +23,12 @@ import scala.collection.JavaConverters._
  *       of TaskStats instance is not maintained in the checkpoint file.
  * @param checkpointFile checkpoint file
  */
-class FileCheckPointManager(checkpointFile: File) extends CheckpointManager {
+class FileCheckPointManager(checkpointFile: File) extends BasicCheckpointManager {
 
-    private var (adhocPayload, taskStatRepo) =
-    if (checkpointFile.exists())
-    this.parseCheckPointFile
-    else
-      ConfigFactory.empty() -> Map[String, TaskStats]()
-
+     (if (checkpointFile.exists()) this.parseCheckPointFile else
+                              ConfigFactory.empty() -> Map[String, TaskStats]()) match {
+       case (x,y) => adhocPayload = x; taskStatRepo = y
+     }
 
   /**
    * Saves the TaskStats of a task named taskName
@@ -39,17 +38,8 @@ class FileCheckPointManager(checkpointFile: File) extends CheckpointManager {
    * @param taskStat task's stats
    */
   override private[core] def save(taskName: String, taskStat: TaskStats): Unit = {
-    adhocPayload = taskStat.taskOutput withFallback adhocPayload
-    taskStatRepo = taskStatRepo + (taskName -> taskStat)
+    super.save(taskName, taskStat)
     flush()
-  }
-
-  /**
-   * 
-   * @return Checkpoint data
-   */
-  override private[core] def checkpoints: CheckpointData = {
-    CheckpointData(adhocPayload, taskStatRepo)
   }
 
 

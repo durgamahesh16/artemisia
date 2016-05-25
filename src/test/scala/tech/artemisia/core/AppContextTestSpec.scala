@@ -6,7 +6,7 @@ import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import tech.artemisia.TestSpec
 import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.util.FileSystemUtil
-import tech.artemisia.util.FileSystemUtil.FileEnhancer
+import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempDirectory}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 
@@ -82,31 +82,55 @@ class AppContextTestSpec extends TestSpec {
   }
 
   it must "write the checkpoint in the right file with right content" in {
-
-    val task_name = "dummy_task"
-    val test_working_dir = this.getClass.getResource("/test_working_dir/appcontext/slot1").getFile
-    val cmd = cmd_line_params.copy(working_dir = Some(test_working_dir))
-    app_context = new AppContext(cmd)
-    app_context.commitCheckpoint(task_name,AppContextTestSpec.getTaskStatsConfigObject)
-    val checkpoint = ConfigFactory.parseFile(new File(FileSystemUtil.joinPath(test_working_dir,"checkpoint.conf")))
-    info("validating end-time")
-    checkpoint.getString(s"$task_name.${Keywords.TaskStats.END_TIME}") must be ("2016-01-18 22:27:52")
-    info("validating start-time")
-    checkpoint.getString(s"$task_name.${Keywords.TaskStats.START_TIME}") must be ("2016-01-18 22:27:51")
-
+    withTempDirectory("AppContextSpec") {
+      workingDir => {
+        val task_name = "dummy_task"
+        val cmd = cmd_line_params.copy(working_dir = Some(workingDir.toString))
+        app_context = new AppContext(cmd)
+        app_context.commitCheckpoint(task_name, AppContextTestSpec.getTaskStatsConfigObject)
+        val checkpoint = ConfigFactory.parseFile(new File(FileSystemUtil.joinPath(workingDir.toString, "checkpoint.conf")))
+        info("validating end-time")
+        checkpoint.getString(s"${Keywords.Checkpoint.TASK_STATES}.$task_name.${Keywords.TaskStats.END_TIME}") must be("2016-01-18 22:27:52")
+        info("validating start-time")
+        checkpoint.getString(s"${Keywords.Checkpoint.TASK_STATES}.$task_name.${Keywords.TaskStats.START_TIME}") must be("2016-01-18 22:27:51")
+      }
+    }
   }
 
   it must "read a checkpoint file " in {
 
-    val task_name = "dummy_task"
-    val test_working_dir = this.getClass.getResource("/test_working_dir/appcontext/slot2").getFile
-    val cmd = cmd_line_params.copy(working_dir = Some(test_working_dir))
-    app_context = new AppContext(cmd)
-    val task_stats = app_context.checkpoints.taskStatRepo(task_name)
-    info("validating end_time")
-    task_stats.endTime must be ("2016-01-18 22:27:52")
-    info("validating start_time")
-    task_stats.startTime must be ("2016-01-18 22:27:51")
+    withTempDirectory("AppContextSpec") {
+      workingDir => {
+        val task_name = "dummy_task"
+        val checkpointFile = new File(workingDir, "checkpoint.conf")
+        checkpointFile <<=
+          s"""
+            |{
+            |  "${Keywords.Checkpoint.PAYLOAD}": {
+            |    "foo": "bar"
+            |  },
+            |  "${Keywords.Checkpoint.TASK_STATES}": {
+            |    $task_name = {
+            |      ${Keywords.TaskStats.ATTEMPT} = 1,
+            |      ${Keywords.TaskStats.END_TIME} = "2016-05-23 23:11:07",
+            |      ${Keywords.TaskStats.START_TIME} = "2016-05-23 23:10:56",
+            |      ${Keywords.TaskStats.STATUS} = SUCCEEDED,
+            |      ${Keywords.TaskStats.TASK_OUTPUT}: {
+            |        "foo": "bar"
+            |      }
+            |    }
+            |  }
+            |}
+          """.stripMargin
+        val cmd = cmd_line_params.copy(working_dir = Some(workingDir.toString))
+        app_context = new AppContext(cmd)
+        val task_stats = app_context.checkpoints.taskStatRepo(task_name)
+        info("validating end_time")
+        task_stats.endTime must be("2016-05-23 23:11:07")
+        info("validating start_time")
+        task_stats.startTime must be("2016-05-23 23:10:56")
+      }
+    }
   }
 
   it must "make working_dir is configurable from cmdline" in {
@@ -147,11 +171,11 @@ object AppContextTestSpec {
   def getTaskStatsConfigObject = {
     val task_stat_config: Config = ConfigFactory parseString s"""
         |{
-        |    ${Keywords.TaskStats.ATTEMPT}: 1,
-        |    ${Keywords.TaskStats.END_TIME}: "2016-01-18 22:27:52",
-        |    ${Keywords.TaskStats.START_TIME}: "2016-01-18 22:27:51",
-        |    ${Keywords.TaskStats.STATUS}: "SUCCEEDED",
-        |    ${Keywords.TaskStats.TASK_OUTPUT}: {"new_variable": 1000 }
+        |    ${Keywords.TaskStats.ATTEMPT} = 1,
+        |    ${Keywords.TaskStats.END_TIME} = "2016-01-18 22:27:52",
+        |    ${Keywords.TaskStats.START_TIME} = "2016-01-18 22:27:51",
+        |    ${Keywords.TaskStats.STATUS} = "SUCCEEDED",
+        |    ${Keywords.TaskStats.TASK_OUTPUT} = {"new_variable": 1000 }
         |}
       """.stripMargin
 

@@ -2,7 +2,7 @@ package tech.artemisia.util
 
 import java.io._
 import java.net.URI
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 import tech.artemisia.core.Keywords
 
@@ -93,8 +93,25 @@ object FileSystemUtil {
    */
   def withTempFile(directory: String = null,fileName: String)(body: File => Unit): Unit = {
     val file = if (directory == null) File.createTempFile(fileName, null) else File.createTempFile(fileName, null, new File(directory))
-    body(file)
-    file.delete()
+    try
+      body(file)
+    finally
+      file.delete()
+  }
+
+
+  /**
+   * execute a block of code with a temp directory created and at the end of execution remove that directory
+   *
+   * @param directoryName name of the directory
+   * @param body block of code to be executed
+   */
+  def withTempDirectory(directoryName: String)(body: File => Unit): Unit = {
+    val dir = Files.createTempDirectory(directoryName).toFile
+    try
+      body(dir)
+    finally
+      dir.delete()
   }
 
 
