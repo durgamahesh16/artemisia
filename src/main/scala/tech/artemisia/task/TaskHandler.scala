@@ -1,10 +1,10 @@
 package tech.artemisia.task
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core.Keywords.Task
-import tech.artemisia.dag.Status
 import tech.artemisia.core.{AppLogger, LogSource}
+import tech.artemisia.dag.Status
 import tech.artemisia.util.Util
+
 import scala.util.{Failure, Success, Try}
 
 
@@ -19,7 +19,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
   private var status: Status.Value = Status.UNKNOWN
 
   final def execute(): Try[Config] = {
-    if(!taskConfig.skipExecution) {
+    if(taskConfig.conditions) {
       AppLogger info s"running task with total allowed attempts of ${taskConfig.retryLimit}"
       val result = run(maxAttempts = taskConfig.retryLimit) {
           AppLogger debug "executing setup phase of the task"
@@ -35,7 +35,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
       }
       result
     } else {
-      AppLogger info s"skipping execution of ${taskConfig.taskName}. ${Task.SKIP_EXECUTION} flag is set"
+      AppLogger info s"skipping execution of ${taskConfig.taskName}. conditions required to execute node is not met"
       status = Status.SKIPPED
       Success(ConfigFactory.empty())
     }

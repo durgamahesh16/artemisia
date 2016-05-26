@@ -3,7 +3,7 @@ package tech.artemisia.task
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.util.HoconConfigUtil
 import HoconConfigUtil.Handler
-import tech.artemisia.core.{AppContext, Keywords}
+import tech.artemisia.core.{Utility, AppContext, Keywords}
 import tech.artemisia.core.Keywords.Task
 
 import scala.concurrent.duration.FiniteDuration
@@ -16,7 +16,8 @@ import scala.concurrent.duration.FiniteDuration
 /*
 TaskConfig requires task_name param because the generic Task node requires task_name variable which will be used in logging.
  */
-case class TaskConfig(taskName: String, retryLimit : Int, cooldown: FiniteDuration, skipExecution: Boolean = false, ignoreFailure: Boolean = false) {
+case class TaskConfig(taskName: String, retryLimit : Int, cooldown: FiniteDuration, conditions: Boolean = true,
+                   ignoreFailure: Boolean = false) {
 
 }
 
@@ -28,7 +29,7 @@ object TaskConfig {
       s"""
          |${Task.IGNORE_ERROR} = ${appContext.dagSetting.ignore_conditions}
          |${Keywords.Task.ATTEMPT} = ${appContext.dagSetting.attempts}
-         |${Keywords.Task.SKIP_EXECUTION} = false
+         |${Keywords.Task.CONDITION} = true
          |${Keywords.Task.COOLDOWN} = ${appContext.dagSetting.cooldown}
          |__context__ = {}
     """.stripMargin
@@ -38,7 +39,7 @@ object TaskConfig {
     val config = inputConfig withFallback default_config
     TaskConfig(taskName,config.as[Int](Keywords.Task.ATTEMPT),
       config.as[FiniteDuration](Keywords.Task.COOLDOWN),
-      config.as[Boolean](Keywords.Task.SKIP_EXECUTION),
+      Utility.evalBooleanExpr(config.getAnyRef(Keywords.Task.CONDITION)),
       config.as[Boolean](Keywords.Task.IGNORE_ERROR))
   }
 

@@ -2,7 +2,6 @@ package tech.artemisia.util
 
 import java.io._
 import java.nio.file.{Files, Paths}
-
 import com.typesafe.config.{Config, ConfigFactory}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -85,5 +84,6 @@ object Util {
       |${"=" * (width / 2) } $heading ${"=" * (width / 2)}
     """.stripMargin
   }
+
 
 }

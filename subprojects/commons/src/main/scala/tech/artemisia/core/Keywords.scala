@@ -34,11 +34,11 @@ object Keywords {
     val TASK = "Task"
     val DEPENDENCY = "dependencies"
     val IGNORE_ERROR = "ignore-error"
-    val SKIP_EXECUTION = "skip-execution"
     val COOLDOWN = "cooldown"
     val ATTEMPT = "attempts"
-    val PARAMETERS = "params"
     val PARAMS = "params"
+    val CONDITION = "when"
+    val ASSERTION = "assert"
   }
 
   object TaskStats {
