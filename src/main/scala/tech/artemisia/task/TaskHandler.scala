@@ -19,7 +19,8 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
   private var status: Status.Value = Status.UNKNOWN
 
   final def execute(): Try[Config] = {
-    if(taskConfig.conditions) {
+
+    if(taskConfig.conditions._1) {
       AppLogger info s"running task with total allowed attempts of ${taskConfig.retryLimit}"
       val result = run(maxAttempts = taskConfig.retryLimit) {
           AppLogger debug "executing setup phase of the task"
@@ -35,7 +36,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
       }
       result
     } else {
-      AppLogger info s"skipping execution of ${taskConfig.taskName}. conditions required to execute node is not met"
+      AppLogger info s"skipping execution of ${taskConfig.taskName} since  ${taskConfig.conditions._2} failed"
       status = Status.SKIPPED
       Success(ConfigFactory.empty())
     }

@@ -3,8 +3,8 @@ package tech.artemisia.task
 import java.io.{File, PrintWriter}
 
 import com.google.common.io.Files
-import com.typesafe.config.{ConfigFactory, Config}
-import tech.artemisia.core.{Keywords, LogSource, AppLogger}
+import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.core.{Keywords, LogSource}
 import tech.artemisia.util.FileSystemUtil
 
 import scala.io.Source
@@ -28,9 +28,6 @@ import scala.io.Source
 
 abstract class Task(val taskName: String) {
 
-  /**
-   *  this implicit val helps [[AppLogger]] identify which specific instance of Task logged the given log message.
-   */
   implicit protected var source: LogSource = null
 
   private[task] def setLogSource(source: LogSource) = {

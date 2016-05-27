@@ -54,7 +54,7 @@ class GenericTaskSpec extends TestSpec {
   }
 
   it must "skip execution if the task_option flag is set" in {
-    val task_config = TaskConfig(taskName = "test_task",retryLimit = 3, cooldown = 10 milliseconds, skipExecution = true)
+    val task_config = TaskConfig(taskName = "test_task",retryLimit = 3, cooldown = 10 milliseconds, conditions = true -> "")
     val a_dummy_task = new Task("testTask") {
       override def setup(): Unit = { throw new Exception("my own exception") }
       override def work(): Config = {  throw new Exception("my own exception") }
