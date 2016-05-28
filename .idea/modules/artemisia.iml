@@ -60,5 +60,6 @@
     <orderEntry type="library" scope="RUNTIME" name="SBT: org.slf4j:slf4j-api:1.6.1:jar" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="SBT: org.slf4j:slf4j-api:1.7.6:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.slf4j:slf4j-nop:1.7.6:jar" level="project" />
+    <orderEntry type="library" name="scala-sdk-2.11.7" level="application" />
   </component>
 </module>
