@@ -1,0 +1,5 @@
+site_name: Artemisia
+theme: readthedocs
+pages:
+   - [index.md, Home]
+   - [started.md, "Getting Started"]
