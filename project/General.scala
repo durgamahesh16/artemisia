@@ -19,6 +19,9 @@ object General {
   )
   val crossVersions =  Seq(mainScalaVersion)
 
+
+
+
   def settings(module: String, publishable: Boolean = true) = Seq(
     name := module,
     organization := General.group_id,
@@ -29,7 +32,14 @@ object General {
     (dependencyClasspath in Test) <<= (dependencyClasspath in Test) map {
       _.filterNot(_.data.name.contains("logback-classic"))
     },
-    resolvers += Resolver.jcenterRepo
+    resolvers += Resolver.jcenterRepo,
+
+    credentials += Credentials(
+      "Sonatype Nexus Repository Manager",
+      "oss.sonatype.org",
+      Option(System.getenv().get("SONATYPE_USERNAME")).getOrElse("NOT FOUND!!!"),
+      Option(System.getenv().get("SONATYPE_PASSWORD")).getOrElse("NOT FOUND!!!")
+    )
   ) ++ (if (publishable) Publish.settings else Seq())
 
 }
