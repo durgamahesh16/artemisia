@@ -33,7 +33,7 @@ lazy val mysql = (project in General.componentBase / "database" / "mysql").enabl
 
 lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql)
   .enablePlugins(JavaAppPackaging)
-  .settings(General.settings("all"))
+  .settings(General.settings("all", publishable = false))
   .settings(unidocSettings)
   .settings(site.settings ++ ghpages.settings: _*)
   .settings(

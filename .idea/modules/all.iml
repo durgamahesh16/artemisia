@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="all" external.linked.project.path="$MODULE_DIR$/../../all" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../../all/target/scala-2.11/classes" />
     <output-test url="file://$MODULE_DIR$/../../all/target/scala-2.11/test-classes" />
     <exclude-output />
@@ -18,6 +18,8 @@
       <sourceFolder url="file://$MODULE_DIR$/../../all/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../all/target/scala-2.11/resource_managed/test" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../all/target" />
+      <excludeFolder url="file://$MODULE_DIR$/../../all/target/resolution-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/../../all/target/streams" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

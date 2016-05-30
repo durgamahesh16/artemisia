@@ -2,9 +2,9 @@ import sbt.Keys._
 import sbt._
 
 object General {
-
+  val group_id = "tech.artemisia"
   val mainScalaVersion = "2.11.7"
-  val appVersion = "1.0"
+  val appVersion = "0.1-SNAPSHOT"
   val subprojectBase = file("subprojects")
   val componentBase = subprojectBase / "components"
   val dependencies = Seq (
@@ -19,8 +19,9 @@ object General {
   )
   val crossVersions =  Seq(mainScalaVersion)
 
-  def settings(module: String) = Seq(
+  def settings(module: String, publishable: Boolean = true) = Seq(
     name := module,
+    organization := General.group_id,
     version := General.appVersion,
     scalaVersion := General.mainScalaVersion,
     libraryDependencies ++= General.dependencies,
@@ -29,8 +30,7 @@ object General {
       _.filterNot(_.data.name.contains("logback-classic"))
     },
     resolvers += Resolver.jcenterRepo
-
-  )
+  ) ++ (if (publishable) Publish.settings else Seq())
 
 }
 
