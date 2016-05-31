@@ -3,3 +3,4 @@ theme: readthedocs
 pages:
    - [index.md, Home]
    - [started.md, "Getting Started"]
+   - [concept.md, "Defining Jobs" ]

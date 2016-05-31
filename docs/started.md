@@ -1,4 +1,5 @@
-# Artemisia
-
-## Getting Started:
+# Installation
+  
   under construction
+  
+# Setup

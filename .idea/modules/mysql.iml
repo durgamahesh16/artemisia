@@ -18,8 +18,10 @@
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/scala-2.11/resource_managed/test" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/mysql-0.1-SNAPSHOT" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
