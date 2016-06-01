@@ -1,6 +1,6 @@
 package tech.artemisia.dag
 
-import com.typesafe.config.{Config, ConfigObject, ConfigValueType}
+import com.typesafe.config._
 import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
@@ -128,19 +128,60 @@ object Dag {
   }
 
   def parseNodeFromConfig(code: Config): Map[String, Config] = {
-    TaskContext.payload = code.hardResolve
-    (
-      TaskContext.payload.root() filterNot {
-        case (key, value) => key.startsWith("__") && key.endsWith("__")
-      } filter {
-        case (key, value)  =>
-          value.valueType() == ConfigValueType.OBJECT
-        case _ => false
-      } filter {
-        case (key, value: ConfigObject) =>
-          value.toConfig.hasPath(Task.COMPONENT) && value.toConfig.hasPath(Keywords.Task.TASK)
-      } map {  case (name, body: ConfigObject) => name -> body.toConfig }
-      ).toMap
+    val assertNodes = extractTaskAssertionNodes(code)
+    val resolvedConfig = code.hardResolve
+    // this is done to make assert nodes un-resolved.
+    TaskContext.payload  = assertNodes.foldLeft(resolvedConfig) {
+      (tempConfig, kv) => {
+        tempConfig.withValue(s"${kv._1}.${Keywords.Task.ASSERTION}", kv._2) withFallback tempConfig
+      }
+    }
+      AppLogger debug TaskContext.payload.root().render(ConfigRenderOptions.concise())
+      extractTaskNodes(TaskContext.payload) map {
+        case (name, body: ConfigObject) => name -> body.toConfig
+      }
+  }
+
+
+  /**
+    * This method parses a given Config Object and identifies task definition nodes and filters rest.
+    *
+    * for eg: consider below node the result will be Map("task" -> SimpleConfigObject())
+    * here the node foo = bar was filter and task and its corresponding configobject value is selected.
+    *
+    * {{{
+    *   foo = bar
+    *   task = {
+    *     Component = MyComponent
+    *     Task = MyTask
+    *     param = {
+    *
+    *     }
+    *   }
+    * }}}
+    *
+    * @param config config payload to be parsed
+    * @return Map of taskname and task definition config objects
+    */
+  private[dag] def extractTaskNodes(config: Config): Map[String, ConfigValue] = {
+    config.root() filterNot {
+      case (key, value) => key.startsWith("__") && key.endsWith("__")
+    } filter {
+      case (key, value)  =>
+        value.valueType() == ConfigValueType.OBJECT
+      case _ => false
+    } filter {
+      case (key, value: ConfigObject) =>
+        value.toConfig.hasPath(Task.COMPONENT) && value.toConfig.hasPath(Keywords.Task.TASK)
+    } toMap
+  }
+
+  def extractTaskAssertionNodes(config: Config) = {
+    extractTaskNodes(config) filter {
+      case (taskName, taskDef: ConfigObject) => taskDef.contains(Keywords.Task.ASSERTION)
+    } map {
+      case (taskName, taskDef: ConfigObject) => taskName -> taskDef.toConfig.getValue(Keywords.Task.ASSERTION)
+    }
   }
 
 }

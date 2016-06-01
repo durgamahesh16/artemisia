@@ -5,8 +5,10 @@ package tech.artemisia.core
  */
 
 import java.util
-import com.typesafe.config.ConfigFactory
+
+import com.typesafe.config.{ConfigFactory, ConfigValue}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe
 import scala.tools.reflect.ToolBox
@@ -35,12 +37,17 @@ object BooleanEvaluator {
          x.asScala map { eval[Boolean] } forall { in => in }
       }
       case x: util.Map[String, util.ArrayList[Any]] @unchecked => {
-        x.asScala.toIterable map {
+        x.asScala map {
           case ("or", value) =>  value.asScala map { evalBooleanExpr } exists { in => in }
           case ("and", value) => evalBooleanExpr(value)
         } forall { in => in }
       }
     }
+  }
+
+
+  def evalBooleanExpr(tree: ConfigValue): Boolean = {
+    evalBooleanExpr(tree.unwrapped())
   }
 
 
@@ -53,12 +60,16 @@ object BooleanEvaluator {
       }
       case x: util.List[String @unchecked] => x.asScala map { stringifyBoolExpr } map { in => s"($in)" } mkString " and "
       case x: util.Map[String,util.ArrayList[Any]] @unchecked => {
-        x.asScala.toIterable map {
+        x.asScala map {
           case ("or", value) =>  value.asScala map { stringifyBoolExpr } map { in => s"($in)" }  mkString " or "
           case ("and", value) => stringifyBoolExpr(value)
         } map ( in => s"($in)") mkString " and "
       }
     }
+  }
+
+  def stringifyBoolExpr(tree: ConfigValue): String = {
+    stringifyBoolExpr(tree.unwrapped())
   }
 
 }

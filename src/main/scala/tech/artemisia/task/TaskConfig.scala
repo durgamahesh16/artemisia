@@ -1,10 +1,10 @@
 package tech.artemisia.task
 
-import com.typesafe.config.{ConfigValue, Config, ConfigFactory}
-import tech.artemisia.util.HoconConfigUtil
-import HoconConfigUtil.Handler
-import tech.artemisia.core.{BooleanEvaluator, AppContext, Keywords}
+import com.typesafe.config._
 import tech.artemisia.core.Keywords.Task
+import tech.artemisia.core.{AppContext, BooleanEvaluator, Keywords}
+import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 
@@ -17,9 +17,7 @@ import scala.concurrent.duration.FiniteDuration
 TaskConfig requires task_name param because the generic Task node requires task_name variable which will be used in logging.
  */
 case class TaskConfig(taskName: String, retryLimit : Int, cooldown: FiniteDuration, conditions: (Boolean, String) = true -> "",
-                   ignoreFailure: Boolean = false) {
-
-}
+                   ignoreFailure: Boolean = false, assertion: Option[(ConfigValue, String)] = None)
 
 object TaskConfig {
 
@@ -36,23 +34,25 @@ object TaskConfig {
     }
 
     val config = inputConfig withFallback default_config
-    TaskConfig(taskName,config.as[Int](Keywords.Task.ATTEMPT),
+      TaskConfig(taskName,config.as[Int](Keywords.Task.ATTEMPT),
       config.as[FiniteDuration](Keywords.Task.COOLDOWN),
-      parseConditionsNode(config.getValue(Keywords.Task.CONDITION)),
-      config.as[Boolean](Keywords.Task.IGNORE_ERROR))
+      { val x = parseConditionsNode(config.getValue(Keywords.Task.CONDITION)); BooleanEvaluator.evalBooleanExpr(x._1) -> x._2 },
+      config.as[Boolean](Keywords.Task.IGNORE_ERROR),
+      assertion = if(config.hasPath(Keywords.Task.ASSERTION)) Some(parseConditionsNode(config.getValue(Keywords.Task.ASSERTION))) else None
+      )
   }
 
 
-  private[task] def parseConditionsNode(input: ConfigValue) = {
-    input.unwrapped() match {
-      case x: java.util.Map[String, Any] @unchecked => {
+  private[task] def parseConditionsNode(input: ConfigValue): (ConfigValue,String) = {
+    input match {
+      case x: ConfigObject => {
         x.asScala.keys.toList.sorted match {
           case Seq(BooleanEvaluator.description, BooleanEvaluator.expression) =>
-            BooleanEvaluator.evalBooleanExpr(x.asScala(BooleanEvaluator.expression)) -> x.asScala(BooleanEvaluator.description).asInstanceOf[String]
-          case _ => BooleanEvaluator.evalBooleanExpr(x) -> BooleanEvaluator.stringifyBoolExpr(x)
+            ConfigValueFactory.fromAnyRef(x.asScala(BooleanEvaluator.expression)) -> x.asScala(BooleanEvaluator.description).asInstanceOf[String]
+          case _ => ConfigValueFactory.fromAnyRef(x) -> BooleanEvaluator.stringifyBoolExpr(x)
         }
       }
-      case node @ _ =>  BooleanEvaluator.evalBooleanExpr(node) -> BooleanEvaluator.stringifyBoolExpr(node)
+      case _ =>  input -> BooleanEvaluator.stringifyBoolExpr(input)
     }
   }
   
