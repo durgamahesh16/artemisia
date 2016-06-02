@@ -59,7 +59,7 @@ object HoconConfigEnhancer {
       else
         reference.getString(variable)
     }
-    val rgx = """\$\{(\??)([\w]+)\}""".r
+    val rgx = """\$\{(\??)(.+)\}""".r
     rgx.replaceAllIn(str, replace _)
   }
 
