@@ -136,7 +136,6 @@ object Dag {
         tempConfig.withValue(s"${kv._1}.${Keywords.Task.ASSERTION}", kv._2) withFallback tempConfig
       }
     }
-      AppLogger debug TaskContext.payload.root().render(ConfigRenderOptions.concise())
       extractTaskNodes(TaskContext.payload) map {
         case (name, body: ConfigObject) => name -> body.toConfig
       }

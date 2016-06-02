@@ -16,7 +16,7 @@ import scala.concurrent.duration.FiniteDuration
 /*
 TaskConfig requires task_name param because the generic Task node requires task_name variable which will be used in logging.
  */
-case class TaskConfig(taskName: String, retryLimit : Int, cooldown: FiniteDuration, conditions: (Boolean, String) = true -> "",
+case class TaskConfig(taskName: String, retryLimit : Int, cooldown: FiniteDuration, conditions: Option[(Boolean, String)] = None,
                    ignoreFailure: Boolean = false, assertion: Option[(ConfigValue, String)] = None)
 
 object TaskConfig {
@@ -27,7 +27,6 @@ object TaskConfig {
       s"""
          |${Task.IGNORE_ERROR} = ${appContext.dagSetting.ignore_conditions}
          |${Keywords.Task.ATTEMPT} = ${appContext.dagSetting.attempts}
-         |${Keywords.Task.CONDITION} = yes
          |${Keywords.Task.COOLDOWN} = ${appContext.dagSetting.cooldown}
          |__context__ = {}
     """.stripMargin
@@ -36,9 +35,9 @@ object TaskConfig {
     val config = inputConfig withFallback default_config
       TaskConfig(taskName,config.as[Int](Keywords.Task.ATTEMPT),
       config.as[FiniteDuration](Keywords.Task.COOLDOWN),
-      { val x = parseConditionsNode(config.getValue(Keywords.Task.CONDITION)); BooleanEvaluator.evalBooleanExpr(x._1) -> x._2 },
+      config.getAs[ConfigValue](Keywords.Task.CONDITION) map { parseConditionsNode } map { case (x,y) => BooleanEvaluator.evalBooleanExpr(x) -> y },
       config.as[Boolean](Keywords.Task.IGNORE_ERROR),
-      assertion = if(config.hasPath(Keywords.Task.ASSERTION)) Some(parseConditionsNode(config.getValue(Keywords.Task.ASSERTION))) else None
+      config.getAs[ConfigValue](Keywords.Task.ASSERTION) map { parseConditionsNode }
       )
   }
 
@@ -46,10 +45,10 @@ object TaskConfig {
   private[task] def parseConditionsNode(input: ConfigValue): (ConfigValue,String) = {
     input match {
       case x: ConfigObject => {
-        x.asScala.keys.toList.sorted match {
+        x.keySet().asScala.toList.sorted match {
           case Seq(BooleanEvaluator.description, BooleanEvaluator.expression) =>
-            ConfigValueFactory.fromAnyRef(x.asScala(BooleanEvaluator.expression)) -> x.asScala(BooleanEvaluator.description).asInstanceOf[String]
-          case _ => ConfigValueFactory.fromAnyRef(x) -> BooleanEvaluator.stringifyBoolExpr(x)
+            x.toConfig.as[ConfigValue](BooleanEvaluator.expression) -> x.toConfig.as[String](BooleanEvaluator.description)
+          case _ => x -> BooleanEvaluator.stringifyBoolExpr(x)
         }
       }
       case _ =>  input -> BooleanEvaluator.stringifyBoolExpr(input)

@@ -2,7 +2,7 @@ package tech.artemisia.util
 
 import java.io.File
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigValue}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -78,6 +78,13 @@ object HoconConfigUtil {
   implicit val configReader = new ConfigReader[Config] {
     override def read(config: Config, path: String): Config = {
       config.getConfig(path)
+    }
+  }
+
+
+  implicit val configValueReader = new ConfigReader[ConfigValue] {
+    override def read(config: Config, path: String): ConfigValue = {
+      config.getValue(path)
     }
   }
 

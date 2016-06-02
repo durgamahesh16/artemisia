@@ -16,7 +16,9 @@ class TaskConfigSpec extends TestSpec {
         |  ${BooleanEvaluator.expression} = "1 == 1"
         |} """.stripMargin
 
-    val (bool: Boolean, desc: String) = TaskConfig.parseConditionsNode(config.getConfig("foo").root())
+    val (bool: Boolean, desc: String) = TaskConfig.parseConditionsNode(config.getConfig("foo").root()) match {
+      case (x,y) => BooleanEvaluator.evalBooleanExpr(x) -> y
+    }
     bool mustBe true
     desc mustBe "This is a description node"
   }
@@ -27,7 +29,9 @@ class TaskConfigSpec extends TestSpec {
       """
         | foo =  "100 == 1000"
       """.stripMargin
-    val (bool: Boolean, desc: String) = TaskConfig.parseConditionsNode(config.getValue("foo"))
+    val (bool: Boolean, desc: String) = TaskConfig.parseConditionsNode(config.getValue("foo")) match {
+      case (x,y) => BooleanEvaluator.evalBooleanExpr(x) -> y
+    }
     bool mustBe false
     desc mustBe "100 == 1000"
   }
