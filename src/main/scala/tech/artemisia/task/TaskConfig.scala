@@ -4,24 +4,22 @@ import com.typesafe.config._
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core.{AppContext, BooleanEvaluator, Keywords}
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
+
 
 /**
  * Created by chlr on 1/9/16.
  */
 
 
-/*
-TaskConfig requires task_name param because the generic Task node requires task_name variable which will be used in logging.
- */
-case class TaskConfig(taskName: String, retryLimit : Int, cooldown: FiniteDuration, conditions: Option[(Boolean, String)] = None,
+case class TaskConfig(retryLimit : Int = 1, cooldown: FiniteDuration =  1 seconds, conditions: Option[(Boolean, String)] = None,
                    ignoreFailure: Boolean = false, assertion: Option[(ConfigValue, String)] = None)
 
 object TaskConfig {
 
-  def apply(taskName: String, inputConfig: Config, appContext: AppContext): TaskConfig = {
+  def apply(inputConfig: Config, appContext: AppContext): TaskConfig = {
 
     val default_config = ConfigFactory parseString {
       s"""
@@ -33,7 +31,7 @@ object TaskConfig {
     }
 
     val config = inputConfig withFallback default_config
-      TaskConfig(taskName,config.as[Int](Keywords.Task.ATTEMPT),
+      TaskConfig(config.as[Int](Keywords.Task.ATTEMPT),
       config.as[FiniteDuration](Keywords.Task.COOLDOWN),
       config.getAs[ConfigValue](Keywords.Task.CONDITION) map { parseConditionsNode } map { case (x,y) => BooleanEvaluator.evalBooleanExpr(x) -> y },
       config.as[Boolean](Keywords.Task.IGNORE_ERROR),

@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 import com.google.common.io.Files
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core.{Keywords, LogSource}
+import tech.artemisia.core.Keywords
 import tech.artemisia.util.FileSystemUtil
 
 import scala.io.Source
@@ -27,12 +27,6 @@ import scala.io.Source
  */
 
 abstract class Task(val taskName: String) {
-
-  implicit protected var source: LogSource = null
-
-  private[task] def setLogSource(source: LogSource) = {
-    this.source = source
-  }
 
   /**
    *

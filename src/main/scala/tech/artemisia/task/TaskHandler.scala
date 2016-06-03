@@ -1,7 +1,7 @@
 package tech.artemisia.task
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core.{AppLogger, BooleanEvaluator, Keywords, LogSource}
+import tech.artemisia.core.{AppLogger, BooleanEvaluator, Keywords}
 import tech.artemisia.dag.Status
 import tech.artemisia.util.HoconConfigUtil.configToConfigEnhancer
 import tech.artemisia.util.Util
@@ -14,7 +14,6 @@ import scala.util.{Failure, Success, Try}
 
 class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
 
-  task.setLogSource(LogSource(taskConfig.taskName))
   private var attempts = 0
   private var status: Status.Value = Status.UNKNOWN
 
@@ -27,7 +26,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
       }
       case None => executeLifeCycles
       case Some((false, x)) => {
-        AppLogger info s"skipping execution of ${taskConfig.taskName} since expression $x failed"
+        AppLogger info s"skipping execution of ${task.taskName} since expression $x failed"
         status = Status.SKIPPED
         Success(ConfigFactory.empty())
       }
@@ -91,7 +90,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
       Success(result)
     } catch {
       case ex: Throwable => {
-        AppLogger info s"attempt ${taskConfig.retryLimit - maxAttempts + 1} for task ${taskConfig.taskName}"
+        AppLogger info s"attempt ${taskConfig.retryLimit - maxAttempts + 1} for task ${task.taskName}"
         AppLogger error Util.printStackTrace(ex)
         if (maxAttempts > 1) {
           run(maxAttempts - 1)(body)

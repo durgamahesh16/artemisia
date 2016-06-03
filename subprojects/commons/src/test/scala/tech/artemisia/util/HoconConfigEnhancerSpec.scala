@@ -45,7 +45,6 @@ class HoconConfigEnhancerSpec extends TestSpec {
 
 
   it must "strip unnecessary leading space in quoted stings" in {
-
     val testData =
       """
         |  test1
@@ -53,6 +52,19 @@ class HoconConfigEnhancerSpec extends TestSpec {
       """.stripMargin
     val data = HoconConfigEnhancer.stripLeadingWhitespaces(testData)
     data.split("\n") map { _.length } must be (Seq(5,7))
+  }
+
+  it must "resolve variables which has dot character" in {
+    val testData = ConfigFactory parseString
+       """
+        | {
+        |   foo = {
+        |      bar = baz
+        |   }
+        |   hello = ${foo.bar}
+        | }
+      """.stripMargin
+    testData.hardResolve.getString("hello") must be ("baz")
   }
 
 }
