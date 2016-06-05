@@ -37,3 +37,12 @@ abstract class SQLRead(name: String = Util.getUUID, sql: String, connectionProfi
   override protected[task] def teardown(): Unit = {}
 
 }
+
+object SQLRead {
+
+  /**
+    * @return one line description of the task
+    */
+  def info = "execute select queries and wraps the results in config"
+
+}

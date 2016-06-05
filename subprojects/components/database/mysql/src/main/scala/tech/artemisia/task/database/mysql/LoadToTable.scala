@@ -34,4 +34,10 @@ object LoadToTable {
     val loadSettings = LoadSettings(config.as[Config]("load-setting"))
     new LoadToTable(name, destinationTable, connectionProfile, loadSettings)
   }
+
+  /**
+    * @return one line description of the task
+    */
+  def info = tech.artemisia.task.database.LoadToTable.info
+
 }

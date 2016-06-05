@@ -34,4 +34,10 @@ object SQLExecute {
     connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
     )
   }
+
+  /**
+    * @return one line description of the task
+    */
+  def info = tech.artemisia.task.database.SQLExecute.info
+
 }

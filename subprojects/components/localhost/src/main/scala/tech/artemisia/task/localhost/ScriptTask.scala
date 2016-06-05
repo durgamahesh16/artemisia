@@ -51,6 +51,12 @@ class ScriptTask(name: String = Util.getUUID, script: String,interpreter: String
 
 object ScriptTask {
 
+  /**
+    * @return one line description of the task
+    */
+  val info = "executes an arbitrary script with customizable interpreter"
+
+
   object Defaults {
     val cwd = Paths.get("").toAbsolutePath.toString
     val env = Map[String,String]()
@@ -68,5 +74,13 @@ object ScriptTask {
      ,parseOutput = if (config.hasPath("parse_output")) config.as[Boolean]("env") else ScriptTask.Defaults.parseOutput
     )
   }
+
+
+  val doc =
+    """
+      |
+      |
+      |
+    """.stripMargin
 
 }

@@ -40,4 +40,13 @@ abstract class SQLExecute(name: String, sql: String, connectionProfile: Connecti
   override protected[task] def teardown(): Unit
 }
 
+object SQLExecute {
+
+  /**
+    * @return one line description of the task
+    */
+  def info = "executes DML statements such as Insert/Update/Delete"
+
+}
+
 

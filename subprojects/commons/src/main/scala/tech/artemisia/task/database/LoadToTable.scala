@@ -41,3 +41,12 @@ abstract class LoadToTable(name: String, tableName: String, connectionProfile: C
   }
 
 }
+
+object LoadToTable {
+
+  /**
+    * @return one line description of the task
+    */
+  def info = "load a file into a table"
+
+}

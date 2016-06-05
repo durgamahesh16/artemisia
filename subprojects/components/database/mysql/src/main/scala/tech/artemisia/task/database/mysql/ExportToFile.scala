@@ -39,6 +39,12 @@ object ExportToFile {
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
     new ExportToFile(name,sql,connectionProfile,exportSettings)
   }
+
+  /**
+    * @return one line description of the task
+    */
+  def info = tech.artemisia.task.database.ExportToFile.info
+
 }
 
 

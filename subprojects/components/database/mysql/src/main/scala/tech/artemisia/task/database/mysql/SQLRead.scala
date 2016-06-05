@@ -30,4 +30,10 @@ object SQLRead {
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
     new SQLRead(name,sql,connectionProfile)
   }
+
+  /**
+    * @return one line description of the task
+    */
+  def info = tech.artemisia.task.database.SQLRead.info
+
 }

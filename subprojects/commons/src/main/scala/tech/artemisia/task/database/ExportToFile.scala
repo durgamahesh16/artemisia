@@ -40,8 +40,16 @@ abstract class ExportToFile(name: String, sql: String, connectionProfile: Connec
 
      override protected[task] def teardown(): Unit = {}
 
-   }
+}
 
+object ExportToFile {
+
+  /**
+    * @return one line description of the task
+    */
+  def info = "export query results to a file"
+
+}
 
 
 

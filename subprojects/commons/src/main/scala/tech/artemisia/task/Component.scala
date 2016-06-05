@@ -11,6 +11,7 @@ import com.typesafe.config.Config
  */
 trait Component {
 
+
   /**
    * returns an instance of [[Task]] configured via the config object
    *
@@ -24,6 +25,19 @@ trait Component {
    * @param config HOCON config payload with configuration data for the task
    * @return an instance of [[Task]]
    */
-  def dispatch(task: String, name: String, config: Config): Task
+  def dispatchTask(task: String, name: String, config: Config): Task
+
+
+  /**
+    * A brief overview of the components and the tasks it supports.
+    */
+  val doc: String
+
+
+  /**
+    * get documentation of the task
+    * @param name name of the task
+    */
+  def taskDoc(name: String): String
 
 }
