@@ -40,4 +40,10 @@ object LoadToTable {
     */
   def info = tech.artemisia.task.database.LoadToTable.info
 
+
+  /**
+    * brief description of the task
+    */
+  val doc = tech.artemisia.task.database.LoadToTable.doc(classOf[MySQLComponent].getSimpleName)
+
 }

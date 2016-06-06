@@ -3,8 +3,9 @@ package tech.artemisia.task.database.mysql
 
 
 import com.typesafe.config.Config
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting, SettingNotFoundException}
+import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -44,6 +45,12 @@ object ExportToFile {
     * @return one line description of the task
     */
   def info = tech.artemisia.task.database.ExportToFile.info
+
+
+  /**
+    * brief description of the task
+    */
+  val doc = tech.artemisia.task.database.ExportToFile.doc(classOf[ExportToFile].getSimpleName)
 
 }
 

@@ -23,10 +23,10 @@ class CoreComponents extends Component {
 
   /**
     * get documentation of the task
-    * @param name name of the task
+    * @param task name of the task
     */
-  override def taskDoc(name: String): String = {
-    name match {
+  override def taskDoc(task: String): String = {
+    task match {
       case "ScriptTask" => ScriptTask.doc
       case _ => throw new UnknownTaskException(s"task $task is not valid task in Component ${classOf[CoreComponents].getSimpleName}")
     }

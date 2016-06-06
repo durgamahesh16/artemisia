@@ -57,7 +57,14 @@ object Command {
     dag_player ! 'Play
   }
 
-  def doc(cmd_line_params: AppSetting) = {
+  def doc(cmdLineParam: AppSetting) = {
+    val appContext = prepareAppContext(cmdLineParam)
+    val component = appContext.componentMapper(cmdLineParam.component.get)
+    val doc = cmdLineParam.task match {
+      case Some(task) => component.taskDoc(task)
+      case None => component.doc
+    }
+    println(doc)
   }
 
 }

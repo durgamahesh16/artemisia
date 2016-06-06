@@ -40,4 +40,10 @@ object SQLExecute {
     */
   def info = tech.artemisia.task.database.SQLExecute.info
 
+
+  /**
+    * brief description of the task
+    */
+  val doc = tech.artemisia.task.database.SQLExecute.doc(classOf[MySQLComponent].getSimpleName)
+
 }

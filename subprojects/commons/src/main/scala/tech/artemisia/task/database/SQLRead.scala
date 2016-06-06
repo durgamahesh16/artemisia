@@ -26,7 +26,8 @@ abstract class SQLRead(name: String = Util.getUUID, sql: String, connectionProfi
   /**
    * execute query and parse as config file.
    * considers only the first row of the query
-   * @return config file object
+    *
+    * @return config file object
    */
   override protected[task] def work(): Config = {
     val result = dbInterface.queryOne(sql)
@@ -44,5 +45,29 @@ object SQLRead {
     * @return one line description of the task
     */
   def info = "execute select queries and wraps the results in config"
+
+  /**
+    * brief description of the task
+    */
+  def doc(component: String) =
+    s"""| ${classOf[SQLRead].getSimpleName} task runs a select query and parse the first row as a Hocon Config.
+        | The query must be select query and not any DML or DDL statements.
+        | The configuration object is shown below.
+        |
+        | {
+        |   Component = $component
+        |   Task = ${classOf[SQLRead].getSimpleName}
+        |     params = {
+        |      dsn = ?
+        |      [sql|sqlfile] = ?
+        |    }
+        | }
+        |
+        |Its param include
+        |  dsn = either a name of the dsn or a config-object with username/password and other credentials
+        |  sql = select query to be run
+        |  sqlfile = the file containing the query
+        |
+    """.stripMargin
 
 }

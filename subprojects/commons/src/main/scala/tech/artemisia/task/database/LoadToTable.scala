@@ -25,7 +25,8 @@ abstract class LoadToTable(name: String, tableName: String, connectionProfile: C
   /**
    * Actual data export is done in this phase.
    * Number of records loaded is emitted in stats node
-   * @return any output of the work phase be encoded as a HOCON Config object.
+    *
+    * @return any output of the work phase be encoded as a HOCON Config object.
    */
   override def work(): Config = {
     val (totalRows, rejectedCnt) = dbInterface.load(tableName, loadSettings)
@@ -45,8 +46,54 @@ abstract class LoadToTable(name: String, tableName: String, connectionProfile: C
 object LoadToTable {
 
   /**
-    * @return one line description of the task
+    * one line description of the task
     */
-  def info = "load a file into a table"
+  val info = "load a file into a table"
+
+
+  /**
+    *
+    * @param component name of the component
+    * @return task documentation
+    */
+  def doc(component: String) =
+    s"""
+      | ${classOf[LoadToTable].getSimpleName} task is used to load content into a table typically from a file.
+      | the configuration object for this task is as shown below.
+      |
+      | Component = $component
+      | Task = ${classOf[LoadToTable].getSimpleName}
+      | params = {
+      |	  dsn =
+      |	  destination-table = ""
+      |	  load-setting = {
+      |       load-path = ?
+      |		    header =  no
+      |		    skip-lines = 0
+      |		    delimiter = ","
+      |		    quoting = no
+      |		    quotechar = "\""
+      |	      escapechar = "\\"
+      |	      mode = default
+      |	      error-file = ?
+      |	      error-tolerence = 2
+      |	  },
+      | }
+      |
+      | dsn =  either a name of the dsn or a config-object with username/password and other credentials
+      | destination-table = destination table to load
+      | load-setting =
+      |     load-path = path to load from (eg: /var/tmp/input.txt)
+      |     header = boolean field to enable/disable headers
+      |     skip-lines = number of lines to skip in he table
+      |     delimiter = delimiter of the file
+      |     quoting = boolean field to indicate if the file is quoted.
+      |     quotechar = character to be used for quoting
+      |     escapechar = escape character used in the file
+      |     mode = mode of loading the table
+      |     error-file = location of the file where rejected error records are saved.
+      |     error-tolerance = % of data that is allowable to get rejected
+      |
+    """.stripMargin
 
 }

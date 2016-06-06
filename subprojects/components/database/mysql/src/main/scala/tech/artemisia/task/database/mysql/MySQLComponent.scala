@@ -8,7 +8,7 @@ import tech.artemisia.task.{Component, Task}
  * Created by chlr on 4/8/16.
  */
 
-class MySQLComponent extends Component {  
+class MySQLComponent extends Component {
 
   val defaultConfig = ConfigFactory parseString
     """
@@ -36,6 +36,21 @@ class MySQLComponent extends Component {
         | ${classOf[LoadToTable].getSimpleName} => ${LoadToTable.info}
         | ${classOf[SQLExecute].getSimpleName} => ${SQLExecute.info}
         | ${classOf[SQLRead].getSimpleName} => ${SQLRead.info} """.stripMargin
+
+  /**
+    * get documentation of the task
+    *
+    * @param name name of the task
+    */
+  override def taskDoc(task: String): String = {
+    task match {
+      case "ExportToFile" => ExportToFile.doc
+      case "SQLRead" => SQLRead.doc
+      case "LoadToTable" => LoadToTable.doc
+      case "SQLExecute" => SQLExecute.doc
+      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component ${classOf[MySQLComponent].getSimpleName}")
+    }
+  }
 }
 
 

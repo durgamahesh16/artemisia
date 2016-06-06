@@ -36,8 +36,8 @@ trait Component {
 
   /**
     * get documentation of the task
-    * @param name name of the task
+    * @param task name of the task
     */
-  def taskDoc(name: String): String
+  def taskDoc(task: String): String
 
 }

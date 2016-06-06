@@ -31,7 +31,8 @@ class HoconConfigSpec extends TestSpec {
     |	"doubleList" : [12.23, 827.213]
     |	"duration" : 30m
     |	"durationList" : [34m, 34h],
-    | "char" : ","
+    | "char" : ",",
+    | "encodedchar" : "\\u0001"
     |
     |}
     |
@@ -99,6 +100,10 @@ class HoconConfigSpec extends TestSpec {
 
   it must "parse character fields correctly" in {
     config.as[Char]("char") must be (',')
+  }
+
+  it must "parse encoded characters correctly" in {
+    config.as[Char]("encodedchar") must be ('\u0001')
   }
 
 

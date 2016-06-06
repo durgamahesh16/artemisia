@@ -1,8 +1,9 @@
 package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{ConnectionProfile, SettingNotFoundException}
+import tech.artemisia.task.settings.ConnectionProfile
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
 
@@ -35,5 +36,12 @@ object SQLRead {
     * @return one line description of the task
     */
   def info = tech.artemisia.task.database.SQLRead.info
+
+
+  /**
+    * brief description of the task
+    */
+  val doc = tech.artemisia.task.database.SQLRead.doc(classOf[MySQLComponent].getSimpleName)
+
 
 }

@@ -25,15 +25,14 @@ object LoadSettings {
   val default_config = ConfigFactory parseString
     """
       |{
-      |	header =  no
-      |	skip-lines = 0
-      |	delimiter = ","
-      |	quoting = no
-      |	quotechar = "\""
-      | escapechar = "\\"
-      | mode = default
-      | error-file = null
-      | error-tolerence = 2
+      |	  header =  no
+      |	  skip-lines = 0
+      |	  delimiter = ","
+      |	  quoting = no
+      |	  quotechar = "\""
+      |   escapechar = "\\"
+      |   mode = default
+      |   error-tolerence = 2
       |}
     """.stripMargin
 

@@ -1,4 +1,4 @@
-package tech.artemisia.task.settings
+package tech.artemisia.inventory.exceptions
 
 /**
  * Created by chlr on 4/26/16.
@@ -6,6 +6,6 @@ package tech.artemisia.task.settings
 
 /**
  * Throw this exception when mandatory setting keys are missing
- * @param message
+ * @param message message describing the exception
  */
 class SettingNotFoundException(message: String) extends Exception(message)

@@ -3,6 +3,7 @@ package tech.artemisia.util
 import java.io.File
 
 import com.typesafe.config.{Config, ConfigValue}
+import org.apache.commons.lang3.StringEscapeUtils
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -148,8 +149,12 @@ object HoconConfigUtil {
   implicit val charReader = new ConfigReader[Char] {
     override def read(config: Config, path: String): Char = {
       val data = config.getString(path)
-      require(data.length == 1, "Character length is not 1")
-      data.toCharArray.apply(0)
+      val parsedData = data.length match {
+        case 1 => data
+        case _ => StringEscapeUtils.unescapeJava(data)
+      }
+      require(parsedData.length == 1, "Character length is not 1")
+      parsedData.toCharArray.apply(0)
     }
   }
 
