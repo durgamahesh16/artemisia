@@ -8,7 +8,7 @@ import tech.artemisia.task.{Component, Task}
  * Created by chlr on 4/8/16.
  */
 
-class MySQLComponent extends Component {
+class MySQLComponent(componentName: String) extends Component(componentName) {
 
   val defaultConfig = ConfigFactory parseString
     """
@@ -26,7 +26,7 @@ class MySQLComponent extends Component {
       case "SQLRead" => SQLRead(name, config withFallback defaultConfig)
       case "LoadToTable" => LoadToTable(name, config withFallback defaultConfig)
       case "SQLExecute" => SQLExecute(name, config withFallback defaultConfig)
-      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component ${classOf[MySQLComponent].getSimpleName}")
+      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component $componentName")
     }
   }
 
@@ -40,7 +40,7 @@ class MySQLComponent extends Component {
   /**
     * get documentation of the task
     *
-    * @param name name of the task
+    * @param task name of the task
     */
   override def taskDoc(task: String): String = {
     task match {
@@ -48,7 +48,7 @@ class MySQLComponent extends Component {
       case "SQLRead" => SQLRead.doc
       case "LoadToTable" => LoadToTable.doc
       case "SQLExecute" => SQLExecute.doc
-      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component ${classOf[MySQLComponent].getSimpleName}")
+      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component $componentName")
     }
   }
 }

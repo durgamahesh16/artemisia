@@ -8,12 +8,12 @@ import tech.artemisia.task.{Component, Task}
 /**
  * Created by chlr on 2/21/16.
  */
-class CoreComponents extends Component {
+class CoreComponents(componentName: String) extends Component(componentName) {
 
   override def dispatchTask(task: String, name: String, config: Config): Task = {
     task match {
       case "ScriptTask" => ScriptTask(name,config)
-      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component ${classOf[CoreComponents].getSimpleName}")
+      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component $name")
     }
   }
 
@@ -23,12 +23,13 @@ class CoreComponents extends Component {
 
   /**
     * get documentation of the task
+ *
     * @param task name of the task
     */
   override def taskDoc(task: String): String = {
     task match {
       case "ScriptTask" => ScriptTask.doc
-      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component ${classOf[CoreComponents].getSimpleName}")
+      case _ => throw new UnknownTaskException(s"task $task is not valid task in Component $componentName")
     }
   }
 }

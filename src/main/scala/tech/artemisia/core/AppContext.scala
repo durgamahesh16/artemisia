@@ -29,7 +29,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
   val workingDir: String = computeWorkingDir
   private val checkpointMgr = if (skipCheckpoints) new BasicCheckpointManager else new FileCheckPointManager(checkpointFile)
   val componentMapper: Map[String,Component] = payload.asMap[String]("__setting__.components") map {
-    case (name,component) => { (name, Class.forName(component).getConstructor().newInstance().asInstanceOf[Component] ) }
+    case (name,component) => { (name, Class.forName(component).getConstructor(classOf[String]).newInstance(name).asInstanceOf[Component] ) }
   }
 
   /**

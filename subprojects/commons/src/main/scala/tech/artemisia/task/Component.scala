@@ -7,9 +7,10 @@ import com.typesafe.config.Config
  */
 
 /**
- * Component usually represents a Data system such as Database, Spark Cluster or Localhost
- */
-trait Component {
+  * Component usually represents a Data system such as Database, Spark Cluster or Localhost
+  * @param name name of the component
+  */
+abstract class Component(name: String) {
 
 
   /**
