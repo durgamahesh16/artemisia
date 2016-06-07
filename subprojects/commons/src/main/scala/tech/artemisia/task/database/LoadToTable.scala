@@ -17,8 +17,8 @@ import tech.artemisia.task.settings.{ConnectionProfile, LoadSettings}
  * @param connectionProfile connection details for the database
  * @param loadSettings load setting details
  */
-abstract class LoadToTable(name: String, tableName: String, connectionProfile: ConnectionProfile,
-                           loadSettings: LoadSettings) extends Task(name) {
+abstract class LoadToTable(name: String, val tableName: String, val connectionProfile: ConnectionProfile,
+                           val loadSettings: LoadSettings) extends Task(name) {
 
   val dbInterface: DBInterface
 

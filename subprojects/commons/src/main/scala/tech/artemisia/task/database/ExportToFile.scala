@@ -15,7 +15,7 @@ import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
   * @param connectionProfile Connection Profile settings
   * @param exportSettings Export settings
   */
-abstract class ExportToFile(name: String, sql: String, connectionProfile: ConnectionProfile ,exportSettings: ExportSetting)
+abstract class ExportToFile(name: String, val sql: String, val connectionProfile: ConnectionProfile ,val exportSettings: ExportSetting)
   extends Task(name: String) {
 
      val dbInterface: DBInterface

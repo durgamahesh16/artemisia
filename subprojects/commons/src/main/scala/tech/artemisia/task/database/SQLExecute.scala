@@ -16,7 +16,7 @@ import tech.artemisia.task.settings.ConnectionProfile
  * @param sql query to be executed
  * @param connectionProfile connection detail for the database
  */
-abstract class SQLExecute(name: String, sql: String, connectionProfile: ConnectionProfile) extends Task(name) {
+abstract class SQLExecute(name: String, val sql: String, val connectionProfile: ConnectionProfile) extends Task(name) {
 
   val dbInterface: DBInterface
 

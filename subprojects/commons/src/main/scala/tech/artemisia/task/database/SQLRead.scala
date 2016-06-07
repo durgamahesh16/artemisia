@@ -16,7 +16,7 @@ import tech.artemisia.util.Util
  * @param sql query to be executed
  * @param connectionProfile connection profile to use
  */
-abstract class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: ConnectionProfile)
+abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connectionProfile: ConnectionProfile)
   extends Task(name) {
 
   val dbInterface: DBInterface
