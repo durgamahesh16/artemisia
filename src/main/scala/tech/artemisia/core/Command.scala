@@ -21,7 +21,6 @@ object Command {
       case Some(component) => println(getDoc(component, cmdLineParam.task))
       case None => throw new UnknownComponentException(s"component ${cmdLineParam.component.get} doesn't exist")
     }
-
   }
 
   private def getDoc(component: Component, task: Option[String]) = {

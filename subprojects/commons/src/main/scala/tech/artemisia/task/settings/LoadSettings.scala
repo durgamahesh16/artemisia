@@ -46,7 +46,7 @@ object LoadSettings {
     quotechar = config.as[Char]("quotechar"),
     escapechar = config.as[Char]("escapechar"),
     mode = config.as[String]("mode"),
-    rejectFile = if (config.getIsNull("error-file")) None else Some(config.as[String]("error-file"))
+    rejectFile = if (config.hasPath("error-file")) Some(config.as[String]("error-file")) else None
     )
   }
 

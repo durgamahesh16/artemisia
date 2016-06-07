@@ -10,8 +10,10 @@ import tech.artemisia.dag.{ActorSysManager, Dag}
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler
 
+/**
+  * A helper class that orchestrates the execution of the dag workflow
+  */
 object Runner {
-
 
   def run(appContext: AppContext) = {
     prepare(appContext)
