@@ -24,14 +24,13 @@ object Message {
 
   case class TaskSuceeded(name: String, task_stats: TaskStats) extends TaskCompleted
 
-
-  case class TaskStats  (
-                        startTime: String,
-                        endTime: String = null,
-                        status: Status.Value,
-                        attempts: Int = 1,
-                        taskOutput: Config = ConfigFactory.empty()
-                        ) extends Messageable {
+  case class TaskStats (
+                       startTime: String,
+                       endTime: String = null,
+                       status: Status.Value,
+                       attempts: Int = 1,
+                       taskOutput: Config = ConfigFactory.empty()
+                       ) extends Messageable {
 
     def toConfig(task_name: String) = {
 

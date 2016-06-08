@@ -10,7 +10,7 @@ object Main {
     Thread.currentThread().setName(Keywords.APP)
     parseCmdLineArguments(args,show_usage_on_error) match {
       case cmdLineParams @ AppSetting(Some("run"), Some(_), _, _, _, _,_,_,_) => Command.run(cmdLineParams)
-      case cmdLineParams @ AppSetting(Some("doc"), _, _, _, _, _,_,Some(component),task) => Command.doc(cmdLineParams)
+      case cmdLineParams @ AppSetting(Some("doc"), _, _, _, _, _,_,component,task) => Command.doc(cmdLineParams)
       case cmdLineParams @ _ => {
         println(cmdLineParams)
         throw new IllegalArgumentException("--help to see supported options")

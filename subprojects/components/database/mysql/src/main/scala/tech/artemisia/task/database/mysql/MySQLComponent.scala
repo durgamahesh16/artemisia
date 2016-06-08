@@ -30,6 +30,8 @@ class MySQLComponent(componentName: String) extends Component(componentName) {
     }
   }
 
+  override val info = "Component for interacting with MySQL database"
+
   override val doc: String =
     s"""| Supports interaction with a MySQL Database. Supports Tasks such as
         | ${classOf[ExportToFile].getSimpleName} => ${ExportToFile.info}

@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.routing.BalancingPool
 import akka.testkit.TestProbe
 import tech.artemisia.ActorTestSpec
-import tech.artemisia.core.{AppSetting, AppContext}
+import tech.artemisia.core.{AppContext, AppSetting}
 import tech.artemisia.dag.Message.{Messageable, TaskStats, _}
 import tech.artemisia.task.{TaskHandler, TestAdderTask, TestFailTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -14,7 +14,7 @@ import scala.concurrent.duration._
  * Created by chlr on 1/25/16.
  */
 
-class DagPlayerSpec extends ActorTestSpec {
+  class DagPlayerSpec extends ActorTestSpec {
 
   var workers: ActorRef = _
   var probe: DagPlayerSpec.DagProbe = _
@@ -136,6 +136,16 @@ class DagPlayerSpec extends ActorTestSpec {
         stats.status must be(Status.SUCCEEDED)
       }
     }
+  }
+
+
+  it must "handle failures in task initialization" in {
+    setUpArtifacts(this.getClass.getResource("/code/incorrect_config.conf").getFile)
+    within(1000 millis) {
+      dag_player ! new Tick
+      expectNoMsg
+    }
+    dag.getNodeByName("step1").getStatus must be (Status.FAILED)
   }
   
 

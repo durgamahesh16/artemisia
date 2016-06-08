@@ -1,10 +1,14 @@
 package tech.artemisia.dag
 
 import java.util.concurrent.TimeUnit
+
 import akka.actor.{Actor, ActorRef}
+import org.apache.commons.lang3.exception.ExceptionUtils
 import tech.artemisia.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, Tick, _}
 import tech.artemisia.core.{AppContext, AppLogger, Keywords}
+
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 
 /**
@@ -35,8 +39,23 @@ class DagPlayer(dag: Dag, app_context: AppContext, val router: ActorRef) extends
         dag.getRunnableNodes foreach {
           node => {
             AppLogger info s"launching task ${node.name}"
-            router ! TaskWrapper(node.name,node.getNodeTask(app_context))
-            node.setStatus(Status.RUNNING)
+
+            // TaskWrapped is encapsulated in Try Monad to handle failures while Task initialization.
+            // for eg: missing mandatory config item
+
+            Try(TaskWrapper(node.name, node.getNodeTask(app_context))) match {
+              case Success(wrappedTask) => {
+                router ! TaskWrapper(node.name,node.getNodeTask(app_context))
+                node.setStatus(Status.RUNNING)
+              }
+              case Failure(th) => {
+                AppLogger error s"node ${node.name} failed to initialize due to following error"
+                AppLogger error th.getMessage
+                AppLogger error ExceptionUtils.getStackTrace(th)
+                node.setStatus(Status.FAILED)
+                context.become(preReceive andThen (woundedDag orElse onTaskComplete))
+              }
+            }
           }
         }
       }

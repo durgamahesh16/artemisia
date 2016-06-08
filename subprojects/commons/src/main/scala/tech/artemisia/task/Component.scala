@@ -30,6 +30,11 @@ abstract class Component(name: String) {
 
 
   /**
+    * one line description of the Component
+    */
+  val info: String
+
+  /**
     * A brief overview of the components and the tasks it supports.
     */
   val doc: String
