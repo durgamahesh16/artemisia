@@ -8,7 +8,7 @@
         print_task = {
             Component = HComponent
             Task = HPrintTask
-            param = {
+            params = {
                print = "Hello World" 
             }
         }
@@ -33,7 +33,7 @@
         create_file = {
             Component = FileComponent
             Task = CreateFile
-            param = {
+            params = {
                 file = /var/tmp/artemisia/file.txt
                 content = "If death comes to me today, I am ready for it"
             }
@@ -43,7 +43,7 @@
             Component = FileComponent
             Task = DeleteFile
             dependencies = [ create_file ]
-            param = {
+            params = {
                 file = /var/tmp/artemisia/file.txt
             }
         }
@@ -61,12 +61,82 @@
         delete_file = {
             Component = FileComponent
             Task = DeleteFile
-            param = {
+            params = {
                 file = ${filename}
             }
         }
+
+## Task Structure
+
+  Below is the common structure of a task expressed as Hocon config.
+
+        step2 = {
+            Component = HComponent
+            Task = HPrintTask
+            dependencies = [step1a, step1b]
+            ignore-error = true
+            cooldown = 2s
+            attempts = 1
+            when = 1 > 2
+            assert = 1 < 3 
+            params = {
+            }
+        }
+        
+  Each nodes in the above config object is explained below
+  
+#### Component: 
+   This selects the component of the task. Components encapsulates similar tasks together. For eg the MySQLComponent
+   aggregates tasks that loads, export, queries a MySQL database. similarly you can have components for other databases,
+   hadoop, spark etc.
+     
+     
+#### Task:
+   This field selects a task within the Component.
+  
+#### dependencies:
+   This field sets the upstream dependencies of the current node. in the above example *step2* node will run only
+   after the successful completion of *step1a* and *step1b*.
+  
+#### ignore-error:
+   This field takes boolean value (yes, no, true, false). if set to yes the node failure will not stop the entire dag.
+   The current node's failure will be ignore and the next node in the dag will be processed.
+   
+#### attempts:
+   This field decides how many times a node must retry execution upon failure. 
+        
+#### cooldown:
+   This field decides how long a node must wait before a retry.
+      
+#### when:
+   This field's value must evaluate as a boolean expression. if the boolean expression evaluates to true the node
+   is executed else node's execution is skipped.
+       
+#### assert:
+   This field too sports a boolean expression. But this is evaluated after the task execution is complete and this
+   is generally used to assert if the task execution generated the desired result. for instance consider the below
+   hypothetical node
+         
+        node1 = {
+             Component = HMathComponent
+             Task = HAdderTask
+             params = {
+               num1 = 10
+               num2 = 20
+               output_var = num3
+             }
+             assert = "${num3} == 30"
+             }
+          
+   In the above snippet we have a hypothetical task takes two parameter *num1* and *num2*. It adds these two parameters
+   and assigns the value to a new parameter called num3. post-execution our assert node confirms if the num3 actually 
+   evaluates to 30. 
+
+#### params:
+   All task specific configuration items goes here. each task will have its unique config object nested inside *params* node.
    
    
+        
    
          
     
