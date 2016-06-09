@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.{TaskContext, Task}
+import tech.artemisia.task.{Task, TaskContext, TaskLike}
 import tech.artemisia.task.localhost.util.ProcessRunner
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -49,13 +49,11 @@ class ScriptTask(name: String = Util.getUUID, script: String,interpreter: String
 
 }
 
-object ScriptTask {
+object ScriptTask extends TaskLike {
 
-  /**
-    * @return one line description of the task
-    */
-  val info = "executes an arbitrary script with customizable interpreter"
+  override val taskName = "ScriptTask"
 
+  override val info = "executes an arbitrary script with customizable interpreter"
 
   object Defaults {
     val cwd = Paths.get("").toAbsolutePath.toString
@@ -64,7 +62,7 @@ object ScriptTask {
     val interpreter = "/bin/sh"
   }
 
-  def apply(name: String,config: Config) = {
+  override def apply(name: String,config: Config) = {
     new ScriptTask (
       name
      ,script = config.as[String]("script")
@@ -75,8 +73,7 @@ object ScriptTask {
     )
   }
 
-
-  val doc =
+  override def doc(component: String) =
     """
       |
       |

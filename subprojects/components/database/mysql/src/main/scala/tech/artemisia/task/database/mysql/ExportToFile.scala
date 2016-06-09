@@ -1,9 +1,8 @@
 package tech.artemisia.task.database.mysql
 
-
-
 import com.typesafe.config.Config
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
+import tech.artemisia.task.TaskLike
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -23,15 +22,11 @@ class ExportToFile(name: String, sql: String, connectionProfile: ConnectionProfi
 
 }
 
-object ExportToFile {
+object ExportToFile extends TaskLike {
 
-  /**
-   *
-   * @param name task name
-   * @param config configuration for the task
-   * @return ExportToFile object
-   */
-  def apply(name: String,config: Config) = {
+  override val taskName = tech.artemisia.task.database.ExportToFile.taskName
+
+  override def apply(name: String,config: Config) = {
     val exportSettings = ExportSetting(config.as[Config]("export"))
     val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
     val sql =
@@ -41,16 +36,9 @@ object ExportToFile {
     new ExportToFile(name,sql,connectionProfile,exportSettings)
   }
 
-  /**
-    * @return one line description of the task
-    */
-  def info = tech.artemisia.task.database.ExportToFile.info
+  override val info: String = tech.artemisia.task.database.ExportToFile.info
 
-
-  /**
-    * brief description of the task
-    */
-  val doc = tech.artemisia.task.database.ExportToFile.doc(classOf[ExportToFile].getSimpleName)
+  override def doc(component: String): String = tech.artemisia.task.database.ExportToFile.doc(component)
 
 }
 

@@ -1,10 +1,11 @@
 package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
+import tech.artemisia.task.TaskLike
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.{ConnectionProfile, LoadSettings}
-import tech.artemisia.util.Util
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.Util
 
 /**
  * Created by chlr on 4/30/16.
@@ -26,24 +27,19 @@ class LoadToTable(name: String = Util.getUUID, tablename: String, connectionProf
 
 }
 
-object LoadToTable {
+object LoadToTable extends TaskLike {
 
-  def apply(name: String, config: Config): LoadToTable = {
+  override val info = tech.artemisia.task.database.LoadToTable.info
+
+  override def doc(component: String) = tech.artemisia.task.database.LoadToTable.doc(component)
+
+  override val taskName = tech.artemisia.task.database.LoadToTable.taskName
+
+  override def apply(name: String, config: Config) = {
     val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
     val destinationTable = config.as[String]("destination-table")
     val loadSettings = LoadSettings(config.as[Config]("load-setting"))
     new LoadToTable(name, destinationTable, connectionProfile, loadSettings)
   }
-
-  /**
-    * @return one line description of the task
-    */
-  def info = tech.artemisia.task.database.LoadToTable.info
-
-
-  /**
-    * brief description of the task
-    */
-  val doc = tech.artemisia.task.database.LoadToTable.doc(classOf[MySQLComponent].getSimpleName)
 
 }

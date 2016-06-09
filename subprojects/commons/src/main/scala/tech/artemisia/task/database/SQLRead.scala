@@ -1,8 +1,8 @@
 package tech.artemisia.task.database
 
-import com.typesafe.config.{ConfigRenderOptions, Config}
+import com.typesafe.config.{Config, ConfigRenderOptions}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.Task
+import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.task.settings.ConnectionProfile
 import tech.artemisia.util.Util
 
@@ -39,17 +39,13 @@ abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connect
 
 }
 
-object SQLRead {
+object SQLRead extends TaskLike {
 
-  /**
-    * @return one line description of the task
-    */
-  def info = "execute select queries and wraps the results in config"
+  override val taskName = "SQLRead"
 
-  /**
-    * brief description of the task
-    */
-  def doc(component: String) =
+  override val info = "execute select queries and wraps the results in config"
+
+  override def doc(component: String) =
     s"""| ${classOf[SQLRead].getSimpleName} task runs a select query and parse the first row as a Hocon Config.
         | The query must be select query and not any DML or DDL statements.
         | The configuration object is shown below.
@@ -69,5 +65,7 @@ object SQLRead {
         |  sqlfile = the file containing the query
         |
     """.stripMargin
+
+  override def apply(name: String, config: Config) = ???
 
 }

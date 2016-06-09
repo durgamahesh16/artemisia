@@ -1,8 +1,8 @@
 package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
+import tech.artemisia.task.{Task, TaskLike}
 
 /**
  * Created by chlr on 4/13/16.
@@ -43,28 +43,20 @@ abstract class ExportToFile(name: String, val sql: String, val connectionProfile
 
 }
 
-object ExportToFile {
+object ExportToFile extends TaskLike {
 
-  /**
-    * one line description of the task
-    */
-  val info = "export query results to a file"
+  override val taskName = "ExportToFile"
 
+  override val info = "export query results to a file"
 
-  /**
-    * returns the brief documentation of the task
-    *
-    * @param component name of the component
-    * @return task documentation
-    */
-  def doc(component: String) =
+  override def doc(component: String) =
     s"""
-      | ${classOf[ExportToFile].getSimpleName} task is used to export SQL query results to a file.
-      | The typical task ${classOf[ExportToFile].getSimpleName} configuration is as shown below
+      | $taskName task is used to export SQL query results to a file.
+      | The typical task $taskName configuration is as shown below
       |
       | {
       |  Component = $component
-      |  Task =  ${classOf[ExportToFile].getSimpleName}
+      |  Task =  $taskName
       |  params = {
       |    dsn = ?
       |    export = {
@@ -91,6 +83,8 @@ object ExportToFile {
       |   sqlfile = used in place of sql key to pass the file containing the SQL
       |
     """.stripMargin
+
+  override def apply(name: String, config: Config) = ???
 
 }
 

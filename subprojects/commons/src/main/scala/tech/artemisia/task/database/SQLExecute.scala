@@ -1,8 +1,8 @@
 package tech.artemisia.task.database
 
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.Task
+import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.task.settings.ConnectionProfile
 
 /**
@@ -42,19 +42,13 @@ abstract class SQLExecute(name: String, val sql: String, val connectionProfile: 
   override protected[task] def teardown(): Unit
 }
 
-object SQLExecute {
+object SQLExecute extends TaskLike {
 
-  /**
-    * @return one line description of the task
-    */
-  def info = "executes DML statements such as Insert/Update/Delete"
+  override val taskName = "SQLExecute"
 
+  override val info = "executes DML statements such as Insert/Update/Delete"
 
-
-  /**
-    * brief description of the task
-    */
-  def doc(component: String) =
+  override def doc(component: String) =
     s"""|  ${classOf[LoadToTable].getSimpleName} task is used execute arbitary DML statements against a database
         | The configuration object is shown below.
         |
@@ -74,6 +68,7 @@ object SQLExecute {
         |
     """.stripMargin
 
+  override def apply(name: String, config: Config) = ???
 }
 
 

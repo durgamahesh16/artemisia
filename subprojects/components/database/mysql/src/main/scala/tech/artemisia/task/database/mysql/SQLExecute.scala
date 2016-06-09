@@ -1,6 +1,7 @@
 package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
+import tech.artemisia.task.TaskLike
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.ConnectionProfile
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -26,24 +27,19 @@ class SQLExecute(name: String, sql: String, connectionProfile: ConnectionProfile
 
 }
 
-object SQLExecute {
+object SQLExecute extends TaskLike {
 
-  def apply(name: String, config: Config) = {
+  override val taskName = tech.artemisia.task.database.SQLExecute.taskName
+
+  override def apply(name: String, config: Config) = {
     new SQLExecute(name,
     sql = config.as[String]("sql"),
     connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
     )
   }
 
-  /**
-    * @return one line description of the task
-    */
-  def info = tech.artemisia.task.database.SQLExecute.info
+  override val info = tech.artemisia.task.database.SQLExecute.info
 
-
-  /**
-    * brief description of the task
-    */
-  val doc = tech.artemisia.task.database.SQLExecute.doc(classOf[MySQLComponent].getSimpleName)
+  override def doc(name: String) = tech.artemisia.task.database.SQLExecute.doc(name)
 
 }

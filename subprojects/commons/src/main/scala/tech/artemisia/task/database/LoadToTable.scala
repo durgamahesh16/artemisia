@@ -2,7 +2,7 @@ package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.Task
+import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.task.settings.{ConnectionProfile, LoadSettings}
 
 /**
@@ -43,20 +43,14 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
 
 }
 
-object LoadToTable {
+object LoadToTable extends TaskLike {
 
-  /**
-    * one line description of the task
-    */
-  val info = "load a file into a table"
+  override val taskName = "LoadToTable"
+
+  override val info = "load a file into a table"
 
 
-  /**
-    *
-    * @param component name of the component
-    * @return task documentation
-    */
-  def doc(component: String) =
+  override def doc(component: String) =
     s"""
       | ${classOf[LoadToTable].getSimpleName} task is used to load content into a table typically from a file.
       | the configuration object for this task is as shown below.
@@ -95,5 +89,7 @@ object LoadToTable {
       |     error-tolerance = % of data that is allowable to get rejected
       |
     """.stripMargin
+
+  override def apply(name: String, config: Config) = ???
 
 }
