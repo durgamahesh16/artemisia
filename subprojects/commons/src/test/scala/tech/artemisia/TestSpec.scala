@@ -1,7 +1,6 @@
 package tech.artemisia
 
 import org.scalatest._
-import tech.artemisia.core.{TestEnv, env}
 
 
 /**
@@ -15,14 +14,10 @@ trait PrePostTestSetup extends BeforeAndAfterEach {
 
   self: Suite =>
 
-  val testEnv = TestEnv
-  env = testEnv
-
   /**
    * any pre-test code setup goes here
    */
   abstract override def beforeEach(): Unit = {
-    env = testEnv
   }
 
   /**

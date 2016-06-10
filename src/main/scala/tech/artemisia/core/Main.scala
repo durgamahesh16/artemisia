@@ -1,6 +1,7 @@
 package tech.artemisia.core
 
 import scopt.OptionParser
+import tech.artemisia.util.Util
 
 object Main {
 
@@ -9,8 +10,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     Thread.currentThread().setName(Keywords.APP)
     parseCmdLineArguments(args,show_usage_on_error) match {
-      case cmdLineParams @ AppSetting(Some("run"), Some(_), _, _, _, _,_,_,_) => Command.run(cmdLineParams)
-      case cmdLineParams @ AppSetting(Some("doc"), _, _, _, _, _,_,component,task) => Command.doc(cmdLineParams)
+      case cmdLineParams @ AppSetting(Some("run"), Some(_), _, _, _, _, _, _, _, _) => Command.run(cmdLineParams)
+      case cmdLineParams @ AppSetting(Some("doc"), _, _, _, _, _, _, _, component, task) => Command.doc(cmdLineParams)
       case cmdLineParams @ _ => {
         println(cmdLineParams)
         throw new IllegalArgumentException("--help to see supported options")
@@ -39,7 +40,11 @@ object Main {
     }
 
     parser.parse(args, AppSetting()).getOrElse(AppSetting())
-
   }
+
+  private[core] def preProcessAppSetting(appSetting: AppSetting) = {
+    appSetting.copy(globalConfigFileRef = Util.getGlobalConfigFile(scala.util.Properties.envOrNone(Keywords.Config.GLOBAL_FILE_REF_VAR)))
+  }
+
 }
 

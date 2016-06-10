@@ -21,7 +21,7 @@ import scala.concurrent.duration.FiniteDuration
 class AppContext(private val cmdLineParam: AppSetting) {
 
   val skipCheckpoints = cmdLineParam.skip_checkpoints
-  val globalConfigFile = Util.getGlobalConfigFileLocation()
+  val globalConfigFile = cmdLineParam.globalConfigFileRef
   var payload = getConfigObject
   val logging: Logging =  AppContext.parseLoggingFromPayload(payload.as[Config]("__setting__.logging"))
   val dagSetting: DagSetting = AppContext.parseDagSettingFromPayload(payload.as[Config]("__setting__.dag"))

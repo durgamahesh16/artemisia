@@ -5,6 +5,7 @@ package tech.artemisia.core
  */
 
 
-case class AppSetting(cmd: Option[String] = Some("run"), value: Option[String] = None, context: Option[String] = None
-                      , config: Option[String] = None, run_id: Option[String] = None, working_dir: Option[String] = None,
-                      skip_checkpoints: Boolean = false, component: Option[String] = None, task: Option[String] = None )
+case class AppSetting(cmd: Option[String] = Some("run"), value: Option[String] = None, globalConfigFileRef: Option[String] = None,
+                      context: Option[String] = None, config: Option[String] = None, run_id: Option[String] = None,
+                      working_dir: Option[String] = None, skip_checkpoints: Boolean = false,
+                      component: Option[String] = None, task: Option[String] = None)

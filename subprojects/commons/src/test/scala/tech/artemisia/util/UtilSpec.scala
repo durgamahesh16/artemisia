@@ -1,10 +1,8 @@
 package tech.artemisia.util
 
 import java.io.{File, FileNotFoundException}
+
 import tech.artemisia.TestSpec
-import tech.artemisia.core.Keywords.Config
-import tech.artemisia.core.TestEnv.TestOsUtil
-import tech.artemisia.core.{Keywords, env}
 
 
 /**
@@ -13,31 +11,32 @@ import tech.artemisia.core.{Keywords, env}
 
 class UtilSpec extends TestSpec {
 
-  var os_util: TestOsUtil = _
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    os_util = env.osUtil.asInstanceOf[TestOsUtil]
-  }
-
   "The Util.readConfigFile" must "throw FileNotFoundException on non-existent file" in {
     intercept[FileNotFoundException] {
       Util.readConfigFile(new File("Some_Non_Existant_File.conf"))
     }
   }
 
-  "Util.getGlobalConfigFileLocation" must s"must provide default value when is ${Config.GLOBAL_FILE_REF_VAR} not set" in {
-    os_util.withSysVar(Map()) {
-      val default_value = this.getClass.getResource("/code/code_with_simple_mysql_component.conf").getFile
-      Util.getGlobalConfigFileLocation(default_value).get must equal(default_value)
+  it must "give back global config file is explicitly set" in {
+    FileSystemUtil.withTempFile(fileName = "global_file.txt") {
+      file => {
+        Util.getGlobalConfigFile(Some(file.toPath.toString)) must be (Some(file.toPath.toString))
+      }
     }
   }
 
-  it must s"must give a None if ${Keywords.Config.GLOBAL_FILE_REF_VAR} not set and the default file doesn't exist" in {
-    os_util.withSysVar(Map("foo2" -> "baz2")) {
-      val default_value = "A_Non_Existant_File.conf"
-      Util.getGlobalConfigFileLocation(default_value) must equal(None)
+
+  it must "give back default config file when global is not set" in {
+    FileSystemUtil.withTempFile(fileName = "global_file.txt") {
+      file => {
+        Util.getGlobalConfigFile(None, defaultConfig = file.toPath.toString) must be (Some(file.toPath.toString))
+      }
     }
   }
+
+  it must "give back None when global config is not set and default doesn't exists" in {
+     Util.getGlobalConfigFile(None, defaultConfig =  "a_dummy_non_existant_file") must be (None)
+  }
+
 
 }

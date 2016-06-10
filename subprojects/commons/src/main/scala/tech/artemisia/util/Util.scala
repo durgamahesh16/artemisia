@@ -2,10 +2,11 @@ package tech.artemisia.util
 
 import java.io._
 import java.nio.file.{Files, Paths}
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import tech.artemisia.core.{AppLogger, Keywords, env}
+import tech.artemisia.core.{AppLogger, Keywords}
 
 /**
  * Created by chlr on 11/29/15.
@@ -18,18 +19,18 @@ import tech.artemisia.core.{AppLogger, Keywords, env}
  */
 object Util {
 
+
   /**
-   * 
-   * @param globalConfigFilePath Global config file path
-   * @return parsed Config object of the global config file
-   */
-  def getGlobalConfigFileLocation(globalConfigFilePath: String = Keywords.Config.DEFAULT_GLOBAL_CONFIG_FILE): Option[String] = {
-    val os_util = env.osUtil
-    val result = os_util.getSystemVariable(Keywords.Config.GLOBAL_FILE_REF_VAR)
-    val global_config = if ( result.isEmpty )
-        if (Files exists Paths.get(globalConfigFilePath)) Some(globalConfigFilePath) else None
-    else result
-    global_config
+    * get effective global config file
+    * @param globalConfigFileRef config file set as environment variable
+    * @return effective config file
+    */
+  def getGlobalConfigFile(globalConfigFileRef: Option[String], defaultConfig: String = Keywords.Config.DEFAULT_GLOBAL_CONFIG_FILE) = {
+    globalConfigFileRef match {
+      case Some(configFile) =>  Some(configFile)
+      case None if Files exists Paths.get(defaultConfig) => Some(defaultConfig)
+      case None => None
+    }
   }
 
   /**
