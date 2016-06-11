@@ -2,9 +2,12 @@ package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import tech.artemisia.core.AppLogger
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.task.settings.ConnectionProfile
 import tech.artemisia.util.Util
+import tech.artemisia.util.HoconConfigUtil.Handler
+import scala.reflect.ClassTag
 
 /**
  * Created by chlr on 4/22/16.
@@ -67,5 +70,15 @@ object SQLRead extends TaskLike {
     """.stripMargin
 
   override def apply(name: String, config: Config) = ???
+
+  def create[T <: SQLRead: ClassTag](name: String, config: Config) = {
+    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+    val sql =
+      if (config.hasPath("sql")) config.as[String]("sql")
+      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
+      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[SQLRead]).getConstructor(classOf[String], classOf[String]
+    , classOf[ConnectionProfile]).newInstance(name, sql, connectionProfile)
+  }
 
 }

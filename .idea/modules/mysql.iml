@@ -21,6 +21,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/mysql-0.1-SNAPSHOT" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/test-reports" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/mysql/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />

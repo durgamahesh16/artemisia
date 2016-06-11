@@ -12,6 +12,8 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/localhost-build.iml" filepath="$PROJECT_DIR$/.idea/modules/localhost-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mysql.iml" filepath="$PROJECT_DIR$/.idea/modules/mysql.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mysql-build.iml" filepath="$PROJECT_DIR$/.idea/modules/mysql-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/postgres.iml" filepath="$PROJECT_DIR$/.idea/modules/postgres.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/postgres-build.iml" filepath="$PROJECT_DIR$/.idea/modules/postgres-build.iml" />
     </modules>
   </component>
 </project>

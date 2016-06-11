@@ -1,17 +1,15 @@
 package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
-import tech.artemisia.task.TaskLike
+import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.ConnectionProfile
-import tech.artemisia.util.HoconConfigUtil.Handler
-
 /**
  * Created by chlr on 5/21/16.
  */
 
 class SQLExecute(name: String, sql: String, connectionProfile: ConnectionProfile) extends
-                      tech.artemisia.task.database.SQLExecute(name, sql, connectionProfile) {
+                      database.SQLExecute(name, sql, connectionProfile) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)
 
@@ -29,17 +27,12 @@ class SQLExecute(name: String, sql: String, connectionProfile: ConnectionProfile
 
 object SQLExecute extends TaskLike {
 
-  override val taskName = tech.artemisia.task.database.SQLExecute.taskName
+  override val taskName = database.SQLExecute.taskName
 
-  override def apply(name: String, config: Config) = {
-    new SQLExecute(name,
-    sql = config.as[String]("sql"),
-    connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
-    )
-  }
+  override def apply(name: String, config: Config) = database.SQLExecute.create[SQLExecute](name, config)
 
-  override val info = tech.artemisia.task.database.SQLExecute.info
+  override val info = database.SQLExecute.info
 
-  override def doc(name: String) = tech.artemisia.task.database.SQLExecute.doc(name)
+  override def doc(name: String) = database.SQLExecute.doc(name)
 
 }

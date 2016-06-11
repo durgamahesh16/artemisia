@@ -12,10 +12,6 @@ class CoreComponents(componentName: String) extends Component(componentName) {
 
   override val info = s"Component that supports core tasks of ${Keywords.APP}"
 
-  override val doc: String =
-    s"""| This components hosts core tasks such as
-        | ${classOf[ScriptTask].getSimpleName} => ${ScriptTask.info}""".stripMargin
-
   override val defaultConfig = ConfigFactory.empty()
 
   override val tasks = Seq(ScriptTask)

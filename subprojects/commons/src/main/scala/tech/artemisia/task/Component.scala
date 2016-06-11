@@ -55,7 +55,12 @@ abstract class Component(val name: String) {
   /**
     * A brief overview of the components and the tasks it supports.
     */
-  val doc: String
+  def doc =
+    s"""
+       |$info
+       |${tasks map { x => s"${x.taskName} => ${x.info}" } mkString System.lineSeparator}
+     """.stripMargin
+
 
 
   /**

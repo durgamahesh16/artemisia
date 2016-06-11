@@ -2,6 +2,7 @@
   <dictionary name="chlr">
     <words>
       <w>artemisia</w>
+      <w>postgresql</w>
     </words>
   </dictionary>
 </component>

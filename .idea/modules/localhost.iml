@@ -21,6 +21,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/localhost/target/localhost-0.1-SNAPSHOT" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/localhost/target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/localhost/target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/localhost/target/test-reports" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/localhost/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />

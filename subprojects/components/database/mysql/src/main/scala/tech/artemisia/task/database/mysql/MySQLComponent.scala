@@ -17,17 +17,9 @@ class MySQLComponent(componentName: String) extends Component(componentName) {
       |
     """.stripMargin
 
-
-  override val info = "Component for interacting with MySQL database"
-
-  override val doc: String =
-    s"""| Supports interaction with a MySQL Database. Supports Tasks such as
-        | ${classOf[ExportToFile].getSimpleName} => ${ExportToFile.info}
-        | ${classOf[LoadToTable].getSimpleName} => ${LoadToTable.info}
-        | ${classOf[SQLExecute].getSimpleName} => ${SQLExecute.info}
-        | ${classOf[SQLRead].getSimpleName} => ${SQLRead.info} """.stripMargin
-
   override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadToTable, SQLExecute, SQLRead)
+
+  override val info: String = "This components provides tasks to interact with a mysql database"
 
 }
 

@@ -1,8 +1,12 @@
 package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
 import tech.artemisia.task.{Task, TaskLike}
+import tech.artemisia.util.HoconConfigUtil.Handler
+
+import scala.reflect.ClassTag
 
 /**
  * Created by chlr on 4/13/16.
@@ -85,6 +89,23 @@ object ExportToFile extends TaskLike {
     """.stripMargin
 
   override def apply(name: String, config: Config) = ???
+
+  /**
+    *
+    * @param name task name
+    * @param config task configuration
+    */
+  def create[T <: ExportToFile : ClassTag](name: String, config: Config): ExportToFile = {
+    val exportSettings = ExportSetting(config.as[Config]("export"))
+    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+    val sql =
+      if (config.hasPath("sql")) config.as[String]("sql")
+      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
+      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[ConnectionProfile],
+      classOf[ExportSetting]).newInstance(name, sql, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
+  }
+
 
 }
 

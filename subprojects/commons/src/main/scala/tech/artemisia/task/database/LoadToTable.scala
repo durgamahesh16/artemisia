@@ -4,6 +4,8 @@ import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.task.settings.{ConnectionProfile, LoadSettings}
+import tech.artemisia.util.HoconConfigUtil.Handler
+import scala.reflect.ClassTag
 
 /**
  * Created by chlr on 4/30/16.
@@ -91,5 +93,14 @@ object LoadToTable extends TaskLike {
     """.stripMargin
 
   override def apply(name: String, config: Config) = ???
+
+  def create[T <: LoadToTable : ClassTag](name: String, config: Config): LoadToTable = {
+      val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+      val destinationTable = config.as[String]("destination-table")
+      val loadSettings = LoadSettings(config.as[Config]("load-setting"))
+      implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[LoadToTable]).getConstructor(classOf[String],
+        classOf[String], classOf[ConnectionProfile], classOf[LoadSettings]).newInstance(name, destinationTable,
+        connectionProfile, loadSettings)
+  }
 
 }

@@ -24,17 +24,18 @@ object DbInterfaceFactory {
    */
   def getInstance(connectionProfile: ConnectionProfile, mode: String = "default") = {
     mode match {
-      case "default" => new DefualtDBInterface(connectionProfile)
+      case "default" => new DefaultDBInterface(connectionProfile)
       case "native" => new NativeDBInterface(connectionProfile)
       case _ => throw new InvalidParameterException(s"$mode is not supported")
     }
   }
 
   /**
-   * MySQL DBInterface with defualt Loader
+   * MySQL DBInterface with default Loader
+ *
    * @param connectionProfile ConnectionProfile object
    */
-  class DefualtDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with DataLoader {
+  class DefaultDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with DataLoader {
     override def connection: Connection = {
       getConnection(connectionProfile)
     }
@@ -42,6 +43,7 @@ object DbInterfaceFactory {
 
   /**
    * MySQL DBInterface with native Loader
+ *
    * @param connectionProfile ConnectionProfile object
    */
   class NativeDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with MySQLDataLoader {

@@ -21,11 +21,14 @@
       <excludeFolder url="file://$MODULE_DIR$/../../target/artemisia-0.1-SNAPSHOT" />
       <excludeFolder url="file://$MODULE_DIR$/../../target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../target/test-reports" />
       <excludeFolder url="file://$MODULE_DIR$/../../target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="commons" exported="" />
+    <orderEntry type="library" name="SBT: postgresql:postgresql:9.1-901-1.jdbc4:jar" level="project" />
+    <orderEntry type="module" module-name="postgres" exported="" />
     <orderEntry type="module" module-name="localhost" exported="" />
     <orderEntry type="module" module-name="mysql" exported="" />
     <orderEntry type="library" scope="TEST" name="SBT: asm:asm:3.3.1:jar" level="project" />

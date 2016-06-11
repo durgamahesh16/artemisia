@@ -4,6 +4,8 @@ import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.util.HoconConfigUtil.Handler
+import scala.reflect.ClassTag
 
 /**
  * Created by chlr on 5/21/16.
@@ -69,6 +71,13 @@ object SQLExecute extends TaskLike {
     """.stripMargin
 
   override def apply(name: String, config: Config) = ???
+
+  def create[T <: SQLExecute: ClassTag](name: String, config: Config) = {
+    val sql = config.as[String]("sql")
+    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+      implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[SQLExecute]).getConstructor(classOf[String],
+        classOf[String], classOf[ConnectionProfile]).newInstance(name, sql, connectionProfile)
+  }
 }
 
 

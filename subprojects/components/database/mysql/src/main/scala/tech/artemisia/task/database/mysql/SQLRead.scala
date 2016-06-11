@@ -1,12 +1,11 @@
 package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
-import tech.artemisia.task.TaskLike
+import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.ConnectionProfile
-import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
+
 
 class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: ConnectionProfile)
   extends tech.artemisia.task.database.SQLRead(name, sql, connectionProfile) {
@@ -17,20 +16,12 @@ class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: Conne
 
 object SQLRead extends TaskLike {
 
-  override val taskName = tech.artemisia.task.database.SQLRead.taskName
+  override val taskName = database.SQLRead.taskName
 
-  override val info = tech.artemisia.task.database.SQLRead.info
+  override val info = database.SQLRead.info
 
-  override def doc(component: String) = tech.artemisia.task.database.SQLRead.doc(component)
+  override def doc(component: String) = database.SQLRead.doc(component)
 
-  override def apply(name: String, config: Config) = {
-    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
-    val sql =
-      if (config.hasPath("sql")) config.as[String]("sql")
-      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
-      else throw new SettingNotFoundException("sql/sqlfile key is missing")
-    new SQLRead(name,sql,connectionProfile)
-  }
-
+  override def apply(name: String, config: Config) = database.SQLRead.create[SQLRead](name, config)
 
 }

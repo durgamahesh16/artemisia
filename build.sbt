@@ -14,7 +14,7 @@ coverageEnabled.in(ThisBuild ,Test, test) := true
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"))
   .settings(libraryDependencies ++= Artemisia.dependencies)
-  .dependsOn(commons % "compile->compile;test->test", localhost, mysql)
+  .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres)
 
 
 lazy val localhost = (project in General.componentBase / "localhost").enablePlugins(JavaAppPackaging)
@@ -31,7 +31,13 @@ lazy val mysql = (project in General.componentBase / "database" / "mysql").enabl
   .settings(MySQL.settings)
 
 
-lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql)
+lazy val postgres = (project in General.componentBase / "database" / "postgres").enablePlugins(JavaAppPackaging)
+  .settings(General.settings("postgres"))
+  .dependsOn(commons  % "compile->compile;test->test")
+  .settings(Postgres.settings)
+
+
+lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql, postgres)
   .enablePlugins(JavaAppPackaging)
   .settings(General.settings("all", publishable = false))
   .settings(
