@@ -15,7 +15,7 @@ class ExportToFileSpec extends TestSpec {
   val testDbInterface = TestDBInterFactory.withDefaultDataLoader(table)
   val connectionProfile = ConnectionProfile("","","","default", 1000)
   val file = new File(this.getClass.getResource("/exports/ExportToFile.txt").getFile)
-  val exportSettings = ExportSetting(file.toURI, delimiter = 0x1)
+  val exportSettings = ExportSetting(file.toURI, delimiter = 0x1, header = true)
 
   "ExportToFile" must "export query result to file" in {
     val exportToFile = new ExportToFile(name = "ExportToFileTest",
@@ -27,7 +27,7 @@ class ExportToFileSpec extends TestSpec {
     }
     val config = exportToFile.execute()
     config.as[Int](s"ExportToFileTest.${Keywords.TaskStats.STATS}.rows") must be (2)
-    scala.io.Source.fromFile(file).getLines().toList(1) must be ("2\u0001bar")
+    scala.io.Source.fromFile(file).getLines().toList(2) must be ("2\u0001bar\u0001FALSE\u0001100\u000110000000\u00018723.38\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00.0")
   }
 
 

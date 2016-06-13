@@ -10,10 +10,9 @@ class PostgresComponent(name: String) extends Component(name) {
 
   override val defaultConfig = ConfigFactory parseString
     """
-      | params: {
+      | {
       | dsn = { port: 5432 }
-      |}
-      |
+      | }
     """.stripMargin
 
   override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadToTable, SQLExecute, SQLRead)

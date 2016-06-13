@@ -21,7 +21,7 @@ import tech.artemisia.util.HoconConfigUtil.Handler
  */
   case class ExportSetting(file: URI, header: Boolean = false, override val delimiter: Char = ',',
                          override val quoting: Boolean = false, override val quotechar: Char = '"',
-                         override val escapechar: Char = '\\')
+                         override val escapechar: Char = '\\', mode: String = "default")
   extends CSVSettings(delimiter, quoting, quotechar, escapechar)
 
 object ExportSetting {
@@ -34,8 +34,8 @@ object ExportSetting {
       |	  quoting = no,
       |	  quotechar = "\""
       |   escapechar = "\\"
+      |   mode = "default"
       |	}
-      |
     """.stripMargin
 
   def apply(inputConfig: Config): ExportSetting = {
@@ -46,7 +46,8 @@ object ExportSetting {
       delimiter = config.as[Char]("delimiter"),
       quoting = config.as[Boolean]("quoting"),
       escapechar = config.as[Char]("escapechar"),
-      quotechar =  config.as[Char]("quotechar")
+      quotechar =  config.as[Char]("quotechar"),
+      mode = config.as[String]("mode")
     )
   }
 }

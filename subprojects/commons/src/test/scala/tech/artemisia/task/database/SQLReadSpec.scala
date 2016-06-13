@@ -22,4 +22,5 @@ class SQLReadSpec extends TestSpec {
       result.getString("COL2") must be ("foo")
     }
 
+
 }

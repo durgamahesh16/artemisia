@@ -33,8 +33,7 @@ abstract class ExportToFile(name: String, val sql: String, val connectionProfile
        * @return Config object with key rows and values as total number of rows exports
       */
      override protected[task] def work(): Config = {
-       val rs = dbInterface.query(sql)
-       val records = DBUtil.exportCursorToFile(rs,exportSettings)
+       val records = dbInterface.export(sql, exportSettings)
        wrapAsStats {
          ConfigFactory parseString
            s"""
@@ -105,7 +104,6 @@ object ExportToFile extends TaskLike {
     implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[ConnectionProfile],
       classOf[ExportSetting]).newInstance(name, sql, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
   }
-
 
 }
 

@@ -15,11 +15,11 @@ class LoadToTableSpec extends TestSpec {
     withTempFile(fileName = s"${tableName}_1") {
       file => {
         file <<=
-          """|102\u0001magneto
-             |103\u0001xavier
-             |104\u0001wolverine
-             |105\u0001mystique
-             |106\u0001quicksilver""".stripMargin
+          """|102\u0001magneto\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
+             |103\u0001xavier\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
+             |104\u0001wolverine\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
+             |105\u0001mystique\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
+             |106\u0001quicksilver\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00 """.stripMargin
         val loadSettings = LoadSettings(file.toURI, delimiter = '\u0001')
         val loader = LoadToTableSpec.loader("LoadToTableSpec1",tableName, TestDBInterFactory.stubbedConnectionProfile,loadSettings)
         val config = loader.execute()
@@ -30,6 +30,8 @@ class LoadToTableSpec extends TestSpec {
     }
   }
 }
+
+
 
 object LoadToTableSpec {
 

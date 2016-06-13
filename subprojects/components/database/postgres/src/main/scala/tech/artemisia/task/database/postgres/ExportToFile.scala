@@ -14,7 +14,7 @@ import tech.artemisia.task.database
 class ExportToFile(name: String, sql: String, connectionProfile: ConnectionProfile ,exportSettings: ExportSetting)
   extends database.ExportToFile(name: String, sql: String, connectionProfile: ConnectionProfile ,exportSettings: ExportSetting) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)
+  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, mode = exportSettings.mode)
 
   override protected[task] def setup(): Unit = {
     assert(exportSettings.file.getScheme == "file", "LocalFileSystem is the only supported destination")

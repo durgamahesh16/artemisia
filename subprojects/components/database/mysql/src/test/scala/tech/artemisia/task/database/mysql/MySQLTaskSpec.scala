@@ -32,7 +32,7 @@ class MySQLTaskSpec extends TestSpec {
         }
         val result = task.execute()
         result.getInt(s"$taskName.__stats__.rows") must be (2)
-        Source.fromFile(file).getLines().toList.head must be ("1,foo")
+        Source.fromFile(file).getLines().toList.head must be ("1,foo,TRUE,100,10000000,87.30,12:30:00,1945-05-09,1945-05-09 12:30:00.0")
       }
     }
   }

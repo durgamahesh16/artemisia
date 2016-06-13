@@ -11,10 +11,9 @@ class MySQLComponent(componentName: String) extends Component(componentName) {
 
   override val defaultConfig = ConfigFactory parseString
     """
-      | params: {
+      | {
       | dsn = { port: 3306 }
-      |}
-      |
+      | }
     """.stripMargin
 
   override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadToTable, SQLExecute, SQLRead)

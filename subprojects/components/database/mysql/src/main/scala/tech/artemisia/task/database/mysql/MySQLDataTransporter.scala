@@ -1,19 +1,23 @@
 package tech.artemisia.task.database.mysql
 
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.database.{DBInterface, DataLoader}
-import tech.artemisia.task.settings.LoadSettings
+import tech.artemisia.task.database.{DBInterface, DataTransporter}
+import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
 
 /**
  * Created by chlr on 5/1/16.
  */
 
-trait MySQLDataLoader extends DataLoader {
+trait MySQLDataTransporter extends DataTransporter {
   self: DBInterface =>
 
   override def loadData(tableName: String, loadSettings: LoadSettings) = {
     AppLogger debug "error file is ignored in this mode"
-    this.execute(getLoadSQL(loadSettings, tableName)) -> -1L
+    this.execute(getLoadSQL(loadSettings, tableName)) -> 0L
+  }
+
+  override def exportData(sql: String, exportSetting: ExportSetting) = {
+    throw new UnsupportedOperationException("bulk export utility is not supported in this mode")
   }
 
   def getLoadSQL(loadSettings: LoadSettings, tableName: String) = {
@@ -24,4 +28,6 @@ trait MySQLDataLoader extends DataLoader {
         | IGNORE ${loadSettings.skipRows} LINES
      """.stripMargin
   }
+
+
 }

@@ -3,7 +3,7 @@ package tech.artemisia.task.database.mysql
 import java.security.InvalidParameterException
 import java.sql.{DriverManager, Connection}
 
-import tech.artemisia.task.database.{DataLoader, DBInterface}
+import tech.artemisia.task.database.{DefaultDataTransporter, DBInterface}
 import tech.artemisia.task.settings.ConnectionProfile
 
 
@@ -25,17 +25,17 @@ object DbInterfaceFactory {
   def getInstance(connectionProfile: ConnectionProfile, mode: String = "default") = {
     mode match {
       case "default" => new DefaultDBInterface(connectionProfile)
-      case "native" => new NativeDBInterface(connectionProfile)
+      case "bulk" => new NativeDBInterface(connectionProfile)
       case _ => throw new InvalidParameterException(s"$mode is not supported")
     }
   }
 
   /**
    * MySQL DBInterface with default Loader
- *
+   *
    * @param connectionProfile ConnectionProfile object
    */
-  class DefaultDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with DataLoader {
+  class DefaultDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with DefaultDataTransporter {
     override def connection: Connection = {
       getConnection(connectionProfile)
     }
@@ -43,10 +43,10 @@ object DbInterfaceFactory {
 
   /**
    * MySQL DBInterface with native Loader
- *
+   *
    * @param connectionProfile ConnectionProfile object
    */
-  class NativeDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with MySQLDataLoader {
+  class NativeDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with MySQLDataTransporter {
     override def connection: Connection = {
       getConnection(connectionProfile)
     }

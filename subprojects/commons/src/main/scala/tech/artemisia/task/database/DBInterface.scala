@@ -7,9 +7,9 @@ package tech.artemisia.task.database
 
 import java.sql.{Connection, ResultSet}
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.settings.LoadSettings
+import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
 import tech.artemisia.util.Util
 
 
@@ -27,7 +27,7 @@ import tech.artemisia.util.Util
  */
 trait DBInterface {
 
-  self: DataLoader =>
+  self: DataTransporter =>
 
   /**
    *
@@ -71,7 +71,7 @@ trait DBInterface {
     AppLogger info Util.prettyPrintAsciiTable(sql,"query")
     val stmt = connection.prepareStatement(sql)
     val rs = stmt.executeQuery()
-    val result = DBInterface.resultSetToConfig(rs)
+    val result = DBUtil.resultSetToConfig(rs)
     try {
       rs.close()
       stmt.close()
@@ -82,6 +82,16 @@ trait DBInterface {
       }
     }
     result
+  }
+
+  /**
+    * export query result to file
+    * @param sql query
+    * @param exportSetting export settings
+    * @return no of records exported
+    */
+  def export(sql: String, exportSetting: ExportSetting): Long = {
+    self.exportData(sql, exportSetting)
   }
 
   /**
@@ -129,37 +139,7 @@ trait DBInterface {
 }
 
 
-object DBInterface {
 
-  /**
-   *
-   * @todo convert java.sql.Time to Duration type in Hocon
-   * @param rs input ResultSet
-   * @return config object parsed from first row
-   */
-  def resultSetToConfig(rs: ResultSet) = {
-    if(rs.next()) {
-      val result = for(i <- 1 to rs.getMetaData.getColumnCount) yield {
-        rs.getMetaData.getColumnName(i) -> rs.getObject(i)
-      }
-      result.foldLeft[Config](ConfigFactory.empty()) {
-        (config: Config, data: (String, Object)) => {
-          val parsed = data match {
-            case (x, y: String) =>  s"$x = $y"
-            case (x, y: java.lang.Number) => s"$x = ${y.toString}"
-            case (x, y: java.lang.Boolean) => s"$x = ${if (y) "yes" else "no"}"
-            case (x, y: java.util.Date) => s"$x = ${y.toString}"
-            case _ => throw new UnsupportedOperationException(s"Type ${data._2.getClass.getCanonicalName} is not supported")
-          }
-          ConfigFactory.parseString(parsed) withFallback config
-        }
-      }
-    }
-    else {
-      ConfigFactory.empty()
-    }
-  }
-}
 
 
 

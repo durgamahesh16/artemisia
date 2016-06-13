@@ -11,11 +11,11 @@ object TestDBInterFactory {
   
   
   def withDefaultDataLoader(table: String, mode: Option[String] = None) = {
-    val dbInterface: DBInterface = new DBInterface with DataLoader  {
+    val dbInterface: DBInterface = new DBInterface with DefaultDataTransporter  {
       override def connection: Connection = {
-        val modeoption = (mode map { x => s"MODE=$x;" }).getOrElse("")
+        val modeOption = (mode map { x => s"MODE=$x;" }).getOrElse("")
         Class.forName("org.h2.Driver")
-        DriverManager.getConnection(s"jdbc:h2:mem:test;${modeoption}DB_CLOSE_DELAY=-1","","")
+        DriverManager.getConnection(s"jdbc:h2:mem:test;${modeOption}DB_CLOSE_DELAY=-1","","")
       }
     }
     processDbInterface(dbInterface, table)
@@ -24,10 +24,23 @@ object TestDBInterFactory {
   
   
   private def processDbInterface(dbInterface: DBInterface, table: String) = {
-    dbInterface.execute(s"CREATE TABLE IF NOT EXISTS $table (col1 int, col2 varchar(10))")
+    dbInterface.execute(
+      s"""CREATE TABLE IF NOT EXISTS $table
+         |(
+         | col1 int,
+         | col2 varchar(10),
+         | col3 boolean,
+         | col4 tinyint,
+         | col5 bigint,
+         | col6 decimal(6,2),
+         | col7 time,
+         | col8 date,
+         | col9 timestamp,
+         |)
+         |""".stripMargin)
     dbInterface.execute(s"DELETE FROM $table")
-    dbInterface.execute(s"INSERT INTO $table VALUES (1, 'foo')")
-    dbInterface.execute(s"INSERT INTO $table VALUES (2, 'bar')")
+    dbInterface.execute(s"INSERT INTO $table VALUES (1, 'foo', true, 100, 10000000, 87.3, '12:30:00', '1945-05-09', '1945-05-09 12:30:00')")
+    dbInterface.execute(s"INSERT INTO $table VALUES (2, 'bar', false, 100, 10000000, 8723.38, '12:30:00', '1945-05-09', '1945-05-09 12:30:00')")
   }
 
   /**

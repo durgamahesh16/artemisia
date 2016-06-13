@@ -1,7 +1,6 @@
 package tech.artemisia.task.database.mysql
 
 import java.nio.file.Paths
-
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
 import tech.artemisia.core.Keywords
@@ -22,7 +21,6 @@ class MySQLComponentSpec extends TestSpec {
         |     ${Keywords.Connection.USERNAME} = user
         |     ${Keywords.Connection.PASSWORD} = pass
         |     ${Keywords.Connection.DATABASE} = db
-        |     ${Keywords.Connection.PORT} = -1
         |  }
         |  sql = "SELECT * FROM table"
         |}
@@ -30,7 +28,7 @@ class MySQLComponentSpec extends TestSpec {
 
     val task = component.dispatchTask("SQLRead", "sql_read", config).asInstanceOf[SQLRead]
     task.sql must be ("SELECT * FROM table")
-    task.connectionProfile.port must be (-1)
+    task.connectionProfile.port must be (3306)
     task.connectionProfile.default_database must be ("db")
   }
 

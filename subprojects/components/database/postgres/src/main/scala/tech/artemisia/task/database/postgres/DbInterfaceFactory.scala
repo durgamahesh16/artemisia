@@ -2,7 +2,7 @@ package tech.artemisia.task.database.postgres
 
 import java.security.InvalidParameterException
 import java.sql.{Connection, DriverManager}
-import tech.artemisia.task.database.{DBInterface, DataLoader}
+import tech.artemisia.task.database.{DBInterface, DefaultDataTransporter}
 import tech.artemisia.task.settings.ConnectionProfile
 
 
@@ -24,6 +24,7 @@ object DbInterfaceFactory {
   def getInstance(connectionProfile: ConnectionProfile, mode: String = "default") = {
     mode match {
       case "default" => new DefaultDBInterface(connectionProfile)
+      case "bulk" => new NativeDBInterface(connectionProfile)
       case _ => throw new InvalidParameterException(s"$mode is not supported")
     }
   }
@@ -33,11 +34,25 @@ object DbInterfaceFactory {
     *
     * @param connectionProfile ConnectionProfile object
     */
-  class DefaultDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with DataLoader {
+  class DefaultDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with DefaultDataTransporter {
     override def connection: Connection = {
       getConnection(connectionProfile)
     }
   }
+
+  /**
+    * Postgres DBInterface with default Loader
+    *
+    * @param connectionProfile ConnectionProfile object
+    */
+  class NativeDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with PostgresFileTransporter {
+    override def connection: Connection = {
+      getConnection(connectionProfile)
+    }
+  }
+
+
+  class BulkDBInterFace()
 
 
   private def getConnection(connectionProfile: ConnectionProfile) = {

@@ -12,7 +12,7 @@ class DBInterfaceFactorySpec extends TestSpec {
     DbInterfaceFactory.getInstance(ConnectionProfile("dummy_dsn","","","",-1),"default") mustBe a
       [DbInterfaceFactory.DefaultDBInterface]
 
-    DbInterfaceFactory.getInstance(ConnectionProfile("dummy_dsn","","","",-1),"native") mustBe a
+    DbInterfaceFactory.getInstance(ConnectionProfile("dummy_dsn","","","",-1),"bulk") mustBe a
       [DbInterfaceFactory.NativeDBInterface]
 
   }
