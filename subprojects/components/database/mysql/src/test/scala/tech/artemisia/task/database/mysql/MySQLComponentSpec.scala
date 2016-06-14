@@ -37,13 +37,7 @@ class MySQLComponentSpec extends TestSpec {
     val config = ConfigFactory parseString
       s"""
          |{
-         |  dsn = {
-         |     ${Keywords.Connection.HOSTNAME} = dummy_host
-         |     ${Keywords.Connection.USERNAME} = user
-         |     ${Keywords.Connection.PASSWORD} = pass
-         |     ${Keywords.Connection.DATABASE} = db
-         |     ${Keywords.Connection.PORT} = -1
-         |  }
+         |  ${MySQLComponentSpec.getDSN(pass = "pass")}
          |  sql = "SELECT * FROM table"
          |}
       """.stripMargin
@@ -60,13 +54,7 @@ class MySQLComponentSpec extends TestSpec {
     val config = ConfigFactory parseString
       s"""
          |{
-         |  dsn = {
-         |     ${Keywords.Connection.HOSTNAME} = dummy_host
-         |     ${Keywords.Connection.USERNAME} = user
-         |     ${Keywords.Connection.PASSWORD} = pass
-         |     ${Keywords.Connection.DATABASE} = db
-         |     ${Keywords.Connection.PORT} = -1
-         |  }
+         |  ${MySQLComponentSpec.getDSN()}
          |  destination-table = test_table
          |       load-setting = {
          |         header =  yes
@@ -88,13 +76,7 @@ class MySQLComponentSpec extends TestSpec {
     val config = ConfigFactory parseString
       s"""
         | {
-        |    dsn = {
-        |       ${Keywords.Connection.HOSTNAME} = dummy_host
-        |       ${Keywords.Connection.USERNAME} = user
-        |       ${Keywords.Connection.PASSWORD} = pass
-        |       ${Keywords.Connection.DATABASE} = db
-        |       ${Keywords.Connection.PORT} = -1
-        |     }
+        |  ${MySQLComponentSpec.getDSN()}
         |    export = {
         |      delimiter = "\\t"
         |      file = output.txt
@@ -110,4 +92,28 @@ class MySQLComponentSpec extends TestSpec {
   }
 
 
+  it must "spew out doc for all tasks" in {
+    for (task <- component.tasks) {
+      component.taskDoc(task.taskName).trim.length must be > 1
+    }
+  }
+
+
+}
+
+
+object MySQLComponentSpec {
+
+    def getDSN(host: String = "dummy_host", user: String = "user", pass: String = "password", db: String = "db", port: Int = -1) = {
+      s"""
+          |dsn = {
+          | ${Keywords.Connection.HOSTNAME} = $host
+          | ${Keywords.Connection.USERNAME} = $user
+          | ${Keywords.Connection.PASSWORD} = $pass
+          | ${Keywords.Connection.DATABASE} = $db
+          | ${Keywords.Connection.PORT} = $port
+          |}
+          |
+     """.stripMargin
+   }
 }

@@ -1,6 +1,5 @@
 package tech.artemisia.task.database.postgres
 
-import java.security.InvalidParameterException
 import java.sql.{Connection, DriverManager}
 import tech.artemisia.task.database.{DBInterface, DefaultDataTransporter}
 import tech.artemisia.task.settings.ConnectionProfile
@@ -25,7 +24,7 @@ object DbInterfaceFactory {
     mode match {
       case "default" => new DefaultDBInterface(connectionProfile)
       case "bulk" => new NativeDBInterface(connectionProfile)
-      case _ => throw new InvalidParameterException(s"$mode is not supported")
+      case _ => throw new IllegalArgumentException(s"mode '$mode' is not supported")
     }
   }
 
