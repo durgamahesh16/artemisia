@@ -44,7 +44,7 @@ object DbInterfaceFactory {
     *
     * @param connectionProfile ConnectionProfile object
     */
-  class NativeDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with PostgresFileTransporter {
+  class NativeDBInterface(connectionProfile: ConnectionProfile) extends DBInterface with PGDataTransporter {
     override def connection: Connection = {
       getConnection(connectionProfile)
     }
