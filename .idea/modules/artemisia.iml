@@ -62,5 +62,8 @@
     <orderEntry type="module" module-name="localhost" exported="" />
     <orderEntry type="module" module-name="postgres" exported="" />
     <orderEntry type="library" name="SBT: postgresql:postgresql:9.1-901-1.jdbc4:jar" level="project" />
+    <orderEntry type="library" name="SBT: javax.activation:activation:1.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: javax.mail:mail:1.4.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.commons:commons-email:1.2:jar" level="project" />
   </component>
 </module>
