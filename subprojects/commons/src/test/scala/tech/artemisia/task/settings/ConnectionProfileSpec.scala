@@ -22,7 +22,7 @@ class ConnectionProfileSpec extends TestSpec {
         |	}
       """.stripMargin
 
-    val connectionProfile = ConnectionProfile(config)
+    val connectionProfile = DBConnection(config)
     connectionProfile.hostname must be ("database-host")
     connectionProfile.username must be ("tango")
     connectionProfile.password must be ("bravo")

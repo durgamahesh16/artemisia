@@ -26,10 +26,24 @@ case class EmailRequest(to: Seq[String], cc: Seq[String] = Nil, bcc: Seq[String]
 
 object EmailRequest {
 
-  def apply(config: Config) = {
+  val structure =
+    s"""|{
+        | to  = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] >
+        | cc  = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] > @optional
+        | bcc = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] > @optional
+        | attachment = <%
+        |             ['/var/tmp/file1.txt', '/var/tmp/file2.txt']
+        |              <--------------------------------------->
+        |             [{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}]
+        |              %> @optional
+        | subject = "subject"
+        | message = "message"
+        |}""".stripMargin
+
+  def apply(config: Config): EmailRequest = {
 
     def parseAddressConfig(field: String) = {
-      config.getValue("to").unwrapped() match {
+      config.getValue(field).unwrapped() match {
         case x: String => Seq(x)
         case x: java.util.List[String] @unchecked => x.asScala
       }
@@ -39,10 +53,10 @@ object EmailRequest {
       to = parseAddressConfig("to"),
       cc = parseAddressConfig("cc"),
       bcc = parseAddressConfig("bcc"),
-      attachments = config.as[Seq[AnyRef]]("attachments") map {
+      attachments = if (config.hasPath("attachments")) config.as[List[AnyRef]]("attachments") map {
         case x: String => None ->new File(x)
-        case y: java.util.Map[String,String] =>  y.asScala.toSeq.head match { case (a: String, b: String) => Some(a) -> new File(b) }
-      },
+        case y: java.util.Map[String,String] @unchecked =>  y.asScala.toSeq.head match { case (a: String, b: String) => Some(a) -> new File(b) }
+      } else Nil,
       subject = config.as[String]("subject"),
       message = config.as[String]("message")
     )

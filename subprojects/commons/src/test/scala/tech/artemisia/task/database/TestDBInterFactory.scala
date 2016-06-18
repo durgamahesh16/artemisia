@@ -2,7 +2,7 @@ package tech.artemisia.task.database
 
 import java.sql.{Connection, DriverManager}
 
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 
 /**
  * Created by chlr on 4/27/16.
@@ -47,7 +47,7 @@ object TestDBInterFactory {
    * This is stubbed ConnectionProfile object primarily to be used along with H2 database which doesn't require a connectionProfile object to work with.
    * @return ConnectionProfile object
    */
-  val stubbedConnectionProfile = ConnectionProfile("","","","",-1)
+  val stubbedConnectionProfile = DBConnection("","","","",-1)
 
 }
 

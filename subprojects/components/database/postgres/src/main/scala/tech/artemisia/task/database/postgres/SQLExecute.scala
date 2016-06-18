@@ -2,14 +2,14 @@ package tech.artemisia.task.database.postgres
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 
 /**
   * Created by chlr on 6/11/16.
   */
 
-class SQLExecute(name: String, sql: String, connectionProfile: ConnectionProfile) extends
+class SQLExecute(name: String, sql: String, connectionProfile: DBConnection) extends
   database.SQLExecute(name, sql, connectionProfile) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)

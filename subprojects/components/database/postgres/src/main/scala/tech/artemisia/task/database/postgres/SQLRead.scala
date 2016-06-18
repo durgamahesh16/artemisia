@@ -2,7 +2,7 @@ package tech.artemisia.task.database.postgres
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.Util
 
@@ -10,7 +10,7 @@ import tech.artemisia.util.Util
   * Created by chlr on 6/11/16.
   */
 
-class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: ConnectionProfile)
+class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: DBConnection)
   extends database.SQLRead(name, sql, connectionProfile) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)

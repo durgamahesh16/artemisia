@@ -1,7 +1,7 @@
 package tech.artemisia.task.database.mysql
 
 import tech.artemisia.TestSpec
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 
 /**
   * Created by chlr on 6/2/16.
@@ -9,10 +9,10 @@ import tech.artemisia.task.settings.ConnectionProfile
 class DBInterfaceFactorySpec extends TestSpec {
 
   "DBInterfaceFactory" must "" in {
-    DbInterfaceFactory.getInstance(ConnectionProfile("dummy_dsn","","","",-1),"default") mustBe a
+    DbInterfaceFactory.getInstance(DBConnection("dummy_dsn","","","",-1),"default") mustBe a
       [DbInterfaceFactory.DefaultDBInterface]
 
-    DbInterfaceFactory.getInstance(ConnectionProfile("dummy_dsn","","","",-1),"bulk") mustBe a
+    DbInterfaceFactory.getInstance(DBConnection("dummy_dsn","","","",-1),"bulk") mustBe a
       [DbInterfaceFactory.NativeDBInterface]
 
   }

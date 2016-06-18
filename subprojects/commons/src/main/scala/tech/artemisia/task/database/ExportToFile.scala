@@ -2,9 +2,10 @@ package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
-import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
-import tech.artemisia.task.{Task, TaskLike}
+import tech.artemisia.task.Task
+import tech.artemisia.task.settings.{DBConnection, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.Util.DocStringProcessor
 
 import scala.reflect.ClassTag
 
@@ -19,7 +20,7 @@ import scala.reflect.ClassTag
   * @param connectionProfile Connection Profile settings
   * @param exportSettings Export settings
   */
-abstract class ExportToFile(name: String, val sql: String, val connectionProfile: ConnectionProfile ,val exportSettings: ExportSetting)
+abstract class ExportToFile(name: String, val sql: String, val connectionProfile: DBConnection ,val exportSettings: ExportSetting)
   extends Task(name: String) {
 
      val dbInterface: DBInterface
@@ -46,13 +47,13 @@ abstract class ExportToFile(name: String, val sql: String, val connectionProfile
 
 }
 
-object ExportToFile extends TaskLike {
+object ExportToFile  {
 
-  override val taskName = "ExportToFile"
+  val taskName = "ExportToFile"
 
-  override val info = "export query results to a file"
+  val info = "export query results to a file"
 
-  override def doc(component: String) =
+  def doc(component: String, defaultPort: Int) =
     s"""
       | $taskName task is used to export SQL query results to a file.
       | The typical task $taskName configuration is as shown below
@@ -61,33 +62,25 @@ object ExportToFile extends TaskLike {
       |  Component = $component
       |  Task =  $taskName
       |  params = {
-      |    dsn = ?
-      |    export = {
-      |       file = ?
-      |	      header = false
-      |	      delimiter = ","
-      |	      quoting = no,
-      |	      quotechar = "\""
-      |       escapechar = "\\"
-      |     }
-      |    [sql|sqlfile] = ?
+      |    dsn = <%
+      |           connection-name
+      |           <------------->
+      |           ${DBConnection.structure(defaultPort).ident(15)}
+      |          %>
+      |    export = ${ExportSetting.structure.ident(15)}
+      |    <%
+      |      sql = "SELECT * FROM TABLE"
+      |      <-------------------------->
+      |      sqlfile = run_queries.sql
+      |    %> @required
       | }
       |
       |Its param include
       | dsn =  either a name of the dsn or a config-object with username/password and other credentials
       | export:
-      |   file =  location of the file to which data is to be exported. eg: /var/tmp/output.txt
-      |   header = boolean literal to enable/disable header
-      |   delimiter = character to be used for delimiter
-      |   quoting = boolean literal to enable/disable quoting of fields.
-      |   quotechar = quotechar to use if quoting is enabled.
-      |   escapechar = escape character use for instance to escape delimiter values in field
-      |   sql = SQL query whose resultset will be exported.
-      |   sqlfile = used in place of sql key to pass the file containing the SQL
+      |       ${ExportSetting.fieldDescription.ident(8)}
       |
     """.stripMargin
-
-  override def apply(name: String, config: Config) = ???
 
   /**
     *
@@ -96,12 +89,12 @@ object ExportToFile extends TaskLike {
     */
   def create[T <: ExportToFile : ClassTag](name: String, config: Config): ExportToFile = {
     val exportSettings = ExportSetting(config.as[Config]("export"))
-    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val sql =
       if (config.hasPath("sql")) config.as[String]("sql")
       else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
-    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[ConnectionProfile],
+    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[DBConnection],
       classOf[ExportSetting]).newInstance(name, sql, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
   }
 

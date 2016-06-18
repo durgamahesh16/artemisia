@@ -103,11 +103,10 @@ trait DBInterface {
    */
   def load(tableName: String, loadSettings: LoadSettings) = {
     val (total,rejected) = self.loadData(tableName, loadSettings)
-    if (loadSettings.errorTolerance > -1) {
-      val errorPct = (rejected.asInstanceOf[Float] / total) * 100
-      assert( errorPct < loadSettings.errorTolerance ,
-        s"Load Error % ${"%3.2f".format(errorPct)} greater than defined limit: ${loadSettings.errorTolerance}")
-    }
+      loadSettings.errorTolerance foreach {
+        val errorPct = (rejected.asInstanceOf[Float] / total) * 100
+        x => assert( errorPct < x , s"Load Error % ${"%3.2f".format(errorPct)} greater than defined limit: ${x * 100}")
+      }
     total -> rejected
   }
 

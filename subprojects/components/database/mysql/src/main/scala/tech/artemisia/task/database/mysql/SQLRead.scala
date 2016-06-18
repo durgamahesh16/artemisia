@@ -3,11 +3,11 @@ package tech.artemisia.task.database.mysql
 import com.typesafe.config.Config
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.Util
 
 
-class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: ConnectionProfile)
+class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: DBConnection)
   extends tech.artemisia.task.database.SQLRead(name, sql, connectionProfile) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)

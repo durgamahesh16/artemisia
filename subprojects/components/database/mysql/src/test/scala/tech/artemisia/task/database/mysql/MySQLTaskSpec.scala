@@ -2,7 +2,7 @@ package tech.artemisia.task.database.mysql
 
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.TestDBInterFactory
-import tech.artemisia.task.settings.{ConnectionProfile, ExportSetting}
+import tech.artemisia.task.settings.{DBConnection, ExportSetting}
 import tech.artemisia.util.FileSystemUtil
 
 import scala.io.Source
@@ -15,7 +15,7 @@ class MySQLTaskSpec extends TestSpec {
   "MySQLTask" must "execute dml queries correctly" in {
     val table = "mysql_dummy_table1"
     val taskName = "SQLExecuteTest"
-    val sqlExecute = new SQLExecute(taskName, s"delete from $table" ,ConnectionProfile("","","","",10)) {
+    val sqlExecute = new SQLExecute(taskName, s"delete from $table" ,DBConnection("","","","",10)) {
         override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
     }
     val result = sqlExecute.execute()
@@ -27,7 +27,7 @@ class MySQLTaskSpec extends TestSpec {
     val taskName = "SQLExportTest"
     FileSystemUtil.withTempFile(fileName = table) {
       file => {
-        val task = new ExportToFile(taskName, s"select * from $table", ConnectionProfile("","","","",10), ExportSetting(file.toURI)) {
+        val task = new ExportToFile(taskName, s"select * from $table", DBConnection("","","","",10), ExportSetting(file.toURI)) {
           override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
         }
         val result = task.execute()
@@ -40,7 +40,7 @@ class MySQLTaskSpec extends TestSpec {
   it must "read sql query and emit config value" in {
     val table = "mysql_dummy_table3"
     val taskName = "SQLReadTest"
-    val sqlRead = new SQLRead(taskName, s"select col1 from $table where col2 = 'foo'" ,ConnectionProfile("","","","",10)) {
+    val sqlRead = new SQLRead(taskName, s"select col1 from $table where col2 = 'foo'" ,DBConnection("","","","",10)) {
       override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
     }
     val result = sqlRead.execute()

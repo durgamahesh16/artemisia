@@ -2,9 +2,11 @@ package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.{Task, TaskLike}
-import tech.artemisia.task.settings.{ConnectionProfile, LoadSettings}
+import tech.artemisia.task.Task
+import tech.artemisia.task.settings.{DBConnection, LoadSettings}
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.Util.DocStringProcessor
+
 import scala.reflect.ClassTag
 
 /**
@@ -19,7 +21,7 @@ import scala.reflect.ClassTag
  * @param connectionProfile connection details for the database
  * @param loadSettings load setting details
  */
-abstract class LoadToTable(name: String, val tableName: String, val connectionProfile: ConnectionProfile,
+abstract class LoadToTable(name: String, val tableName: String, val connectionProfile: DBConnection,
                            val loadSettings: LoadSettings) extends Task(name) {
 
   val dbInterface: DBInterface
@@ -45,61 +47,41 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
 
 }
 
-object LoadToTable extends TaskLike {
+object LoadToTable {
 
-  override val taskName = "LoadToTable"
+  val taskName = "LoadToTable"
 
-  override val info = "load a file into a table"
+  val info = "load a file into a table"
 
 
-  override def doc(component: String) =
+  def doc(component: String, defaultPort: Int) =
     s"""
-      | ${classOf[LoadToTable].getSimpleName} task is used to load content into a table typically from a file.
+      | $taskName task is used to load content into a table typically from a file.
       | the configuration object for this task is as shown below.
       |
       | Component = $component
-      | Task = ${classOf[LoadToTable].getSimpleName}
+      | Task = $taskName
       | params = {
-      |	  dsn =
-      |	  destination-table = ""
-      |	  load-setting = {
-      |       load-path = ?
-      |		    header =  no
-      |		    skip-lines = 0
-      |		    delimiter = ","
-      |		    quoting = no
-      |		    quotechar = "\""
-      |	      escapechar = "\\"
-      |	      mode = default
-      |	      error-file = ?
-      |	      error-tolerence = 2
-      |	  },
+      |	  dsn = <% connection-name
+      |          <-------------------------------->
+      |           ${DBConnection.structure(defaultPort).ident(15)}
+      |         %>
+      |	  destination-table = "dummy_table" @required
+      |	  load-setting = ${LoadSettings.structure.ident(15)}
       | }
       |
       | dsn =  either a name of the dsn or a config-object with username/password and other credentials
       | destination-table = destination table to load
-      | load-setting =
-      |     load-path = path to load from (eg: /var/tmp/input.txt)
-      |     header = boolean field to enable/disable headers
-      |     skip-lines = number of lines to skip in he table
-      |     delimiter = delimiter of the file
-      |     quoting = boolean field to indicate if the file is quoted.
-      |     quotechar = character to be used for quoting
-      |     escapechar = escape character used in the file
-      |     mode = mode of loading the table
-      |     error-file = location of the file where rejected error records are saved.
-      |     error-tolerance = % of data that is allowable to get rejected
-      |
+      | loadsetting =
+      |             ${LoadSettings.fieldDescription.ident(10)}
     """.stripMargin
 
-  override def apply(name: String, config: Config) = ???
-
   def create[T <: LoadToTable : ClassTag](name: String, config: Config): LoadToTable = {
-      val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+      val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
       val destinationTable = config.as[String]("destination-table")
       val loadSettings = LoadSettings(config.as[Config]("load-setting"))
       implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[LoadToTable]).getConstructor(classOf[String],
-        classOf[String], classOf[ConnectionProfile], classOf[LoadSettings]).newInstance(name, destinationTable,
+        classOf[String], classOf[DBConnection], classOf[LoadSettings]).newInstance(name, destinationTable,
         connectionProfile, loadSettings)
   }
 

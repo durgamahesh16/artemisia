@@ -4,11 +4,9 @@ import java.nio.file.Paths
 
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
-import com.typesafe.config.Config
 import org.slf4j.LoggerFactory
 import tech.artemisia.dag.{ActorSysManager, Dag}
 import tech.artemisia.task.TaskContext
-import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
   * A helper class that orchestrates the execution of the dag workflow
@@ -33,8 +31,6 @@ object Runner {
       AppLogger debug s"global config file: ${appContext.globalConfigFile.get}"
     }
     TaskContext.setWorkingDir(Paths.get(appContext.workingDir))
-    TaskContext.predefinedConnectionProfiles = TaskContext.parseConnections(
-      appContext.payload.as[Config](Keywords.Config.CONNECTION_SECTION))
   }
 
 

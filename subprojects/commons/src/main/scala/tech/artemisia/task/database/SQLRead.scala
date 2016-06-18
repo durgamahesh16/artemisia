@@ -4,7 +4,7 @@ import com.typesafe.config.{Config, ConfigRenderOptions}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.{Task, TaskLike}
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.Util
 import tech.artemisia.util.HoconConfigUtil.Handler
 import scala.reflect.ClassTag
@@ -19,7 +19,7 @@ import scala.reflect.ClassTag
  * @param sql query to be executed
  * @param connectionProfile connection profile to use
  */
-abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connectionProfile: ConnectionProfile)
+abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connectionProfile: DBConnection)
   extends Task(name) {
 
   val dbInterface: DBInterface
@@ -72,13 +72,13 @@ object SQLRead extends TaskLike {
   override def apply(name: String, config: Config) = ???
 
   def create[T <: SQLRead: ClassTag](name: String, config: Config) = {
-    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val sql =
       if (config.hasPath("sql")) config.as[String]("sql")
       else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
     implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[SQLRead]).getConstructor(classOf[String], classOf[String]
-    , classOf[ConnectionProfile]).newInstance(name, sql, connectionProfile)
+    , classOf[DBConnection]).newInstance(name, sql, connectionProfile)
   }
 
 }

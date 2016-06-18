@@ -1,7 +1,7 @@
 package tech.artemisia.task.database
 
 import tech.artemisia.TestSpec
-import tech.artemisia.task.settings.{ConnectionProfile, LoadSettings}
+import tech.artemisia.task.settings.{DBConnection, LoadSettings}
 import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -35,7 +35,7 @@ class LoadToTableSpec extends TestSpec {
 
 object LoadToTableSpec {
 
-  def loader(name: String, tableName: String, connectionProfile: ConnectionProfile, loadSettings: LoadSettings) =
+  def loader(name: String, tableName: String, connectionProfile: DBConnection, loadSettings: LoadSettings) =
 
     new LoadToTable("test_task",tableName, connectionProfile, loadSettings) {
     override val dbInterface: DBInterface = TestDBInterFactory.withDefaultDataLoader(tableName)

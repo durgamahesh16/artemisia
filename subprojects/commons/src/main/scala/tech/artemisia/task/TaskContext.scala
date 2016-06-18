@@ -5,7 +5,7 @@ import tech.artemisia.util.HoconConfigUtil
 import HoconConfigUtil.Handler
 import com.google.common.io.Files
 import com.typesafe.config.{ConfigFactory, Config}
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection$
 import scala.collection.JavaConverters._
 
 
@@ -22,7 +22,6 @@ private[artemisia] object TaskContext {
 
   private var preferredWorkingDir: Option[Path] = None
 
-  var predefinedConnectionProfiles: Map[String,ConnectionProfile] = Map()
 
   /**
    * the entire payload. This field exists here to facilitate subsitution during very late stage
@@ -48,17 +47,6 @@ private[artemisia] object TaskContext {
   }
 
 
-  /**
-   *
-   * @param connectionConfigs connections node to be parsed
-   * @return Map of DSNs and their corresponding [[ConnectionProfile]]
-   */
-  def parseConnections(connectionConfigs: Config) = {
-    val connections = connectionConfigs.root().keySet().asScala map { x =>
-        x -> ConnectionProfile(connectionConfigs.as[Config](x))
-      }
-    connections.toMap
-  }
 
 
 }

@@ -3,7 +3,7 @@ package tech.artemisia.task.database
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.{Task, TaskLike}
-import tech.artemisia.task.settings.ConnectionProfile
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
 import scala.reflect.ClassTag
 
@@ -18,7 +18,7 @@ import scala.reflect.ClassTag
  * @param sql query to be executed
  * @param connectionProfile connection detail for the database
  */
-abstract class SQLExecute(name: String, val sql: String, val connectionProfile: ConnectionProfile) extends Task(name) {
+abstract class SQLExecute(name: String, val sql: String, val connectionProfile: DBConnection) extends Task(name) {
 
   val dbInterface: DBInterface
 
@@ -74,9 +74,9 @@ object SQLExecute extends TaskLike {
 
   def create[T <: SQLExecute: ClassTag](name: String, config: Config) = {
     val sql = config.as[String]("sql")
-    val connectionProfile = ConnectionProfile.parseConnectionProfile(config.getValue("dsn"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
       implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[SQLExecute]).getConstructor(classOf[String],
-        classOf[String], classOf[ConnectionProfile]).newInstance(name, sql, connectionProfile)
+        classOf[String], classOf[DBConnection]).newInstance(name, sql, connectionProfile)
   }
 }
 

@@ -1,6 +1,7 @@
 package tech.artemisia.task.localhost
 
 import com.typesafe.config.{ConfigFactory, Config}
+import tech.artemisia.task.settings.ConnectionHelper
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -23,7 +24,19 @@ case class EmailConnection(host: String, port: Int, username: Option[String], pa
 
 }
 
-object EmailConnection {
+object EmailConnection extends ConnectionHelper[EmailConnection] {
+
+  def structure =
+    """|{
+       |  host = "host" @required
+       |  port = -1 @required
+       |  username = "username"
+       |  password = "password"
+       |  ssl = no @default(no) @type(boolean)
+       |  tls = no @default(no) @type(boolean)
+       |  from = "xyz@example.com"
+       |  reply-to ="xyx@example.com"
+       |}""".stripMargin
 
   private val defaultConfig = ConfigFactory parseString
    s"""
@@ -33,7 +46,7 @@ object EmailConnection {
       |}
     """.stripMargin
 
-  def apply(inputConfig: Config) = {
+  def apply(inputConfig: Config): EmailConnection = {
     val config = inputConfig withFallback defaultConfig
     EmailConnection(
       host = config.as[String]("host"),
@@ -46,5 +59,6 @@ object EmailConnection {
       replyTo = config.getAs[String]("reply-to")
     )
   }
+
 
 }
