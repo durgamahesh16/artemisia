@@ -10,7 +10,7 @@ object DocStringProcessor {
 
     def ident(space: Int) = {
       val result: Seq[String] = content split System.lineSeparator map { " " * space + _ }
-      result.head.trim :: result.tail.toList mkString System.lineSeparator
+      result.head.trim :: (result.tail.toList map { x => if (x.startsWith("|")) s"|$x" else x }) mkString System.lineSeparator
     }
 
   }

@@ -56,24 +56,31 @@ object LoadToTable {
 
   def doc(component: String, defaultPort: Int) =
     s"""
+      | $taskName
+      | ${"-" * taskName.length}
+      |
       | $taskName task is used to load content into a table typically from a file.
       | the configuration object for this task is as shown below.
       |
-      | Component = $component
-      | Task = $taskName
-      | params = {
-      |	  dsn = <% connection-name
-      |          <-------------------------------->
-      |           ${DBConnection.structure(defaultPort).ident(15)}
-      |         %>
-      |	  destination-table = "dummy_table" @required
-      |	  load-setting = ${LoadSettings.structure.ident(15)}
-      | }
+      |```
+      |     Component = $component
+      |     Task = $taskName
+      |     params = {
+      |	             dsn = <% connection-name
+      |                      <-------------------------------->
+      |                      ${DBConnection.structure(defaultPort).ident(23)}
+      |                     %>
+      |	             destination-table = "dummy_table" @required
+      |	             load-setting = ${LoadSettings.structure.ident(20)}
+      |            }
+      |```
       |
-      | dsn =  either a name of the dsn or a config-object with username/password and other credentials
-      | destination-table = destination table to load
-      | loadsetting =
-      |             ${LoadSettings.fieldDescription.ident(10)}
+      |
+      | field legends:
+      |    * dsn:  either a name of the dsn or a config-object with username/password and other credentials
+      |    * destination-table: destination table to load
+      |    * loadsetting:
+      |             ${LoadSettings.fieldDescription.ident(12)}
     """.stripMargin
 
   def create[T <: LoadToTable : ClassTag](name: String, config: Config): LoadToTable = {

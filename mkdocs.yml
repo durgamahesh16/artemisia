@@ -5,3 +5,5 @@ pages:
    - Getting Started:
       - Installation: started.md
       - Defining Jobs: concept.md
+   - Components:
+      - MySQL: components/mysql.md

@@ -2,7 +2,7 @@ package tech.artemisia.task
 
 import com.typesafe.config.Config
 import tech.artemisia.inventory.exceptions.UnknownTaskException
-
+import tech.artemisia.util.DocStringProcessor.StringUtil
 /**
  * Created by chlr on 3/3/16.
  */
@@ -55,12 +55,33 @@ abstract class Component(val name: String) {
   /**
     * A brief overview of the components and the tasks it supports.
     */
-  def doc =
-    s"""
-       |$info
-       |${tasks map { x => s"  ${x.taskName} => ${x.info}" } mkString System.lineSeparator}
-     """.stripMargin
+  def doc = {
 
+    def genTableRow(taskName: String, taskInfo: String) = {
+      s"| $taskName${" " * (componentTaskTableDim._1 - taskName.length -1)}| $taskInfo${" " * (componentTaskTableDim._2 - taskInfo.length - 1)}|"
+    }
+
+
+    s"""/
+        /$name
+        /${"=" * name.length}
+        /
+        /$info
+        /
+        /| TaskName${" " * (componentTaskTableDim._1 - 9)}| Description${" " * (componentTaskTableDim._2 - 12)}|
+        /|${"-" * componentTaskTableDim._1}|${"-" * componentTaskTableDim._2}|
+        /${tasks map { case x => genTableRow(x.taskName,x.info) } mkString System.lineSeparator}
+        /
+        /
+     """.stripMargin('/')
+  }
+
+
+  private def componentTaskTableDim = {
+    val minimumTaskWidth = 13
+    val minimumInfoWidth = 25
+    (tasks.map(_.taskName.length).max + 5).max(minimumTaskWidth) -> (tasks.map(_.info.length).max + 5).max(minimumInfoWidth)
+  }
 
 
   /**

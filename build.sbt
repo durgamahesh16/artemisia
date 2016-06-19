@@ -13,7 +13,9 @@ coverageEnabled.in(ThisBuild ,Test, test) := true
 
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"))
-  .settings(libraryDependencies ++= Artemisia.dependencies)
+  .settings(libraryDependencies ++= Artemisia.dependencies,
+          mainClass in Compile := Some("tech.artemisia.core.Main"),
+    fullRunTask(TaskKey[Unit]("docgen"), Compile, "tech.artemisia.core.DocGenerator", "/Users/chlr/dev/T800/projects/artemisia"))
   .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres)
 
 
