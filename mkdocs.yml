@@ -1,6 +1,7 @@
 site_name: Artemisia
 theme: readthedocs
 pages:
-   - [index.md, Home]
-   - [started.md, "Getting Started"]
-   - [concept.md, "Defining Jobs" ]
+   - Home: index.md
+   - Getting Started:
+      - Installation: started.md
+      - Defining Jobs: concept.md

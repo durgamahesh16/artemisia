@@ -5,7 +5,7 @@ import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{DBConnection, LoadSettings}
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.util.Util.DocStringProcessor
+import tech.artemisia.util.DocStringProcessor._
 
 import scala.reflect.ClassTag
 

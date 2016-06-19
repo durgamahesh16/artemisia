@@ -3,7 +3,7 @@ package tech.artemisia.task.localhost
 import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core.AppLogger
+import tech.artemisia.core.{Keywords, AppLogger}
 import tech.artemisia.task.{Task, TaskContext, TaskLike}
 import tech.artemisia.task.localhost.util.ProcessRunner
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
@@ -13,9 +13,9 @@ import tech.artemisia.util.Util
 /**
  * Created by chlr on 2/21/16.
  */
-class ScriptTask(name: String = Util.getUUID, script: String,interpreter: String = ScriptTask.Defaults.interpreter ,cwd: String = ScriptTask.Defaults.cwd
-                 , env: Map[String,String] = ScriptTask.Defaults.env
-                 , parseOutput: Boolean = ScriptTask.Defaults.parseOutput) extends Task(name: String) {
+class ScriptTask(name: String = Util.getUUID, script: String,interpreter: String = "/bin/sh" ,cwd: String = Paths.get("").toAbsolutePath.toString
+                 , env: Map[String,String] = Map()
+                 , parseOutput: Boolean = false) extends Task(name: String) {
 
 
   val processRunner : ProcessRunner = new ProcessRunner(interpreter)
@@ -53,29 +53,54 @@ object ScriptTask extends TaskLike {
 
   override val taskName = "ScriptTask"
 
-  override val info = "executes an arbitrary script with customizable interpreter"
+  override val info = "executes script with customizable interpreter"
 
-  object Defaults {
-    val cwd = Paths.get("").toAbsolutePath.toString
-    val env = Map[String,String]()
-    val parseOutput = false
-    val interpreter = "/bin/sh"
-  }
+  val defaultConfig = ConfigFactory parseString
+    s"""
+      | {
+      |   interpreter = "/bin/sh"
+      |   cwd = ${Paths.get("").toAbsolutePath.toString}
+      |   parse-output = no
+      |   env = {}
+      | }
+    """.stripMargin
 
-  override def apply(name: String,config: Config) = {
+  override def apply(name: String, inputConfig: Config) = {
+    val config = inputConfig withFallback defaultConfig
     new ScriptTask (
       name
      ,script = config.as[String]("script")
-     ,interpreter = if (config.hasPath("cwd")) config.as[String]("interpreter") else ScriptTask.Defaults.interpreter
-     ,cwd = if (config.hasPath("cwd")) config.as[String]("cwd") else ScriptTask.Defaults.cwd
-     ,env = if (config.hasPath("env")) config.asMap[String]("env") else ScriptTask.Defaults.env
-     ,parseOutput = if (config.hasPath("parse-output")) config.as[Boolean]("parse-output") else ScriptTask.Defaults.parseOutput
+     ,interpreter = config.as[String]("interpreter")
+     ,cwd = config.as[String]("cwd")
+     ,env = config.asMap[String]("env")
+     ,parseOutput = config.as[Boolean]("parse-output")
     )
   }
 
   override def doc(component: String) =
-    """
-
-    """.stripMargin
+    s"""
+      | $info
+      |
+      | the structure of the ScriptTask as shown below
+      |
+      |    ${Keywords.Task.COMPONENT} = $component
+      |    ${Keywords.Task.COMPONENT} = $taskName
+      |    ${Keywords.Task.PARAMS} = {
+      |      script = "echo Hello World" @required
+      |      interpreter = "/usr/local/bin/sh" @default("/bin/sh")
+      |      cwd = "/var/tmp" @default("<your current working directory>")
+      |      env = { foo = bar, hello = world } @default("<empty object>")
+      |      parse-output = yes @default(false)
+      |    }
+      |
+      |  description:
+      |    script = string whose content while be flushed to a temp file and executed with the interpreter
+      |    interpreter = the interperter used to execute the script. it can be bash, python, perl etc
+      |    cwd = set the current working directory for the script execution
+      |    env = environmental variables to be used
+      |    parse-output = parse the stdout of script which has to be a Hocon config (Json superset)
+      |                   and merge the result to the job config
+      |
+     """.stripMargin
 
 }

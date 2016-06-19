@@ -5,7 +5,7 @@ import org.apache.commons.mail.MultiPartEmail
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.util.Util.DocStringProcessor
+import tech.artemisia.util.DocStringProcessor._
 
 /**
  * Created by chlr on 6/15/16.
@@ -34,18 +34,18 @@ object EmailTask extends TaskLike {
 
   override val taskName: String = "EmailTask"
 
-  override val info: String = "This Task sends Emails"
+  override val info: String = s"$taskName is used to send Emails."
 
   override def doc(component: String): String =
     s"""
-       | $taskName is used to send Emails.
+       | $info
        | The Structure of this task is shown below
        |
        | Component = $component
        | Task = $taskName
        | params = {
        |	  connection = <% email_connection
-       |                 <-------------->
+       |                 <------------------->
        |                 ${EmailConnection.structure.ident(18)}
        |                  %> @type(str, obj)
        |	  email = ${EmailRequest.structure.ident(18)}

@@ -86,14 +86,4 @@ object Util {
     """.stripMargin
   }
 
-
-  implicit class DocStringProcessor(content: String) {
-
-    def ident(space: Int) = {
-      val result: Seq[String] = content split System.lineSeparator map { " " * space + _ }
-       result.head.trim :: result.tail.toList mkString System.lineSeparator
-    }
-  }
-
-
 }

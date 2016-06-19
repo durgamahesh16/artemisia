@@ -58,7 +58,7 @@ abstract class Component(val name: String) {
   def doc =
     s"""
        |$info
-       |${tasks map { x => s"${x.taskName} => ${x.info}" } mkString System.lineSeparator}
+       |${tasks map { x => s"  ${x.taskName} => ${x.info}" } mkString System.lineSeparator}
      """.stripMargin
 
 
