@@ -49,6 +49,8 @@ object EmailRequest {
       }
     }
 
+    System.err.println(config.as[List[AnyRef]]("attachments"))
+
     EmailRequest(
       to = parseAddressConfig("to"),
       cc = parseAddressConfig("cc"),
@@ -60,6 +62,7 @@ object EmailRequest {
       subject = config.as[String]("subject"),
       message = config.as[String]("message")
     )
+
   }
 
 

@@ -8,7 +8,7 @@ import tech.artemisia.task.Component
 /**
  * Created by chlr on 2/21/16.
  */
-class CoreComponents(componentName: String) extends Component(componentName) {
+class CoreComponent(componentName: String) extends Component(componentName) {
 
   override val info = s"Component that supports core tasks of ${Keywords.APP}"
 

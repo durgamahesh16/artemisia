@@ -69,15 +69,13 @@ object ScriptTask extends TaskLike {
      ,interpreter = if (config.hasPath("cwd")) config.as[String]("interpreter") else ScriptTask.Defaults.interpreter
      ,cwd = if (config.hasPath("cwd")) config.as[String]("cwd") else ScriptTask.Defaults.cwd
      ,env = if (config.hasPath("env")) config.asMap[String]("env") else ScriptTask.Defaults.env
-     ,parseOutput = if (config.hasPath("parse_output")) config.as[Boolean]("env") else ScriptTask.Defaults.parseOutput
+     ,parseOutput = if (config.hasPath("parse-output")) config.as[Boolean]("parse-output") else ScriptTask.Defaults.parseOutput
     )
   }
 
   override def doc(component: String) =
     """
-      |
-      |
-      |
+
     """.stripMargin
 
 }
