@@ -24,6 +24,9 @@ object TestAdderTask extends TaskLike {
   override val taskName: String = "TestAdderTask"
   override def doc(component: String): String = "TestAdderTask is a test addition task"
   override val info: String = "test add task"
+  override val desc: String = ""
+  override def configStructure(component: String): String = ""
+  override val fieldDefinition: Seq[String] = Nil
 
 }
 
@@ -45,5 +48,7 @@ object TestFailTask extends TaskLike {
   override val taskName: String = "TestFailTask"
   override def doc(component: String): String = "This is a sample test task that always fail"
   override val info: String = "test fail task"
-
+  override val desc: String = ""
+  override def configStructure(component: String): String = ""
+  override val fieldDefinition: Seq[String] = Nil
 }
