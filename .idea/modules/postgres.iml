@@ -17,7 +17,9 @@
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/target/scala-2.11/resource_managed/main" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/target/scala-2.11/resource_managed/test" type="java-test-resource" />
-      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/target" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/target/resolution-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/postgres/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

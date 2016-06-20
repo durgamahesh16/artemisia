@@ -1,9 +1,11 @@
 site_name: Artemisia
 theme: readthedocs
 pages:
-   - Home: index.md
-   - Getting Started:
-      - Installation: started.md
-      - Defining Jobs: concept.md
-   - Components:
-      - MySQL: components/mysql.md
+- {Home: index.md}
+- Getting Started:
+  - {Installation: started.md}
+  - {Defining Jobs: concept.md}
+- Components:
+  - {MySQL: components/mysql.md}
+  - {Core: components/core.md}
+  - {Postgres: components/postgres.md}

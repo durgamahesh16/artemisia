@@ -1,11 +1,15 @@
 package tech.artemisia.core
 
-import java.io.File
+import java.io.{BufferedWriter, File, FileWriter}
 import java.nio.file.{Path, Paths}
 
+import scala.collection.JavaConverters._
 import org.apache.commons.io.FileUtils
+import org.yaml.snakeyaml.Yaml
 import tech.artemisia.task.Component
 import tech.artemisia.util.FileSystemUtil
+
+import scala.collection.mutable
 
 /**
  * Created by chlr on 6/19/16.
@@ -18,6 +22,7 @@ object DocGenerator {
     baseDir = Paths.get(args(0))
     FileUtils.deleteDirectory(new File(FileSystemUtil.joinPath(baseDir.toString, "docs", "components")))
     getComponents foreach { case(a,b) => writeComponentDoc(a,b) }
+    generateMkDocConfig(getComponents.toList map {_._1})
   }
 
   private def getComponents = {
@@ -40,6 +45,27 @@ object DocGenerator {
        !
      """.stripMargin('!')
 
+  }
+
+  private def generateMkDocConfig(components: Seq[String]) = {
+    val yaml = new Yaml()
+    val config: mutable.Map[String, Object] = yaml.load(mkDocConfigFile).asInstanceOf[java.util.Map[String,Object]].asScala
+    val componentConfig = components.map(x => Map(x -> s"components/${x.toLowerCase}.md").asJava ).toSeq.asJava
+    config("pages").asInstanceOf[java.util.List[Object]].add(Map("Components" -> componentConfig).asJava)
+    val writer = new BufferedWriter(new FileWriter(new File(FileSystemUtil.joinPath(baseDir.toString, "mkdocs.yml"))))
+    yaml.dump(config.asJava, writer)
+  }
+
+  private def mkDocConfigFile = {
+   s"""
+      |site_name: Artemisia
+      |theme: readthedocs
+      |pages:
+      |   - Home: index.md
+      |   - Getting Started:
+      |      - Installation: started.md
+      |      - Defining Jobs: concept.md
+    """.stripMargin
   }
 
 

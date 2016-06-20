@@ -51,7 +51,7 @@ object SQLExecute {
 
   val info = "executes DML statements such as Insert/Update/Delete"
 
-  val desc = "$taskName task is used execute arbitary DML statements against a database"
+  val desc = s"$taskName task is used execute arbitary DML statements against a database"
 
   def configStructure(component: String) = {
     s"""

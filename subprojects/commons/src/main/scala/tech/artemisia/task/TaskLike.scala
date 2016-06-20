@@ -45,22 +45,22 @@ trait TaskLike {
     */
   def doc(component: String) = {
     s"""
-       | $taskName
-       | ${"=" * taskName.length}
+       |### $taskName:
        |
-       | #### Description:
+       |
+       |#### Description:
        |
        | $desc
        |
-       | #### Configuration Structure
+       |#### Configuration Structure:
        |
-       | ```
-       |      ${configStructure(component).ident(8)}
-       | ```
        |
-       | #### Field Description:
+       |      ${configStructure(component).ident(5)}
        |
-       |     ${fieldDefinition map { x => s"* $x" } mkString System.lineSeparator ident 5}
+       |
+       |#### Field Description:
+       |
+       | ${fieldDefinition map { x => s"* $x" } mkString System.lineSeparator ident 1}
        |
      """.stripMargin
 
