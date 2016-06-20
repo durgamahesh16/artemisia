@@ -30,7 +30,10 @@ object ExportToFile extends TaskLike {
 
   override val info: String = database.ExportToFile.info
 
-  override def doc(component: String): String = database.ExportToFile.doc(component, 5432)
+  override val desc: String = database.ExportToFile.desc
 
+  override def configStructure(component: String): String = database.ExportToFile.configStructure(component, 5432)
+
+  override val fieldDefinition: Seq[String] = database.ExportToFile.fieldDefinition
 }
 

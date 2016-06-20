@@ -49,14 +49,18 @@ trait TaskLike {
        | ${"=" * taskName.length}
        |
        | #### Description:
+       |
        | $desc
        |
        | #### Configuration Structure
+       |
        | ```
        |      ${configStructure(component).ident(8)}
        | ```
+       |
        | #### Field Description:
-       |     ${fieldDefinition map { s"* $_" } mkString System.lineSeparator ident 8}
+       |
+       |     ${fieldDefinition map { x => s"* $x" } mkString System.lineSeparator ident 5}
        |
      """.stripMargin
 

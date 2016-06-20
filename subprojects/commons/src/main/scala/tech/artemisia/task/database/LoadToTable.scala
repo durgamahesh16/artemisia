@@ -61,18 +61,16 @@ object LoadToTable {
 
   def configStructure(component: String, defaultPort: Int) = {
     s"""
-       |```
        |     Component = $component
        |     Task = $taskName
        |     params = {
        |	             dsn = <% connection-name
-       |                      <-------------------------------->
-       |                      ${DBConnection.structure(defaultPort).ident(23)}
+       |                     <-------------------------------->
+       |                      ${DBConnection.structure(defaultPort).ident(20)}
        |                     %>
        |	             destination-table = "dummy_table" @required
        |	             load-setting = ${LoadSettings.structure.ident(20)}
        |            }
-       |```
      """.stripMargin
   }
 
@@ -80,7 +78,7 @@ object LoadToTable {
     "dsn:  either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table: destination table to load",
     s"""|loadsetting:
-        |   ${LoadSettings.fieldDescription.ident(12)}""".stripMargin
+        |       ${LoadSettings.fieldDescription.ident(6)}""".stripMargin
   )
 
 

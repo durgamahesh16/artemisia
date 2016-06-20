@@ -76,7 +76,7 @@ object ScriptTask extends TaskLike {
      ,parseOutput = config.as[Boolean]("parse-output")
     )
   }
-  
+
   override val desc: String = ""
 
   override def configStructure(component: String): String = {

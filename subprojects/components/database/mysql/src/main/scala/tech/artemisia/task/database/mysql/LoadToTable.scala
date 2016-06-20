@@ -31,10 +31,13 @@ object LoadToTable extends TaskLike {
 
   override val info = database.LoadToTable.info
 
-  override def doc(component: String) = database.LoadToTable.doc(component, 3306)
-
   override val taskName = database.LoadToTable.taskName
 
   override def apply(name: String, config: Config) = database.LoadToTable.create[LoadToTable](name, config)
 
+  override val desc: String =  database.LoadToTable.desc
+
+  override def configStructure(component: String): String =  database.LoadToTable.configStructure(component, 3306)
+
+  override val fieldDefinition: Seq[String] = database.LoadToTable.fieldDefinition
 }

@@ -3,10 +3,11 @@ package tech.artemisia.task.database
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
-import tech.artemisia.task.{Task, TaskLike}
+import tech.artemisia.task.Task
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.util.Util
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.Util
+
 import scala.reflect.ClassTag
 
 /**
@@ -44,9 +45,9 @@ abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connect
 
 object SQLRead {
 
-  override val taskName = "SQLRead"
+  val taskName = "SQLRead"
 
-  override val info = "execute select queries and wraps the results in config"
+  val info = "execute select queries and wraps the results in config"
 
   val desc =
     s"""
