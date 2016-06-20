@@ -42,34 +42,38 @@ abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connect
 
 }
 
-object SQLRead extends TaskLike {
+object SQLRead {
 
   override val taskName = "SQLRead"
 
   override val info = "execute select queries and wraps the results in config"
 
-  override def doc(component: String) =
-    s"""| ${classOf[SQLRead].getSimpleName} task runs a select query and parse the first row as a Hocon Config.
-        | The query must be select query and not any DML or DDL statements.
-        | The configuration object is shown below.
-        |
-        | {
-        |   Component = $component
-        |   Task = ${classOf[SQLRead].getSimpleName}
-        |     params = {
-        |      dsn = ?
-        |      [sql|sqlfile] = ?
-        |    }
-        | }
-        |
-        |Its param include
-        |  dsn = either a name of the dsn or a config-object with username/password and other credentials
-        |  sql = select query to be run
-        |  sqlfile = the file containing the query
-        |
+  val desc =
+    s"""
+      |$taskName task runs a select query and parse the first row as a Hocon Config.
+      |The query must be select query and not any DML or DDL statements.
+      |The configuration object is shown below.
     """.stripMargin
 
-  override def apply(name: String, config: Config) = ???
+  def configStructure(component: String): String = {
+    s"""
+       |{
+       |  Component = $component
+       |  Task = $taskName
+       |    params = {
+       |     dsn = ?
+       |     [sql|sqlfile] = ?
+       |   }
+  """.stripMargin
+  }
+
+
+  val fieldDefinition = Seq(
+    "dsn = either a name of the dsn or a config-object with username/password and other credentials",
+    "sql = select query to be run",
+    "sqlfile = the file containing the query"
+  )
+
 
   def create[T <: SQLRead: ClassTag](name: String, config: Config) = {
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))

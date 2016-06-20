@@ -34,6 +34,9 @@ object SQLExecute extends TaskLike {
 
   override val info = database.SQLExecute.info
 
-  override def doc(name: String) = database.SQLExecute.doc(name)
+  override val desc: String = database.SQLExecute.desc
 
+  override def configStructure(component: String): String = database.SQLExecute.configStructure(component)
+
+  override val fieldDefinition: Seq[String] = database.SQLExecute.fieldDefinition
 }

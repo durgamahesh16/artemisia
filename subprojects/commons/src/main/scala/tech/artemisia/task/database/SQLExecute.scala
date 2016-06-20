@@ -2,9 +2,10 @@ package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.{Task, TaskLike}
+import tech.artemisia.task.Task
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.reflect.ClassTag
 
 /**
@@ -44,33 +45,33 @@ abstract class SQLExecute(name: String, val sql: String, val connectionProfile: 
   override protected[task] def teardown(): Unit
 }
 
-object SQLExecute extends TaskLike {
+object SQLExecute {
 
-  override val taskName = "SQLExecute"
+  val taskName = "SQLExecute"
 
-  override val info = "executes DML statements such as Insert/Update/Delete"
+  val info = "executes DML statements such as Insert/Update/Delete"
 
-  override def doc(component: String) =
-    s"""|  ${classOf[LoadToTable].getSimpleName} task is used execute arbitary DML statements against a database
-        | The configuration object is shown below.
-        |
-        | {
-        |   Component = $component
-        |   Task = ${classOf[SQLRead].getSimpleName}
-        |     params = {
-        |      dsn = ?
-        |      [sql|sqlfile] = ?
-        |    }
-        | }
-        |
-        |Its param include
-        |  dsn = either a name of the dsn or a config-object with username/password and other credentials
-        |  sql = select query to be run
-        |  sqlfile = the file containing the query
-        |
-    """.stripMargin
+  val desc = "$taskName task is used execute arbitary DML statements against a database"
 
-  override def apply(name: String, config: Config) = ???
+  def configStructure(component: String) = {
+    s"""
+       |{
+       |  Component = $component
+       |  Task = $taskName
+       |    params = {
+       |     dsn = ?
+       |     [sql|sqlfile] = ?
+       |   }
+       |}
+     """.stripMargin
+  }
+
+  val fieldDefinition = Seq(
+    "dsn = either a name of the dsn or a config-object with username/password and other credentials",
+    "sql = select query to be run",
+    "sqlfile = the file containing the query"
+  )
+
 
   def create[T <: SQLExecute: ClassTag](name: String, config: Config) = {
     val sql = config.as[String]("sql")
