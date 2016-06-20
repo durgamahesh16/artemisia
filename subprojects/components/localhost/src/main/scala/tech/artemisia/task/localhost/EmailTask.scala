@@ -36,27 +36,30 @@ object EmailTask extends TaskLike {
 
   override val info: String = s"$taskName is used to send Emails."
 
-  override def doc(component: String): String =
+  override val desc: String = ""
+
+  override def configStructure(component: String): String = {
     s"""
-       | $info
-       | The Structure of this task is shown below
-       |
-       | Component = $component
-       | Task = $taskName
-       | params = {
+       |Component = $component
+       |Task = $taskName
+       |params = {
        |	  connection = <% email_connection
-       |                 <------------------->
-       |                 ${EmailConnection.structure.ident(18)}
-       |                  %> @type(str, obj)
+       |                <------------------->
+       |                ${EmailConnection.structure.ident(18)}
+       |                 %> @type(str, obj)
        |	  email = ${EmailRequest.structure.ident(18)}
-       | }
-       |
-    """.stripMargin
+       |}
+     """.stripMargin
+  }
+
+  override val fieldDefinition: Seq[String] = Seq(
+    "connection: TODO",
+    "email: TODO"
+  )
 
   override def apply(name: String, config: Config): Task = {
     val emailConnection = if (config.hasPath("connection")) Some(EmailConnection.parseConnectionProfile(config.getValue("connection"))) else None
     val emailRequest = EmailRequest(config.as[Config]("email"))
     new EmailTask(name, emailRequest, emailConnection)
   }
-
 }

@@ -3,9 +3,9 @@ package tech.artemisia.task.localhost
 import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core.{Keywords, AppLogger}
-import tech.artemisia.task.{Task, TaskContext, TaskLike}
+import tech.artemisia.core.{AppLogger, Keywords}
 import tech.artemisia.task.localhost.util.ProcessRunner
+import tech.artemisia.task.{Task, TaskContext, TaskLike}
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
@@ -76,31 +76,28 @@ object ScriptTask extends TaskLike {
      ,parseOutput = config.as[Boolean]("parse-output")
     )
   }
+  
+  override val desc: String = ""
 
-  override def doc(component: String) =
+  override def configStructure(component: String): String = {
     s"""
-      | $info
-      |
-      | the structure of the ScriptTask as shown below
-      |
-      |    ${Keywords.Task.COMPONENT} = $component
-      |    ${Keywords.Task.COMPONENT} = $taskName
-      |    ${Keywords.Task.PARAMS} = {
-      |      script = "echo Hello World" @required
-      |      interpreter = "/usr/local/bin/sh" @default("/bin/sh")
-      |      cwd = "/var/tmp" @default("<your current working directory>")
-      |      env = { foo = bar, hello = world } @default("<empty object>")
-      |      parse-output = yes @default(false)
-      |    }
-      |
-      |  description:
-      |    script = string whose content while be flushed to a temp file and executed with the interpreter
-      |    interpreter = the interperter used to execute the script. it can be bash, python, perl etc
-      |    cwd = set the current working directory for the script execution
-      |    env = environmental variables to be used
-      |    parse-output = parse the stdout of script which has to be a Hocon config (Json superset)
-      |                   and merge the result to the job config
-      |
+       | ${Keywords.Task.COMPONENT} = $component
+       | ${Keywords.Task.COMPONENT} = $taskName
+       | ${Keywords.Task.PARAMS} = {
+       |   script = "echo Hello World" @required
+       |   interpreter = "/usr/local/bin/sh" @default("/bin/sh")
+       |   cwd = "/var/tmp" @default("<your current working directory>")
+       |   env = { foo = bar, hello = world } @default("<empty object>")
+       |   parse-output = yes @default(false)
+       | }
      """.stripMargin
+  }
 
+  override val fieldDefinition: Seq[String] = Seq(
+    "script = string whose content while be flushed to a temp file and executed with the interpreter",
+    "interpreter = the interperter used to execute the script. it can be bash, python, perl etc",
+    "cwd = set the current working directory for the script execution",
+    "env = environmental variables to be used",
+    "parse-output = parse the stdout of script which has to be a Hocon config (Json superset) and merge the result to the job config"
+  )
 }

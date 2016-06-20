@@ -53,34 +53,41 @@ object ExportToFile  {
 
   val info = "export query results to a file"
 
-  def doc(component: String, defaultPort: Int) =
+  val desc: String =
     s"""
-      | $taskName task is used to export SQL query results to a file.
-      | The typical task $taskName configuration is as shown below
-      |
-      | {
-      |  Component = $component
-      |  Task =  $taskName
-      |  params = {
-      |    dsn = <%
-      |           connection-name
-      |           <------------->
-      |           ${DBConnection.structure(defaultPort).ident(15)}
-      |          %>
-      |    export = ${ExportSetting.structure.ident(15)}
-      |    <%
-      |      sql = "SELECT * FROM TABLE"
-      |      <-------------------------->
-      |      sqlfile = run_queries.sql
-      |    %> @required
-      | }
-      |
-      |Its param include
-      | dsn =  either a name of the dsn or a config-object with username/password and other credentials
-      | export:
-      |       ${ExportSetting.fieldDescription.ident(8)}
-      |
-    """.stripMargin
+       |$taskName task is used to export SQL query results to a file.
+       |The typical task $taskName configuration is as shown below
+     """.stripMargin
+
+  def configStructure(component: String, defaultPort: Int): String = {
+    s"""
+       |{
+       | Component = $component
+       | Task =  $taskName
+       | params = {
+       |   dsn = <%
+       |          connection-name
+       |          <------------->
+       |          ${DBConnection.structure(defaultPort).ident(15)}
+       |         %>
+       |   export = ${ExportSetting.structure.ident(15)}
+       |   <%
+       |     sql = "SELECT * FROM TABLE"
+       |     <-------------------------->
+       |     sqlfile = run_queries.sql
+       |   %> @required
+       |}
+     """.stripMargin
+
+  }
+
+
+  val fieldDefinition: Seq[String] = Seq(
+    "dsn =  either a name of the dsn or a config-object with username/password and other credentials",
+    s"""export:
+           ${ExportSetting.fieldDescription.ident(8)}
+     """.stripMargin
+  )
 
   /**
     *

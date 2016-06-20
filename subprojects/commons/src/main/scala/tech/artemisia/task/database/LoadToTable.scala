@@ -53,35 +53,36 @@ object LoadToTable {
 
   val info = "load a file into a table"
 
-
-  def doc(component: String, defaultPort: Int) =
+  val desc: String =
     s"""
-      | $taskName
-      | ${"-" * taskName.length}
-      |
-      | $taskName task is used to load content into a table typically from a file.
-      | the configuration object for this task is as shown below.
-      |
-      |```
-      |     Component = $component
-      |     Task = $taskName
-      |     params = {
-      |	             dsn = <% connection-name
-      |                      <-------------------------------->
-      |                      ${DBConnection.structure(defaultPort).ident(23)}
-      |                     %>
-      |	             destination-table = "dummy_table" @required
-      |	             load-setting = ${LoadSettings.structure.ident(20)}
-      |            }
-      |```
-      |
-      |
-      | field legends:
-      |    * dsn:  either a name of the dsn or a config-object with username/password and other credentials
-      |    * destination-table: destination table to load
-      |    * loadsetting:
-      |             ${LoadSettings.fieldDescription.ident(12)}
+      |$taskName task is used to load content into a table typically from a file.
+      |the configuration object for this task is as shown below.
     """.stripMargin
+
+  def configStructure(component: String, defaultPort: Int) = {
+    s"""
+       |```
+       |     Component = $component
+       |     Task = $taskName
+       |     params = {
+       |	             dsn = <% connection-name
+       |                      <-------------------------------->
+       |                      ${DBConnection.structure(defaultPort).ident(23)}
+       |                     %>
+       |	             destination-table = "dummy_table" @required
+       |	             load-setting = ${LoadSettings.structure.ident(20)}
+       |            }
+       |```
+     """.stripMargin
+  }
+
+  val fieldDefinition: Seq[String] =  Seq(
+    "dsn:  either a name of the dsn or a config-object with username/password and other credentials",
+    "destination-table: destination table to load",
+    s"""|loadsetting:
+        |   ${LoadSettings.fieldDescription.ident(12)}""".stripMargin
+  )
+
 
   def create[T <: LoadToTable : ClassTag](name: String, config: Config): LoadToTable = {
       val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))

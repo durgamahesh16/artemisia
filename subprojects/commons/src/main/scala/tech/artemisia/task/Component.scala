@@ -61,7 +61,6 @@ abstract class Component(val name: String) {
       s"| $taskName${" " * (componentTaskTableDim._1 - taskName.length -1)}| $taskInfo${" " * (componentTaskTableDim._2 - taskInfo.length - 1)}|"
     }
 
-
     s"""/
         /$name
         /${"=" * name.length}
