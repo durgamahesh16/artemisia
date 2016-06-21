@@ -45,7 +45,7 @@ object EmailRequest {
     "to" -> "to address list. it can either be a single email address string or an array of email address",
     "cc" -> "cc address list. same as to address both string and array is supported",
     "bcc" -> "bcc address list. same as to address both string and array is supported",
-    "attachment" -> "can be a array of strings which w",
+    "attachment" -> "can be a array of strings which w"
   )
 
 
