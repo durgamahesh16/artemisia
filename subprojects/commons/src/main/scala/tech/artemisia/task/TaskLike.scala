@@ -34,7 +34,7 @@ trait TaskLike {
   /**
     * definition of the fields in task param config
     */
-  val fieldDefinition: Seq[String]
+  val fieldDefinition: Seq[(String, AnyRef)]
 
 
   /**
@@ -60,7 +60,7 @@ trait TaskLike {
        |
        |#### Field Description:
        |
-       | ${fieldDefinition map { x => s"* $x" } mkString System.lineSeparator ident 1}
+       | ${TaskLike.displayFieldListing(fieldDefinition) ident 1}
        |
      """.stripMargin
 
@@ -72,5 +72,18 @@ trait TaskLike {
     * @param config param config node
     */
   def apply(name: String, config: Config): Task
+
+
+}
+
+object TaskLike {
+
+
+  def displayFieldListing(fieldDefinition: Seq[(String, AnyRef)], ident: Int = 0): String  = {
+    fieldDefinition map {
+      case (field, value: String) => s"${" " * ident}* $field: $value"
+      case (field, value: Seq[(String, AnyRef)] @unchecked) => s"${" " * ident}* $field:\n${displayFieldListing(value, ident+3)}"
+    } mkString System.lineSeparator()
+  }
 
 }

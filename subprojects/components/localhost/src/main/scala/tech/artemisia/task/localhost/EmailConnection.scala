@@ -38,6 +38,17 @@ object EmailConnection extends ConnectionHelper[EmailConnection] {
        |  reply-to ="xyx@example.com"
        |}""".stripMargin
 
+  val fieldDefinition = Seq(
+    "host" -> "SMTP host address",
+    "port" -> "port of the stmp server",
+    "username" -> "username used for authentication",
+    "password" -> "password used for authentication",
+    "ssl" -> "boolean field enabling ssl",
+    "tls" -> "boolean field for enabling tls",
+    "from" -> "from address to be used",
+    "reply-to" -> "replies to the sent email will be addressed to this address"
+  )
+
   private val defaultConfig = ConfigFactory parseString
    s"""
       |{

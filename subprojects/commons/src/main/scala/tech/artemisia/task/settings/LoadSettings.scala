@@ -36,18 +36,19 @@ object LoadSettings {
      | error-file = /var/tmp/error_file.txt @required
      |}""".stripMargin
 
-  val fieldDescription =
-    """| load-path = path to load from (eg: /var/tmp/input.txt)
-       | header = boolean field to enable/disable headers
-       | skip-lines = number of lines to skip in he table
-       | delimiter = delimiter of the file
-       | quoting = boolean field to indicate if the file is quoted.
-       | quotechar = character to be used for quoting
-       | escapechar = escape character used in the file
-       | mode = mode of loading the table
-       | error-file = location of the file where rejected error records are saved.
-       | error-tolerance = % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
-    """.stripMargin
+  val fieldDescription = Seq(
+     "load-path" -> "path to load from (eg: /var/tmp/input.txt)",
+     "header" -> "boolean field to enable/disable headers",
+     "skip-lines" -> "number of lines to skip in he table",
+     "delimiter" -> "delimiter of the file",
+     "quoting" -> "boolean field to indicate if the file is quoted.",
+     "quotechar" -> "character to be used for quoting",
+     "escapechar" -> "escape character used in the file",
+     "mode" -> "mode of loading the table",
+     "error-file" -> "location of the file where rejected error records are saved",
+     "error-tolerance" -> "% of data that is allowable to get rejected value ranges from (0.00 to 1.00)"
+  )
+
 
   val default_config = ConfigFactory parseString
     """

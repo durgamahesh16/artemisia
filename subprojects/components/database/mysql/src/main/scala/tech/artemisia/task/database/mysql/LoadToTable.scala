@@ -39,5 +39,5 @@ object LoadToTable extends TaskLike {
 
   override def configStructure(component: String): String =  database.LoadToTable.configStructure(component, 3306)
 
-  override val fieldDefinition: Seq[String] = database.LoadToTable.fieldDefinition
+  override val fieldDefinition = database.LoadToTable.fieldDefinition
 }

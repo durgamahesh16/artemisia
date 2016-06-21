@@ -20,7 +20,7 @@ import scala.collection.JavaConverters._
  * @param subject subject
  * @param message message
  */
-case class EmailRequest(to: Seq[String], cc: Seq[String] = Nil, bcc: Seq[String] =  Nil,
+case class  EmailRequest(to: Seq[String], cc: Seq[String] = Nil, bcc: Seq[String] =  Nil,
                         attachments: Seq[(Option[String], File)] = Nil, subject: String, message: String)
 
 
@@ -39,6 +39,15 @@ object EmailRequest {
         | subject = "subject"
         | message = "message"
         |}""".stripMargin
+
+
+  val fieldDefinition = Seq (
+    "to" -> "to address list. it can either be a single email address string or an array of email address",
+    "cc" -> "cc address list. same as to address both string and array is supported",
+    "bcc" -> "bcc address list. same as to address both string and array is supported",
+    "attachment" -> "can be a array of strings which w",
+  )
+
 
   def apply(config: Config): EmailRequest = {
 

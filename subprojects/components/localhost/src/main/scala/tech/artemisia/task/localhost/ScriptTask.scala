@@ -93,11 +93,11 @@ object ScriptTask extends TaskLike {
      """.stripMargin
   }
 
-  override val fieldDefinition: Seq[String] = Seq(
-    "script = string whose content while be flushed to a temp file and executed with the interpreter",
-    "interpreter = the interperter used to execute the script. it can be bash, python, perl etc",
-    "cwd = set the current working directory for the script execution",
-    "env = environmental variables to be used",
-    "parse-output = parse the stdout of script which has to be a Hocon config (Json superset) and merge the result to the job config"
+  override val fieldDefinition = Seq(
+    "script" -> "string whose content while be flushed to a temp file and executed with the interpreter",
+    "interpreter" -> "the interpreter used to execute the script. it can be bash, python, perl etc",
+    "cwd" -> "set the current working directory for the script execution",
+    "env" -> "environmental variables to be used",
+    "parse-output" -> "parse the stdout of script which has to be a Hocon config (Json superset) and merge the result to the job config"
   )
 }

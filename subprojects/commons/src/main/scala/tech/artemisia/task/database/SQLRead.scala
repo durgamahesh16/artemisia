@@ -70,9 +70,9 @@ object SQLRead {
 
 
   val fieldDefinition = Seq(
-    "dsn = either a name of the dsn or a config-object with username/password and other credentials",
-    "sql = select query to be run",
-    "sqlfile = the file containing the query"
+    "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
+    "sql" -> "select query to be run",
+    "sqlfile" -> "the file containing the query"
   )
 
 

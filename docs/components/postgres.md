@@ -16,7 +16,7 @@ Component for interacting with postgres database
      
 
  
-### ExportToFile
+### ExportToFile:
 
 
 #### Description:
@@ -26,7 +26,7 @@ ExportToFile task is used to export SQL query results to a file.
 The typical task ExportToFile configuration is as shown below
      
 
-#### Configuration Structure
+#### Configuration Structure:
 
 
       
@@ -65,24 +65,23 @@ The typical task ExportToFile configuration is as shown below
 
 #### Field Description:
 
- * dsn =  either a name of the dsn or a config-object with username/password and other credentials
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * export:
-            file =  location of the file to which data is to be exported. eg: /var/tmp/output.txt
-         header = boolean literal to enable/disable header
-         delimiter = character to be used for delimiter
-         quoting = boolean literal to enable/disable quoting of fields.
-         quotechar = quotechar to use if quoting is enabled.
-         escapechar = escape character use for instance to escape delimiter values in field
-         sql = SQL query whose resultset will be exported.
-         sqlfile = used in place of sql key to pass the file containing the SQL
-      
+    * file: location of the file to which data is to be exported. eg: /var/tmp/output.txt
+    * header: boolean literal to enable/disable header
+    * delimiter: character to be used for delimiter
+    * quoting: boolean literal to enable/disable quoting of fields.
+    * quotechar: quotechar to use if quoting is enabled.
+    * escapechar: escape character use for instance to escape delimiter values in field
+    * sql: SQL query whose result-set will be exported.
+    * sqlfile: used in place of sql key to pass the file containing the SQL
 
      
 
 
 
 
-### LoadToTable
+### LoadToTable:
 
 
 #### Description:
@@ -92,7 +91,7 @@ LoadToTable task is used to load content into a table typically from a file.
 the configuration object for this task is as shown below.
     
 
-#### Configuration Structure
+#### Configuration Structure:
 
 
       
@@ -129,34 +128,33 @@ the configuration object for this task is as shown below.
 
 #### Field Description:
 
- * dsn:  either a name of the dsn or a config-object with username/password and other credentials
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
  * loadsetting:
-        load-path = path to load from (eg: /var/tmp/input.txt)
-        header = boolean field to enable/disable headers
-        skip-lines = number of lines to skip in he table
-        delimiter = delimiter of the file
-        quoting = boolean field to indicate if the file is quoted.
-        quotechar = character to be used for quoting
-        escapechar = escape character used in the file
-        mode = mode of loading the table
-        error-file = location of the file where rejected error records are saved.
-        error-tolerance = % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
-           
+    * load-path: path to load from (eg: /var/tmp/input.txt)
+    * header: boolean field to enable/disable headers
+    * skip-lines: number of lines to skip in he table
+    * delimiter: delimiter of the file
+    * quoting: boolean field to indicate if the file is quoted.
+    * quotechar: character to be used for quoting
+    * escapechar: escape character used in the file
+    * mode: mode of loading the table
+    * error-file: location of the file where rejected error records are saved
+    * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
 
      
 
 
 
 
-### SQLExecute
+### SQLExecute:
 
 
 #### Description:
 
- $taskName task is used execute arbitary DML statements against a database
+ SQLExecute task is used execute arbitary DML statements against a database
 
-#### Configuration Structure
+#### Configuration Structure:
 
 
       
@@ -173,16 +171,16 @@ the configuration object for this task is as shown below.
 
 #### Field Description:
 
- * dsn = either a name of the dsn or a config-object with username/password and other credentials
- * sql = select query to be run
- * sqlfile = the file containing the query
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * sql: select query to be run
+ * sqlfile: the file containing the query
 
      
 
 
 
 
-### SQLRead
+### SQLRead:
 
 
 #### Description:
@@ -193,7 +191,7 @@ The query must be select query and not any DML or DDL statements.
 The configuration object is shown below.
     
 
-#### Configuration Structure
+#### Configuration Structure:
 
 
       
@@ -209,9 +207,9 @@ The configuration object is shown below.
 
 #### Field Description:
 
- * dsn = either a name of the dsn or a config-object with username/password and other credentials
- * sql = select query to be run
- * sqlfile = the file containing the query
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * sql: select query to be run
+ * sqlfile: the file containing the query
 
      
 

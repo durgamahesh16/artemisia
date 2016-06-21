@@ -82,11 +82,9 @@ object ExportToFile  {
   }
 
 
-  val fieldDefinition: Seq[String] = Seq(
-    "dsn =  either a name of the dsn or a config-object with username/password and other credentials",
-    s"""export:
-           ${ExportSetting.fieldDescription.ident(8)}
-     """.stripMargin
+  val fieldDefinition: Seq[(String, AnyRef)] = Seq(
+    "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
+    "export" -> ExportSetting.fieldDescription
   )
 
   /**

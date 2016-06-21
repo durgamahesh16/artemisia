@@ -74,11 +74,10 @@ object LoadToTable {
      """.stripMargin
   }
 
-  val fieldDefinition: Seq[String] =  Seq(
-    "dsn:  either a name of the dsn or a config-object with username/password and other credentials",
-    "destination-table: destination table to load",
-    s"""|loadsetting:
-        |       ${LoadSettings.fieldDescription.ident(6)}""".stripMargin
+  val fieldDefinition = Seq(
+    "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
+    "destination-table" -> "destination table to load",
+    s"loadsetting" -> LoadSettings.fieldDescription
   )
 
 

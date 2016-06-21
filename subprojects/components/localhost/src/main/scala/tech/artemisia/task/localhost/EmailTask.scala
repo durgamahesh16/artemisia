@@ -52,9 +52,9 @@ object EmailTask extends TaskLike {
      """.stripMargin
   }
 
-  override val fieldDefinition: Seq[String] = Seq(
-    "connection: TODO",
-    "email: TODO"
+  override val fieldDefinition = Seq(
+    "connection" -> "TODO",
+    "email" -> "TODO"
   )
 
   override def apply(name: String, config: Config): Task = {

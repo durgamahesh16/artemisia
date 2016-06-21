@@ -36,15 +36,16 @@ object ExportSetting {
         |  mode = @default("default")
         |}""".stripMargin
 
-  val fieldDescription =
-  """|file =  location of the file to which data is to be exported. eg: /var/tmp/output.txt
-     |header = boolean literal to enable/disable header
-     |delimiter = character to be used for delimiter
-     |quoting = boolean literal to enable/disable quoting of fields.
-     |quotechar = quotechar to use if quoting is enabled.
-     |escapechar = escape character use for instance to escape delimiter values in field
-     |sql = SQL query whose resultset will be exported.
-     |sqlfile = used in place of sql key to pass the file containing the SQL""".stripMargin
+  val fieldDescription = Seq[(String, String)](
+    "file" -> "location of the file to which data is to be exported. eg: /var/tmp/output.txt",
+    "header" -> "boolean literal to enable/disable header",
+    "delimiter" -> "character to be used for delimiter",
+    "quoting" -> "boolean literal to enable/disable quoting of fields.",
+    "quotechar" -> "quotechar to use if quoting is enabled.",
+    "escapechar" -> "escape character use for instance to escape delimiter values in field",
+    "sql" -> "SQL query whose result-set will be exported.",
+    "sqlfile" -> "used in place of sql key to pass the file containing the SQL"
+  )
 
 
   val default_config = ConfigFactory parseString

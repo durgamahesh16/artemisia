@@ -26,7 +26,7 @@ object TestAdderTask extends TaskLike {
   override val info: String = "test add task"
   override val desc: String = ""
   override def configStructure(component: String): String = ""
-  override val fieldDefinition: Seq[String] = Nil
+  override val fieldDefinition = Nil
 
 }
 
@@ -50,5 +50,5 @@ object TestFailTask extends TaskLike {
   override val info: String = "test fail task"
   override val desc: String = ""
   override def configStructure(component: String): String = ""
-  override val fieldDefinition: Seq[String] = Nil
+  override val fieldDefinition = Nil
 }
