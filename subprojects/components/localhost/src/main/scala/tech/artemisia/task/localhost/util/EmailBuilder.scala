@@ -1,8 +1,8 @@
-package tech.artemisia.task.localhost
+package tech.artemisia.task.localhost.util
 
-import javax.naming.Context
-import javax.naming.directory.InitialDirContext
 import org.apache.commons.mail.{Email, EmailAttachment, MultiPartEmail}
+import tech.artemisia.core.AppLogger
+import tech.artemisia.task.localhost.{EmailConnection, EmailRequest}
 
 /**
  * Created by chlr on 6/16/16.
@@ -31,7 +31,10 @@ class EmailBuilder(val emailConnection: Option[EmailConnection] = None) {
         connection.from foreach { x => email.setFrom(x) }
         connection.replyTo foreach { x => email.addReplyTo(x) }
       }
-      case None => ()
+      case None => {
+        AppLogger warn s"Email connection not set. raising Exception"
+        throw new RuntimeException("Email connection not set")
+      }
     }
   }
 
@@ -55,22 +58,6 @@ class EmailBuilder(val emailConnection: Option[EmailConnection] = None) {
   }
 
 
-  private def getMXServer(domainName: String): Seq[String] = {
-    val env = new java.util.Hashtable[String, Object]()
-    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory")
-    env.put(Context.PROVIDER_URL, "dns:")
-    val ctx = new InitialDirContext(env)
-    val attribute = ctx.getAttributes(domainName, Array[String] {"MX"})
-    attribute.get("MX") match {
-      case null => Seq(domainName)
-      case x => {
-        val buffer = for (idx <- 1 to x.size()) yield { ("" + x.get(idx-1)).split("\\s+") }
-        buffer sortWith { (a,b) =>  Integer.parseInt(a(0)) > Integer.parseInt(b(0)) } map
-          { x => if(x(1).endsWith(".")) x(1).substring(0, x(1).length - 1) else x(1) }
-      }
-    }
-  }
-
-
-
 }
+
+

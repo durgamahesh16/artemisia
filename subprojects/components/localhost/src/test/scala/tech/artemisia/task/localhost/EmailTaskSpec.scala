@@ -5,6 +5,7 @@ import javax.mail.internet.InternetAddress
 
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
+import tech.artemisia.task.localhost.util.EmailBuilder
 import tech.artemisia.util.FileSystemUtil.withTempFile
 
 import scala.collection.JavaConverters._

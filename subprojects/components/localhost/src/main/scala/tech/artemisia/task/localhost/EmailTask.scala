@@ -3,6 +3,7 @@ package tech.artemisia.task.localhost
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.mail.MultiPartEmail
 import tech.artemisia.core.AppLogger
+import tech.artemisia.task.localhost.util.EmailBuilder
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.DocStringProcessor._
