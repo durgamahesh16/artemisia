@@ -11,7 +11,9 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 
 case class DBConnection(hostname: String, username: String, password: String, default_database: String, port: Int)
 
-object DBConnection extends ConnectionHelper[DBConnection] {
+object DBConnection extends ConnectionHelper {
+
+  type T = DBConnection
 
   def structure(defaultPort: Int) =
  s""" |{

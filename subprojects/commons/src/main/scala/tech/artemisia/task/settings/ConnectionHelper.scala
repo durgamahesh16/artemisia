@@ -10,7 +10,9 @@ import tech.artemisia.util.HoconConfigUtil.Handler
  */
 
 
-trait ConnectionHelper[T] {
+trait ConnectionHelper {
+
+  type T
 
   def apply(config: Config): T
 
@@ -23,11 +25,11 @@ trait ConnectionHelper[T] {
    * @param config input config that has a node dsn
    * @return
    */
-  def parseConnectionProfile(input: ConfigValue) = {
-    input.valueType() match {
-      case ConfigValueType.STRING => this.apply(input.unwrapped().asInstanceOf[String])
-      case ConfigValueType.OBJECT => this.apply(ConfigFactory.empty withFallback input)
-      case x @ _ => throw new IllegalArgumentException(s"Invalid connection node with type $x}")
+  def parseConnectionProfile(config: ConfigValue) = {
+    config.valueType() match {
+      case ConfigValueType.STRING => this.apply(config.unwrapped().asInstanceOf[String])
+      case ConfigValueType.OBJECT => this.apply(ConfigFactory.empty withFallback config)
+      case x @ _ => throw new IllegalArgumentException(s"connection value must either be an object or string name}")
     }
   }
 

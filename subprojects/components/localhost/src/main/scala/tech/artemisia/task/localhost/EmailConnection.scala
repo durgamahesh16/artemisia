@@ -24,7 +24,9 @@ case class EmailConnection(host: String, port: Int, username: Option[String], pa
 
 }
 
-object EmailConnection extends ConnectionHelper[EmailConnection] {
+object EmailConnection extends ConnectionHelper {
+
+  type T = EmailConnection
 
   def structure =
     """|{

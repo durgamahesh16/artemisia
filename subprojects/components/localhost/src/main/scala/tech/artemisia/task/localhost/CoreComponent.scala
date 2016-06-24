@@ -14,5 +14,5 @@ class CoreComponent(componentName: String) extends Component(componentName) {
 
   override val defaultConfig = ConfigFactory.empty()
 
-  override val tasks = Seq(ScriptTask, EmailTask)
+  override val tasks = Seq(ScriptTask, EmailTask, SFTPTask)
 }

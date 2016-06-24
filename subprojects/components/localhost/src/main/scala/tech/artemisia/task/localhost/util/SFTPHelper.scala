@@ -16,17 +16,27 @@ class SFTPHelper(connection: SFTPConnection) {
     val session = jsch.getSession(connection.username, connection.host, connection.port)
     connection.password foreach { x => session.setPassword(x) }
     session.connect()
-    val channel = session.openChannel("sftp")
+    val channel = session.openChannel("sftp").asInstanceOf[ChannelSftp]
     channel.connect()
-    channel.asInstanceOf[ChannelSftp]
+    channel
   }
 
-  def copyToLocal(remote: String, local: String) = {
-    sftpChannel.get(remote, local)
+  def setLCD(path: String) = {
+    sftpChannel.lcd(path)
   }
 
-  def copyFromLocal(local: String, remote: String) = {
-    sftpChannel.put(local, remote)
+  def copyToLocal(remote: String, local: Option[String]) = {
+    local match {
+      case Some(x) => sftpChannel.get(remote, x)
+      case None => sftpChannel.get(remote)
+    }
+  }
+
+  def copyFromLocal(local: String, remote: Option[String]) = {
+    remote match {
+      case Some(x) => sftpChannel.put(local, x)
+      case None => sftpChannel.put(local)
+    }
   }
 
 }

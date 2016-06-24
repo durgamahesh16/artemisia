@@ -96,7 +96,6 @@ object HoconConfigUtil {
     }
   }
 
-
   implicit val doubleReader = new ConfigReader[Double] {
     override def read(config: Config, path: String): Double = {
       config.getDouble(path)
