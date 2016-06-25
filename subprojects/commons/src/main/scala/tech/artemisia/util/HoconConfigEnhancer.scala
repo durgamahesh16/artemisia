@@ -20,15 +20,21 @@ class HoconConfigEnhancer(val root: Config)  {
   val hardResolve = resolveConfig(root.resolve())
 
   private def resolveConfig(config: Config): Config = {
+
     val processed = for (key <- config.root().keySet().asScala) yield {
-      config.getAnyRef(key)  match {
-        case x: String => key -> HoconConfigEnhancer.resolveString(x, root)
-        case x: java.lang.Iterable[AnyRef] @unchecked => key -> resolveList(config.getAnyRefList(key).asScala.toIterable)
-        case x: java.util.Map[String, AnyRef] @unchecked => key -> resolveConfig(config.getConfig(key)).root().unwrapped()
-        case x => key -> x
+      /*
+          the keys are double quoted to handle Quoted ConfigString with dot as part of the key value.
+           for eg. { "foo.bar" = baz } must not be parsed as { foo = { bar = baz} } since foo.bar is a single
+           quoted key
+       */
+      config.getAnyRef(s""""$key"""")  match {
+        case x: String => key -> ConfigValueFactory.fromAnyRef(HoconConfigEnhancer.resolveString(x, root))
+        case x: java.lang.Iterable[AnyRef] @unchecked => key -> ConfigValueFactory.fromAnyRef(resolveList(x.asScala))
+        case x: java.util.Map[String, AnyRef] @unchecked => key -> ConfigValueFactory.fromMap(resolveConfig(config.getConfig(key)).root().unwrapped())
+        case x => key -> ConfigValueFactory.fromAnyRef(x)
       }
     }
-    ConfigFactory parseMap processed.toMap.asJava
+    processed.foldLeft(ConfigFactory.empty())({ (configValue, elems)  => configValue.withValue(s""""${elems._1}"""", elems._2) } )
   }
 
 

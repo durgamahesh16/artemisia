@@ -32,9 +32,6 @@
     <orderEntry type="library" name="SBT: javax.mail:mail:1.4.1:jar" level="project" />
     <orderEntry type="library" name="SBT: javax.activation:activation:1.1:jar" level="project" />
     <orderEntry type="library" name="SBT: postgresql:postgresql:9.1-901-1.jdbc4:jar" level="project" />
-    <orderEntry type="module" module-name="postgres" exported="" />
-    <orderEntry type="module" module-name="localhost" exported="" />
-    <orderEntry type="module" module-name="mysql" exported="" />
     <orderEntry type="library" scope="TEST" name="SBT: asm:asm:3.3.1:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: asm:asm-analysis:3.3.1:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: asm:asm-tree:3.3.1:jar" level="project" />

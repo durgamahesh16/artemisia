@@ -1,35 +1,41 @@
 package tech.artemisia.task.localhost
 
+import java.nio.file.{Path, Paths}
+
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 import tech.artemisia.core.Keywords
-import tech.artemisia.task.localhost.util.SFTPHelper
+import tech.artemisia.task.localhost.util.SFTPManager
 import tech.artemisia.task.{Task, TaskLike}
-import tech.artemisia.util.HoconConfigUtil.Handler
-import scala.collection.JavaConverters._
 import tech.artemisia.util.DocStringProcessor.StringUtil
+import tech.artemisia.util.HoconConfigUtil.Handler
+
+import scala.collection.JavaConverters._
 
 /**
   * Created by chlr on 6/22/16.
   */
-class SFTPTask(name: String, connection: SFTPConnection, remoteToLocal: Seq[(String, Option[String])], localToRemote: Seq[(String, Option[String])],
-              lcd: Option[String] = None)
+class SFTPTask(name: String, connection: SFTPConnection, val remoteToLocal: Seq[(Path, Option[Path])], val localToRemote: Seq[(Path, Option[Path])],
+               localWorkingDir: Option[String] = None, remoteWorkingDir: Option[String] = None)
   extends Task(name) {
+
+  val manager = new SFTPManager(connection)
 
   override protected[task] def setup(): Unit = {}
 
   override protected[task] def work(): Config = {
-   val helper = new SFTPHelper(connection)
-    lcd foreach { helper.setLCD }
+
+    localWorkingDir foreach { manager.setLCD }
+    remoteWorkingDir foreach { manager.setRCD }
     remoteToLocal foreach {
-      case (x,y) => helper.copyToLocal(x,y)
+      case (x,y) => manager.copyToLocal(x,y)
     }
-    localToRemote foreach {
-      case (x,y) => helper.copyFromLocal(x,y)
-    }
+    localToRemote foreach { case (x,y) => manager.copyFromLocal(x,y) }
     ConfigFactory.empty()
   }
 
-  override protected[task] def teardown(): Unit = {}
+  override protected[task] def teardown(): Unit = {
+    manager.terminate()
+  }
 
 }
 
@@ -39,41 +45,55 @@ object SFTPTask extends TaskLike {
 
   override def apply(name: String, config: Config): Task = {
 
-  val remoteToLocal: Seq[(String, Option[String])] =  config.as[List[AnyRef]]("put") map {
-    case x: java.util.Map[String, String] @unchecked => x.asScala.toSeq.map(a => a._1 -> Some(a._2)).head
-    case x: String =>  x -> None
+    def parseFileMapping(mode: String) = {
+
+       config.hasPath(mode) match {
+          case true => config.as[List[AnyRef]](mode) map {
+            case x: java.util.Map[String, String] @unchecked => x.asScala.toSeq.map(a => Paths.get(a._1) -> Some(Paths.get(a._2))).head
+            case x: String =>  Paths.get(x) -> None
+          }
+          case false => Nil
+       }
+    }
+
+    new SFTPTask(name,
+        SFTPConnection.parseConnectionProfile(config.as[ConfigValue]("connection")),
+        parseFileMapping("get"),
+        parseFileMapping("put"),
+        config.getAs[String]("local-dir"),
+        config.getAs[String]("remote-dir")
+    )
+
   }
-  val localToRemote = config.as[List[AnyRef]]("get") map {
-    case x: java.util.Map[String, String] @unchecked => x.asScala.toSeq.map(a => a._1 -> Some(a._2)).head
-    case x: String =>  x -> None
-  }
-  val connection = SFTPConnection.parseConnectionProfile(config.as[ConfigValue]("connection"))
-  new SFTPTask(name,connection, remoteToLocal, localToRemote)
-}
+
+
 
   override def configStructure(component: String): String =
-    s"""
-       | {
-       |   ${Keywords.Task.COMPONENT} = $component
-       |   ${Keywords.Task.COMPONENT} = $taskName
-       |   params = {
-       |      connection = ${SFTPConnection.configStructure.ident(15)}
-       |      get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },
-       |              'root_sftp_dir/file2.txt' ]
-       |        @type(array)
-       |      put = [
-       |          { '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },
-       |          '/var/tmp/file1.txt'
-       |       ] @type(array)
-       |   }
-       | }
+    s"""| {
+        |   ${Keywords.Task.COMPONENT} = $component
+        |   ${Keywords.Task.COMPONENT} = $taskName
+        |   params = {
+        |      connection = ${SFTPConnection.configStructure.ident(15)}
+        |      get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },
+        |              'root_sftp_dir/file2.txt' ]
+        |        @type(array)
+        |      put = [
+        |          { '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },
+        |          '/var/tmp/file1.txt'
+        |       ] @type(array)
+        |      local-dir = /var/tmp @default(your current working directory.) @info(current working directory)
+        |      remote-dir = /root @info(remote working directory)
+        |   }
+        | }
      """.stripMargin
 
 
-  override val fieldDefinition: Seq[(String, AnyRef)] = Seq(  
+  override val fieldDefinition: Seq[(String, AnyRef)] = Seq(
     "connection" -> SFTPConnection.fieldDefinition,
     "get" -> "array of object or strings providing source and target (optional if type is string) paths",
-    "put" -> "array of object or strings providing source and target (optional if type is string) paths"
+    "put" -> "array of object or strings providing source and target (optional if type is string) paths",
+    "local-dir" -> "set local working directory. by default it will be your current working directory",
+    "remote-dir" -> "set remote working directory"
   )
 
 

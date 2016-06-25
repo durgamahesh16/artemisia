@@ -96,8 +96,20 @@ Component that supports core tasks of Artemisia
 
 #### Field Description:
 
- * connection: TODO
- * email: TODO
+ * connection:
+    * host: SMTP host address
+    * port: port of the stmp server
+    * username: username used for authentication
+    * password: password used for authentication
+    * ssl: boolean field enabling ssl
+    * tls: boolean field for enabling tls
+    * from: from address to be used
+    * reply-to: replies to the sent email will be addressed to this address
+ * email:
+    * to: to address list. it can either be a single email address string or an array of email address
+    * cc: cc address list. same as to address both string and array is supported
+    * bcc: bcc address list. same as to address both string and array is supported
+    * attachment: can be a array of strings which w
 
      
 
@@ -129,11 +141,10 @@ Component that supports core tasks of Artemisia
                          username = sftp-username @required
                          password = sftppassword @optional(not required if key based authentication is used)
                          pkey = "/home/user/.ssh/id_rsa" @optional(not required if username/password authentication is used)
-                         lcd = /var/tmp @info(set local working directory)
                        }%>
            get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },
                    'root_sftp_dir/file2.txt' ]
-             @type(array) 
+             @type(array)
            put = [
                { '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },
                '/var/tmp/file1.txt'
@@ -151,7 +162,6 @@ Component that supports core tasks of Artemisia
     * username: username to be used for sftp connection
     * password: optional password for sftp connection if exists
     * pkey: optional private key to be used for the connection
-    * lcd: set current local working directory
  * get: array of object or strings providing source and target (optional if type is string) paths
  * put: array of object or strings providing source and target (optional if type is string) paths
 

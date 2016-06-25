@@ -7,7 +7,6 @@ import tech.artemisia.core._
 import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
-
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.LinearSeq
@@ -33,7 +32,7 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointDat
           case node @ Node(_,Nil) => node
           case node @ Node(_, parents) if parents forall { sorted_graph contains _ } => node
         }
-        if (open_nodes isEmpty) {
+        if (open_nodes.isEmpty) {
           AppLogger error { s"cyclic dependency detected in graph structure $unsorted_graph" }
           throw new DagException("Cycles Detected in Dag")
         }

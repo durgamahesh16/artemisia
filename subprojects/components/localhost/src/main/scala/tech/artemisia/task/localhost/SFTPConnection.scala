@@ -1,7 +1,6 @@
 package tech.artemisia.task.localhost
 
 import java.io.File
-
 import com.typesafe.config.Config
 import tech.artemisia.task.settings.ConnectionHelper
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -10,7 +9,7 @@ import tech.artemisia.util.HoconConfigUtil.Handler
   * Created by chlr on 6/22/16.
   */
 
-case class SFTPConnection(host: String, port: Int = 22, username: String, password: Option[String], pkey: Option[File]) {
+case class SFTPConnection(host: String, port: Int = 22, username: String, password: Option[String] = None, pkey: Option[File] = None) {
 
 }
 

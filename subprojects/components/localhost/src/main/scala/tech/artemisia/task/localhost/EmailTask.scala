@@ -21,7 +21,6 @@ class EmailTask(name: String, val emailRequest: EmailRequest, val emailConnectio
     val builder = new EmailBuilder(emailConnection)
     val email = builder.build(emailRequest)
     AppLogger info s"""sending email to ${emailRequest.to mkString ","}"""
-
     email.send()
     ConfigFactory.empty()
   }
@@ -54,8 +53,8 @@ object EmailTask extends TaskLike {
   }
 
   override val fieldDefinition = Seq(
-    "connection" -> "TODO",
-    "email" -> "TODO"
+    "connection" -> EmailConnection.fieldDefinition,
+    "email" -> EmailRequest.fieldDefinition
   )
 
   override def apply(name: String, config: Config): Task = {

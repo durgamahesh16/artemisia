@@ -67,4 +67,20 @@ class HoconConfigEnhancerSpec extends TestSpec {
     testData.hardResolve.getString("hello") must be ("baz")
   }
 
+  it must "parse quoted strings properly" in {
+    val testData = ConfigFactory parseString
+      """
+        | {
+        |   foo.bar = baz
+        |   hello = {
+        |     world = [ { "foo.bar" = baz }, { "foo=bar"  = baz } ]
+        |   }
+        | }
+      """.stripMargin
+    val config = testData.hardResolve
+    config.getConfig("foo").getString("bar") must be ("baz")
+    config.getConfig("hello").getConfigList("world").get(0).getString(""""foo.bar"""") must be ("baz")
+    config.getConfig("hello").getConfigList("world").get(1).getString(""""foo=bar"""") must be ("baz")
+  }
+
 }
