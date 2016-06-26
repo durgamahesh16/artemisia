@@ -21,7 +21,9 @@ class SQLExecute(name: String, sql: String, connectionProfile: DBConnection) ext
   /**
    * No work is done in this phase
    */
-  override protected[task] def teardown(): Unit = {}
+  override protected[task] def teardown(): Unit = {
+    dbInterface.terminate()
+  }
 
 }
 

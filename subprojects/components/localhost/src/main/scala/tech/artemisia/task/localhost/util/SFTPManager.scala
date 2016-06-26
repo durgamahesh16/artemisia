@@ -1,6 +1,6 @@
 package tech.artemisia.task.localhost.util
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 
 import com.jcraft.jsch.{ChannelSftp, JSch}
 import tech.artemisia.core.AppLogger
@@ -40,16 +40,16 @@ class SFTPManager(connection: SFTPConnection) {
   }
 
   def copyToLocal(remote: Path, local: Option[Path] = None) = {
-    AppLogger info s"copying remote file $remote to ${local.getOrElse(Paths.get(remote.toString).toAbsolutePath).toString}"
+
+    AppLogger info s"copying remote file $remote to ${local.getOrElse(joinPath(sftpChannel.lpwd(), remote.getFileName.toString)).toString}"
     local match {
       case Some(x) => sftpChannel.get(remote.toString, x.toString)
-      case None => sftpChannel.get(remote.toString)
+      case None => sftpChannel.get(remote.toString, joinPath(sftpChannel.lpwd(), remote.getFileName.toString))
     }
   }
 
   def copyFromLocal(local: Path, remote: Option[Path] = None) = {
     AppLogger info s"copying local file $local to remote at ${remote.getOrElse(joinPath(sftpChannel.pwd(), local.toAbsolutePath.getFileName.toString))} "
-
     remote match {
       case Some(x) => sftpChannel.put(local.toString, x.toString)
       case None => sftpChannel.put(local.toString, joinPath(sftpChannel.pwd(), local.toAbsolutePath.getFileName.toString))
