@@ -9,3 +9,5 @@ pages:
   - {MySQL: components/mysql.md}
   - {Core: components/core.md}
   - {Postgres: components/postgres.md}
+- Examples:
+  - {Mysql: examples/mysql.md}

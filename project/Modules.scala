@@ -16,8 +16,7 @@ object Modules {
     val settings = Seq(libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-email" % "1.2",
       "com.jcraft" % "jsch" % "0.1.53",
-      "org.apache.sshd" % "sshd-core" % "1.2.0"
-    )
+      "org.apache.sshd" % "sshd-core" % "1.2.0")
     )
   }
 

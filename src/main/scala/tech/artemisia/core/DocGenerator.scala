@@ -50,8 +50,10 @@ object DocGenerator {
   private def generateMkDocConfig(components: Seq[String]) = {
     val yaml = new Yaml()
     val config: mutable.Map[String, Object] = yaml.load(mkDocConfigFile).asInstanceOf[java.util.Map[String,Object]].asScala
-    val componentConfig = components.map(x => Map(x -> s"components/${x.toLowerCase}.md").asJava ).toSeq.asJava
-    config("pages").asInstanceOf[java.util.List[Object]].add(Map("Components" -> componentConfig).asJava)
+    val componentConfig = components.map(x => Map(x -> s"components/${x.toLowerCase}.md").asJava ).asJava
+    config("pages").asInstanceOf[java.util.List[Object]].get(2)
+      .asInstanceOf[java.util.Map[String,Object]]
+      .put("Components", componentConfig)
     val writer = new BufferedWriter(new FileWriter(new File(FileSystemUtil.joinPath(baseDir.toString, "mkdocs.yml"))))
     yaml.dump(config.asJava, writer)
   }
@@ -65,6 +67,9 @@ object DocGenerator {
       |   - Getting Started:
       |      - Installation: started.md
       |      - Defining Jobs: concept.md
+      |   - Components: []
+      |   - Examples:
+      |      - Mysql: examples/mysql.md
     """.stripMargin
   }
 

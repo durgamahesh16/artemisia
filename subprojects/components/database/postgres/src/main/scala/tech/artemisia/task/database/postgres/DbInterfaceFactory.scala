@@ -51,9 +51,6 @@ object DbInterfaceFactory {
   }
 
 
-  class BulkDBInterFace()
-
-
   private def getConnection(connectionProfile: DBConnection) = {
     DriverManager.getConnection(s"jdbc:postgresql://${connectionProfile.hostname}/${connectionProfile.default_database}?" +
       s"user=${connectionProfile.username}&password=${connectionProfile.password}")

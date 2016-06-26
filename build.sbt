@@ -16,7 +16,7 @@ lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(libraryDependencies ++= Artemisia.dependencies,
           mainClass in Compile := Some("tech.artemisia.core.Main"),
     fullRunTask(TaskKey[Unit]("docgen"), Compile, "tech.artemisia.core.DocGenerator", "/Users/chlr/dev/T800/projects/artemisia"))
-  .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres)
+  .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata)
 
 
 lazy val localhost = (project in General.componentBase / "localhost").enablePlugins(JavaAppPackaging)
@@ -41,7 +41,12 @@ lazy val postgres = (project in General.componentBase / "database" / "postgres")
   .settings(Postgres.settings)
 
 
-lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql, postgres)
+lazy val teradata = (project in General.componentBase / "database" / "teradata").enablePlugins(JavaAppPackaging)
+  .settings(General.settings("teradata"))
+  .dependsOn(commons  % "compile->compile;test->test")
+
+
+lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql, postgres, teradata)
   .enablePlugins(JavaAppPackaging)
   .settings(General.settings("all", publishable = false))
   .settings(

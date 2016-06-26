@@ -72,5 +72,6 @@
     <orderEntry type="library" name="SBT: org.apache.commons:commons-email:1.2:jar" level="project" />
     <orderEntry type="library" name="SBT: org.yaml:snakeyaml:1.17:jar" level="project" />
     <orderEntry type="library" name="SBT: com.jcraft:jsch:0.1.53:jar" level="project" />
+    <orderEntry type="module" module-name="teradata" exported="" />
   </component>
 </module>
