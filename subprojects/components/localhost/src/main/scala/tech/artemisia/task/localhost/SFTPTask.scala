@@ -14,8 +14,8 @@ import scala.collection.JavaConverters._
 /**
   * Created by chlr on 6/22/16.
   */
-class SFTPTask(name: String, connection: SFTPConnection, val remoteToLocal: Seq[(Path, Option[Path])], val localToRemote: Seq[(Path, Option[Path])],
-               localWorkingDir: Option[String] = None, remoteWorkingDir: Option[String] = None)
+class SFTPTask(name: String, val connection: SFTPConnection, val remoteToLocal: Seq[(Path, Option[Path])], val localToRemote: Seq[(Path, Option[Path])],
+               val localWorkingDir: Option[String] = None, val remoteWorkingDir: Option[String] = None)
   extends Task(name) {
 
   val manager = new SFTPManager(connection)

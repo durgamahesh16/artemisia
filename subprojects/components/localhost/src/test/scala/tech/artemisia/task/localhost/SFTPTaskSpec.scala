@@ -3,6 +3,7 @@ package tech.artemisia.task.localhost
 import java.io.File
 import java.nio.file.Paths
 
+import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
 import tech.artemisia.util.FileSystemUtil._
@@ -48,7 +49,41 @@ class SFTPTaskSpec extends TestSpec with BeforeAndAfterAll {
     }
   }
 
-  it must "parse config oject "
+  it must "parse config object " in {
+         val config = ConfigFactory parseString
+           s"""
+            | {
+            |   connection = {
+            |      hostname = "sftp-server"
+            |      port = 2222
+            |      username = artemisia
+            |      password = caria
+            |   }
+            |   local-dir = "/var/tmp"
+            |   remote-dir = "sftp/root"
+            |   put = [
+            |        { "file1.txt" = "file2.txt" }
+            |        "file3.txt"
+            |     ]
+            |   get = [
+            |      { "file1.txt" = "file2.txt" }
+            |       "file3.txt"
+            |   ]
+            | }
+         """.
+           stripMargin
+         val task =  SFTPTask("sftptask", config).asInstanceOf[SFTPTask]
+         task.connection.host must be("sftp-server")
+         task.connection.port must be(2222)
+         task.connection.password must be (Some("caria"))
+         task.connection.username must be ("artemisia")
+         task.localWorkingDir must be (Some("/var/tmp"))
+         task.remoteWorkingDir must be (Some("sftp/root"))
+         task.localToRemote.head must be (Paths.get("file1.txt") -> Some(Paths.get("file2.txt")))
+         task.localToRemote(1) must be (Paths.get("file3.txt") -> None)
+         task.remoteToLocal.head must be (Paths.get("file1.txt") -> Some(Paths.get("file2.txt")))
+         task.remoteToLocal(1) must be (Paths.get("file3.txt") -> None)
+  }
 
   override def afterAll() = {
     MockSFTPServer.close()
