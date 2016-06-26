@@ -128,7 +128,6 @@ Component that supports core tasks of Artemisia
 #### Configuration Structure:
 
 
-      
       {
         Component = Core
         Component = SFTPTask
@@ -149,6 +148,8 @@ Component that supports core tasks of Artemisia
                { '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },
                '/var/tmp/file1.txt'
             ] @type(array)
+           local-dir = /var/tmp @default(your current working directory.) @info(current working directory)
+           remote-dir = /root @info(remote working directory)
         }
       }
           
@@ -164,6 +165,8 @@ Component that supports core tasks of Artemisia
     * pkey: optional private key to be used for the connection
  * get: array of object or strings providing source and target (optional if type is string) paths
  * put: array of object or strings providing source and target (optional if type is string) paths
+ * local-dir: set local working directory. by default it will be your current working directory
+ * remote-dir: set remote working directory
 
      
 
