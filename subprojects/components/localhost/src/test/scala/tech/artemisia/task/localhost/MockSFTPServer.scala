@@ -31,7 +31,6 @@ object MockSFTPServer {
   sshd.setFileSystemFactory(new VirtualFileSystemFactory(rootDir.toPath))
 
   def start() =  {
-    System.out.println(joinPath(rootDir.toString, "test"))
     new File(joinPath(rootDir.toString, "test")).mkdir()
     sshd.start()
   }

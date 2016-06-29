@@ -12,28 +12,26 @@ import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
 class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: DBInterface) {
 
 
-  private val tableMetadata = getTableMetaData
-  private val insertSQL =
-    s"""|INSERT INTO $tableName (${tableMetadata.map({_._1}).mkString(",")})
-        |VALUES (${tableMetadata.map({ x => "?" }).mkString(",")})
-       """.stripMargin
-  private val stmt = dBInterface.connection.prepareStatement(insertSQL)
-
-
-  private def getTableMetaData = {
+  private val tableMetadata = {
     val parsedTableName = DBUtil.parseTableName(tableName)
     dBInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector
   }
+
+  private val stmt = {
+    val insertSQL =
+      s"""|INSERT INTO $tableName (${tableMetadata.map({_._1}).mkString(",")})
+          |VALUES (${tableMetadata.map({ x => "?" }).mkString(",")})
+       """.stripMargin
+    dBInterface.connection.prepareStatement(insertSQL)
+  }
+
   private val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(ExportSetting(new File(x).toURI,false,'\u0001',false)) ).getOrElse(new NullFileWriter)
 
 
   def executeBatch(batch: Array[Array[String]]) = {
 
     val (validRows: Array[Array[String]], invalidRows: Array[Array[String]]) = batch partition { x => x.length == tableMetadata.length }
-
-    for (row <- invalidRows) {
-      errorWriter.writeRow(row)
-    }
+    invalidRows foreach {  errorWriter.writeRow }
 
     try {
       for (row <- validRows) {
@@ -48,12 +46,9 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: 
         stmt.clearBatch()
         for(record <- retryRecords) {
           processRow(record)
-          try {
-            stmt.execute()
-          }
+          try { stmt.execute() }
           catch {
-            case e: SQLException =>
-                 errorWriter.writeRow(record)
+            case e: SQLException => errorWriter.writeRow(record)
           }
         }
       }
