@@ -10,7 +10,8 @@ import tech.artemisia.task.settings.ExportSetting
  */
 class CSVFileWriter(settings: ExportSetting) extends FileDataWriter {
 
-  var totalRows: Long = 0L
+  override var totalRows: Long = 0L
+
   private val writer = new CSVWriter(new BufferedWriter(new FileWriter(new File(settings.file))), settings.delimiter,
     if (settings.quoting) settings.quotechar else CSVWriter.NO_QUOTE_CHARACTER, settings.escapechar)
 

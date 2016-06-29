@@ -53,10 +53,10 @@ object DbInterfaceFactory {
 
 
   private def getConnection(connectionProfile: DBConnection, mode: Option[String] = None) = {
-    println(s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
-      s"dbs_port=${connectionProfile.port},user=${connectionProfile.username},password=${connectionProfile.password}${mode.map(x => s",type=$x").getOrElse("")}""")
     DriverManager.getConnection(s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
-      s"dbs_port=${connectionProfile.port},user=${connectionProfile.username},password=${connectionProfile.password}${mode.map(x => s",type=$x").getOrElse("")}""")
+      s"dbs_port=${connectionProfile.port}${mode.map(x => s",type=$x").getOrElse("")}"""
+      ,connectionProfile.username
+      ,connectionProfile.password)
   }
 
 }

@@ -1,64 +1,39 @@
 
  
-MySQL
-=====
+Teradata
+========
 
-This components provides tasks to interact with a mysql database
+This Component supports exporting loading and executing queries against Teradata database
 
 | TaskName        | Description                                               |
 |-----------------|-----------------------------------------------------------|
-| ExportToFile    | export query results to a file                            |
-| LoadToTable     | load a file into a table                                  |
 | SQLExecute      | executes DML statements such as Insert/Update/Delete      |
 | SQLRead         | execute select queries and wraps the results in config    |
+| LoadToTable     | load a file into a table                                  |
+| ExportToFile    | export query results to a file                            |
 
 
      
 
  
-### ExportToFile:
+### SQLExecute:
 
 
 #### Description:
 
- 
-ExportToFile task is used to export SQL query results to a file.
-The typical task ExportToFile configuration is as shown below
-     
+ SQLExecute task is used execute arbitary DML statements against a database
 
 #### Configuration Structure:
 
 
       
      {
-      Component = MySQL
-      Task =  ExportToFile
-      params = {
-        dsn = <%
-               connection-name
-               <------------->
-               {
-                      host = db-host @required
-                      username = username @required
-                      password = password @required
-                      database = db @required
-                      port = db @default(3306)
-                     }
-                      
-              %>
-        export = {
-                      header =  yes @default(false) @type(boolean)
-                      delimiter = '|' @default(",") @type(char)
-                      quoting = yes @default(false) @type(boolean)
-                      quotechar = """ @default('"') @type(char)
-                      escapechar = "\" @default("") @type(char)
-                      mode = @default("default")
-                    }
-        <%
-          sql = "SELECT * FROM TABLE"
-          <-------------------------->
-          sqlfile = run_queries.sql
-        %> @required
+       Component = Teradata
+       Task = SQLExecute
+         params = {
+          dsn = ?
+          [sql|sqlfile] = ?
+        }
      }
           
 
@@ -66,15 +41,44 @@ The typical task ExportToFile configuration is as shown below
 #### Field Description:
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
- * export:
-    * file: location of the file to which data is to be exported. eg: /var/tmp/output.txt
-    * header: boolean literal to enable/disable header
-    * delimiter: character to be used for delimiter
-    * quoting: boolean literal to enable/disable quoting of fields.
-    * quotechar: quotechar to use if quoting is enabled.
-    * escapechar: escape character use for instance to escape delimiter values in field
-    * sql: SQL query whose result-set will be exported.
-    * sqlfile: used in place of sql key to pass the file containing the SQL
+ * sql: select query to be run
+ * sqlfile: the file containing the query
+
+     
+
+
+
+
+### SQLRead:
+
+
+#### Description:
+
+ 
+SQLRead task runs a select query and parse the first row as a Hocon Config.
+The query must be select query and not any DML or DDL statements.
+The configuration object is shown below.
+    
+
+#### Configuration Structure:
+
+
+      
+     {
+       Component = Teradata
+       Task = SQLRead
+         params = {
+          dsn = ?
+          [sql|sqlfile] = ?
+        }
+       
+
+
+#### Field Description:
+
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * sql: select query to be run
+ * sqlfile: the file containing the query
 
      
 
@@ -95,7 +99,7 @@ the configuration object for this task is as shown below.
 
 
       
-          Component = MySQL
+          Component = Teradata
           Task = LoadToTable
           params = {
      	             dsn = <% connection-name
@@ -105,7 +109,7 @@ the configuration object for this task is as shown below.
                            username = username @required
                            password = password @required
                            database = db @required
-                           port = db @default(3306)
+                           port = db @default(5432)
                           }
                            
                           %>
@@ -149,24 +153,49 @@ the configuration object for this task is as shown below.
 
 
 
-### SQLExecute:
+### ExportToFile:
 
 
 #### Description:
 
- SQLExecute task is used execute arbitary DML statements against a database
+ 
+ExportToFile task is used to export SQL query results to a file.
+The typical task ExportToFile configuration is as shown below
+     
 
 #### Configuration Structure:
 
 
       
      {
-       Component = MySQL
-       Task = SQLExecute
-         params = {
-          dsn = ?
-          [sql|sqlfile] = ?
-        }
+      Component = Teradata
+      Task =  ExportToFile
+      params = {
+        dsn = <%
+               connection-name
+               <------------->
+               {
+                      host = db-host @required
+                      username = username @required
+                      password = password @required
+                      database = db @required
+                      port = db @default(5432)
+                     }
+                      
+              %>
+        export = {
+                      header =  yes @default(false) @type(boolean)
+                      delimiter = '|' @default(",") @type(char)
+                      quoting = yes @default(false) @type(boolean)
+                      quotechar = """ @default('"') @type(char)
+                      escapechar = "\" @default("") @type(char)
+                      mode = @default("default")
+                    }
+        <%
+          sql = "SELECT * FROM TABLE"
+          <-------------------------->
+          sqlfile = run_queries.sql
+        %> @required
      }
           
 
@@ -174,44 +203,15 @@ the configuration object for this task is as shown below.
 #### Field Description:
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
- * sql: select query to be run
- * sqlfile: the file containing the query
-
-     
-
-
-
-
-### SQLRead:
-
-
-#### Description:
-
- 
-SQLRead task runs a select query and parse the first row as a Hocon Config.
-The query must be select query and not any DML or DDL statements.
-The configuration object is shown below.
-    
-
-#### Configuration Structure:
-
-
-      
-     {
-       Component = MySQL
-       Task = SQLRead
-         params = {
-          dsn = ?
-          [sql|sqlfile] = ?
-        }
-       
-
-
-#### Field Description:
-
- * dsn: either a name of the dsn or a config-object with username/password and other credentials
- * sql: select query to be run
- * sqlfile: the file containing the query
+ * export:
+    * file: location of the file to which data is to be exported. eg: /var/tmp/output.txt
+    * header: boolean literal to enable/disable header
+    * delimiter: character to be used for delimiter
+    * quoting: boolean literal to enable/disable quoting of fields.
+    * quotechar: quotechar to use if quoting is enabled.
+    * escapechar: escape character use for instance to escape delimiter values in field
+    * sql: SQL query whose result-set will be exported.
+    * sqlfile: used in place of sql key to pass the file containing the SQL
 
      
 

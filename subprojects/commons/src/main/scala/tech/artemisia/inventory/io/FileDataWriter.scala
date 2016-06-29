@@ -6,6 +6,8 @@ package tech.artemisia.inventory.io
 
 abstract class FileDataWriter {
 
+  var totalRows: Long
+
   def writeRow(data: Array[String])
 
   def writeRow(data: String)

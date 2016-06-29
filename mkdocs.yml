@@ -9,5 +9,6 @@ pages:
   - {MySQL: components/mysql.md}
   - {Core: components/core.md}
   - {Postgres: components/postgres.md}
+  - {Teradata: components/teradata.md}
 - Examples:
   - {Mysql: examples/mysql.md}

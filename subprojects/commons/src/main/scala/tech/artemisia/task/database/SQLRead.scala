@@ -39,7 +39,10 @@ abstract class SQLRead(name: String = Util.getUUID, val sql: String, val connect
     result
   }
 
-  override protected[task] def teardown(): Unit = {}
+  override protected[task] def teardown() = {
+    AppLogger debug s"closing database connection"
+    dbInterface.terminate()
+  }
 
 }
 

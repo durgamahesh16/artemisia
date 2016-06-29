@@ -1,6 +1,7 @@
 package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{DBConnection, ExportSetting}
@@ -43,7 +44,10 @@ abstract class ExportToFile(name: String, val sql: String, val connectionProfile
        }
      }
 
-     override protected[task] def teardown(): Unit = {}
+      override protected[task] def teardown() = {
+        AppLogger debug s"closing database connection"
+        dbInterface.terminate()
+      }
 
 }
 

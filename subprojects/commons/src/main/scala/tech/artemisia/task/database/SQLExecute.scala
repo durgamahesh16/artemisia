@@ -42,7 +42,11 @@ abstract class SQLExecute(name: String, val sql: String, val connectionProfile: 
     }
   }
 
-  override protected[task] def teardown(): Unit
+  override protected[task] def teardown() = {
+    AppLogger debug s"closing database connection"
+    dbInterface.terminate()
+  }
+
 }
 
 object SQLExecute {

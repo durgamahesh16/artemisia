@@ -1,5 +1,6 @@
 package tech.artemisia.task.database
 
+import com.typesafe.config.ConfigRenderOptions
 import tech.artemisia.TestSpec
 import tech.artemisia.task.settings.{DBConnection, LoadSettings}
 import tech.artemisia.util.FileSystemUtil._
@@ -14,18 +15,19 @@ class LoadToTableSpec extends TestSpec {
     val tableName = "LoadToTableSpec"
     withTempFile(fileName = s"${tableName}_1") {
       file => {
+        // row id 106 will be rejected since quicksilver is more than the target column width (10)
         file <<=
           """|102\u0001magneto\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
              |103\u0001xavier\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
              |104\u0001wolverine\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
              |105\u0001mystique\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00
-             |106\u0001quicksilver\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00 """.stripMargin
-        val loadSettings = LoadSettings(file.toURI, delimiter = '\u0001')
+             |106\u0001quicksilver\u0001true\u0001100\u000110000000\u000187.3\u000112:30:00\u00011945-05-09\u00011945-05-09 12:30:00|""".stripMargin
+        val loadSettings = LoadSettings(file.toURI, delimiter = '\u0001', batchSize = 1)
         val loader = LoadToTableSpec.loader("LoadToTableSpec1",tableName, TestDBInterFactory.stubbedConnectionProfile,loadSettings)
         val config = loader.execute()
-        config.as[Int]("test_task.__stats__.loaded")must be (4)
-        config.as[Int]("test_task.__stats__.rejected")must be (1
-        )
+        info(loader.dbInterface.queryOne(s"select count(*) as cnt from $tableName").root().render(ConfigRenderOptions.concise()))
+        config.as[Int]("test_task.__stats__.loaded") must be (4)
+        config.as[Int]("test_task.__stats__.rejected") must be (1)
       }
     }
   }

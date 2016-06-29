@@ -119,6 +119,7 @@ the configuration object for this task is as shown below.
                           quotechar = """ @default('"') @type(char)
                           escapechar = "\" @default('') @type(char)
                           mode = default @default("default") @type(string)
+                          batch-size = 200 @default(100)
                           error-tolerence = 0.57 @default(2) @type(double,0,1)
                           error-file = /var/tmp/error_file.txt @required
                          }
@@ -139,6 +140,7 @@ the configuration object for this task is as shown below.
     * quotechar: character to be used for quoting
     * escapechar: escape character used in the file
     * mode: mode of loading the table
+    * batch-size: loads into table will be grouped into batches of this size.
     * error-file: location of the file where rejected error records are saved
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
 

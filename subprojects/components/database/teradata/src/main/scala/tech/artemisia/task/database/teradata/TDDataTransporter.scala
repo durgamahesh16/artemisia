@@ -12,6 +12,9 @@ trait TDDataTransporter extends DataTransporter {
 
   override def loadData(tableName: String, loadSettings: LoadSettings): (Long, Long) = ???
 
-  override def exportData(sql: String, exportSetting: ExportSetting): Long = ???
+  override def exportData(sql: String, exportSetting: ExportSetting): Long = {
+    val rs = self.query(sql)
+    DataTransporter.exportCursorToFile(rs, exportSetting)
+  }
 
 }

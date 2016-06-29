@@ -45,6 +45,12 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
     }
   }
 
+   override protected[task] def teardown() = {
+    AppLogger debug s"closing database connection"
+    dbInterface.terminate()
+   }
+
+
 }
 
 object LoadToTable {
