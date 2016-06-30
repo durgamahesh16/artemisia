@@ -1,10 +1,9 @@
 package tech.artemisia.util
 
 import java.io.File
-
+import java.util.concurrent.TimeUnit
 import com.typesafe.config.{Config, ConfigValue}
 import org.apache.commons.lang3.StringEscapeUtils
-
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -112,13 +111,13 @@ object HoconConfigUtil {
 
   implicit val durationReader = new ConfigReader[FiniteDuration] {
     override def read(config: Config, path: String): FiniteDuration = {
-      Duration.fromNanos(config.getDuration(path).toNanos)
+      Duration.fromNanos(config.getDuration(path, TimeUnit.NANOSECONDS))
     }
   }
 
   implicit val durationListReader = new ConfigReader[List[FiniteDuration]] {
     override def read(config: Config, path: String): List[FiniteDuration] = {
-      config.getDurationList(path).asScala.toList map { x => Duration.fromNanos(x.toNanos) }
+      config.getDurationList(path, TimeUnit.NANOSECONDS).asScala.map{ x => Duration.fromNanos(x) }.toList
     }
   }
 

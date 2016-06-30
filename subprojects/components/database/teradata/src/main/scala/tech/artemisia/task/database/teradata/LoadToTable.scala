@@ -1,9 +1,9 @@
 package tech.artemisia.task.database.teradata
 
-import com.typesafe.config.Config
-import tech.artemisia.task.{TaskLike, database}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.{DBConnection, LoadSettings}
+import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.Util
 
 /**
@@ -34,7 +34,15 @@ object LoadToTable extends TaskLike {
 
   override val taskName = database.LoadToTable.taskName
 
-  override def apply(name: String, config: Config) = database.LoadToTable.create[LoadToTable](name, config)
+  override def apply(name: String, config: Config) = {
+    val mutatedConfig = config withFallback ConfigFactory.empty().withValue("load-setting.batch-size", ConfigValueFactory fromAnyRef {
+      config.getString("load-setting.mode").toLowerCase match {
+        case "fastload" => 50000
+        case "default" => 100
+      }
+    })
+    database.LoadToTable.create[LoadToTable](name, mutatedConfig)
+  }
 
   override val desc: String = database.LoadToTable.desc
 

@@ -6,7 +6,7 @@ import tech.artemisia.inventory.io.{CSVFileWriter, NullFileWriter}
 import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
 
 /**
-  * Created by chlr on 6/26/16.
+  * Created by chlr on 6/26/16.œ
   */
 
 class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: DBInterface) {
@@ -14,7 +14,9 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: 
 
   private val tableMetadata = {
     val parsedTableName = DBUtil.parseTableName(tableName)
-    dBInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector
+    val t = dBInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector
+    System.err.println(t.map(x => x._1 -> ).mkString(","))
+    t
   }
 
   private val stmt = {
@@ -35,7 +37,7 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: 
 
     try {
       for (row <- validRows) {
-        try { processRow(row); stmt.addBatch() } catch { case th: Throwable =>  errorWriter.writeRow(row) }
+        try { processRow(row); stmt.addBatch() } catch {  case th: Throwable => errorWriter.writeRow(row) }
         stmt.executeBatch()
       }
     }
@@ -120,8 +122,8 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: 
           case "" => stmt.setNull(i,Types.TIME)
           case _ => stmt.setTime(i, java.sql.Time.valueOf(row(i-1)))
         }
-        case Types.TIME_WITH_TIMEZONE => row(i-1) match {
-          case "" => stmt.setNull(i,Types.TIME_WITH_TIMEZONE)
+        case Types.TIMESTAMP => row(i-1) match {
+          case "" => stmt.setNull(i,Types.TIMESTAMP)
           case _ => stmt.setTime(i, java.sql.Time.valueOf(row(i-1)))
         }
         case Types.TINYINT => row(i-1) match {

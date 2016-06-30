@@ -2,10 +2,7 @@ package tech.artemisia.util
 
 import java.io._
 import java.nio.file.{Files, Paths}
-
 import com.typesafe.config.{Config, ConfigFactory}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import tech.artemisia.core.{AppLogger, Keywords}
 
 /**
@@ -74,8 +71,9 @@ object Util {
    * @return current time in format "yyyy-MM-dd HH:mm:ss"
    */
   def currentTime : String = {
-      val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-      formatter.print(new DateTime())
+//      val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+//      formatter.print(new DateTime())
+    ""
   }
 
   def prettyPrintAsciiTable(content: String, heading: String, width: Int = 80): String = {

@@ -29,8 +29,7 @@ object FileSystemUtil {
    */
   def readResource(resource: String) = {
     val resource_stream = this.getClass.getResourceAsStream(resource)
-    val buffered = new BufferedReader(new InputStreamReader(resource_stream))
-    buffered.lines().toArray.mkString("\n")
+    Source.fromInputStream(resource_stream).mkString("\n")
   }
 
   /**

@@ -40,6 +40,7 @@ object Main {
     }
 
     parser.parse(args, AppSetting()).getOrElse(AppSetting())
+
   }
 
   private[core] def preProcessAppSetting(appSetting: AppSetting) = {
