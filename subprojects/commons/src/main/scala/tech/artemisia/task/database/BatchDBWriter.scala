@@ -2,14 +2,15 @@ package tech.artemisia.task.database
 
 import java.io.File
 import java.sql.{BatchUpdateException, SQLException, Types}
+
 import tech.artemisia.inventory.io.{CSVFileWriter, NullFileWriter}
-import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
+import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
 
 /**
   * Created by chlr on 6/26/16.
   */
 
-class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: DBInterface) {
+class BatchDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: DBInterface) {
 
 
   private val tableMetadata = {
@@ -25,7 +26,7 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSettings, dBInterface: 
     dBInterface.connection.prepareStatement(insertSQL)
   }
 
-  private val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(ExportSetting(new File(x).toURI,false,'\u0001',false)) ).getOrElse(new NullFileWriter)
+  private val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(BasicExportSetting(new File(x).toURI,false,'\u0001',false)) ).getOrElse(new NullFileWriter)
 
 
   def executeBatch(batch: Array[Array[String]]) = {

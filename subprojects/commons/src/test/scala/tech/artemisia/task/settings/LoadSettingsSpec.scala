@@ -24,7 +24,7 @@ class LoadSettingsSpec extends TestSpec {
         |	quotechar = "\""
         |}
       """.stripMargin
-    val setting = LoadSettings(config)
+    val setting = BasicLoadSetting(config)
     setting.escapechar must be ('\\')
     setting.skipRows must be (10)
     setting.delimiter must be ('\t')

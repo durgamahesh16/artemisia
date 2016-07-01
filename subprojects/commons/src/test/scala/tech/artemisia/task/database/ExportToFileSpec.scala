@@ -3,7 +3,7 @@ package tech.artemisia.task.database
 import java.io.File
 import tech.artemisia.TestSpec
 import tech.artemisia.core.Keywords
-import tech.artemisia.task.settings.{DBConnection, ExportSetting}
+import tech.artemisia.task.settings.{DBConnection, BasicExportSetting$}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -15,7 +15,7 @@ class ExportToFileSpec extends TestSpec {
   val testDbInterface = TestDBInterFactory.withDefaultDataLoader(table)
   val connectionProfile = DBConnection("","","","default", 1000)
   val file = new File(this.getClass.getResource("/exports/ExportToFile.txt").getFile)
-  val exportSettings = ExportSetting(file.toURI, delimiter = 0x1, header = true)
+  val exportSettings = BasicExportSetting(file.toURI, delimiter = 0x1, header = true)
 
   "ExportToFile" must "export query result to file" in {
     val exportToFile = new ExportToFile(name = "ExportToFileTest",

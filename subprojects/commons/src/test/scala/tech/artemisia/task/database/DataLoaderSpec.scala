@@ -3,7 +3,7 @@ package tech.artemisia.task.database
 import java.io.File
 
 import tech.artemisia.TestSpec
-import tech.artemisia.task.settings.LoadSettings
+import tech.artemisia.task.settings.BasicLoadSettings$
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -22,7 +22,7 @@ class DataLoaderSpec extends TestSpec {
     dbInterface.execute(s"delete from $tableName")
     withTempFile(fileName = "DataLoaderSpec1") {
         file => {
-          val loadSettings = LoadSettings(file.toURI, batchSize = 1)
+          val loadSettings = BasicLoadSettings(file.toURI, batchSize = 1)
           file <<=
             """ |100,tango,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
                 |101,bravo,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
@@ -46,7 +46,7 @@ class DataLoaderSpec extends TestSpec {
     val errorFile = File.createTempFile("DataLoaderSpec_2","err")
     withTempFile(fileName = "DataLoaderSpec2") {
       file => {
-        val loadSettings = LoadSettings(file.toURI, delimiter = ',', rejectFile = Some(errorFile.toPath.toString), batchSize = 1)
+        val loadSettings = BasicLoadSettings(file.toURI, delimiter = ',', rejectFile = Some(errorFile.toPath.toString), batchSize = 1)
         file <<=
           """|100,tango,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
              |101,bravo,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
@@ -69,7 +69,7 @@ class DataLoaderSpec extends TestSpec {
     val errorFile = File.createTempFile("DataLoaderSpec_3","err")
     withTempFile(fileName = "DataLoaderSpec3") {
       file => {
-        val loadSettings = LoadSettings(file.toURI, delimiter = ',', rejectFile = Some(errorFile.toPath.toString)
+        val loadSettings = BasicLoadSettings(file.toURI, delimiter = ',', rejectFile = Some(errorFile.toPath.toString)
           ,errorTolerance = Some(0.5))
         file <<=
           """|100,tango,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
@@ -92,7 +92,7 @@ class DataLoaderSpec extends TestSpec {
     dbInterface.execute(s"delete from $tableName")
     withTempFile(fileName = tableName) {
       file => {
-        val loadSettings = LoadSettings(file.toURI, delimiter = ',')
+        val loadSettings = BasicLoadSettings(file.toURI, delimiter = ',')
         file <<=
           """|100,tango,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
              |101,bravo,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00

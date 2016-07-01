@@ -3,10 +3,9 @@ package tech.artemisia.task.database
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
-import tech.artemisia.task.settings.{DBConnection, LoadSettings}
+import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection, LoadSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.DocStringProcessor._
-
 import scala.reflect.ClassTag
 
 /**
@@ -22,7 +21,7 @@ import scala.reflect.ClassTag
  * @param loadSettings load setting details
  */
 abstract class LoadToTable(name: String, val tableName: String, val connectionProfile: DBConnection,
-                           val loadSettings: LoadSettings) extends Task(name) {
+                           val loadSettings: LoadSetting) extends Task(name) {
 
   val dbInterface: DBInterface
 
@@ -75,7 +74,7 @@ object LoadToTable {
        |                      ${DBConnection.structure(defaultPort).ident(20)}
        |                     %>
        |	             destination-table = "dummy_table" @required
-       |	             load-setting = ${LoadSettings.structure.ident(20)}
+       |	             load-setting = ${BasicLoadSetting.structure.ident(20)}
        |            }
      """.stripMargin
   }
@@ -83,16 +82,16 @@ object LoadToTable {
   val fieldDefinition = Seq(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table" -> "destination table to load",
-    s"loadsetting" -> LoadSettings.fieldDescription
+    s"loadsetting" -> BasicLoadSetting.fieldDescription
   )
 
 
   def create[T <: LoadToTable : ClassTag](name: String, config: Config): LoadToTable = {
       val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
       val destinationTable = config.as[String]("destination-table")
-      val loadSettings = LoadSettings(config.as[Config]("load-setting"))
+      val loadSettings = BasicLoadSetting(config.as[Config]("load-setting"))
       implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[LoadToTable]).getConstructor(classOf[String],
-        classOf[String], classOf[DBConnection], classOf[LoadSettings]).newInstance(name, destinationTable,
+        classOf[String], classOf[DBConnection], classOf[BasicLoadSetting]).newInstance(name, destinationTable,
         connectionProfile, loadSettings)
   }
 

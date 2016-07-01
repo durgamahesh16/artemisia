@@ -2,7 +2,7 @@ package tech.artemisia.task.database.postgres
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{DBConnection, LoadSettings}
+import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection}
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.Util
 
@@ -11,7 +11,7 @@ import tech.artemisia.util.Util
   */
 
 
-class LoadToTable(name: String = Util.getUUID, tablename: String, connectionProfile: DBConnection, loadSettings: LoadSettings)
+class LoadToTable(name: String = Util.getUUID, tablename: String, connectionProfile: DBConnection, loadSettings: BasicLoadSetting)
   extends database.LoadToTable(name, tablename, connectionProfile, loadSettings) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)

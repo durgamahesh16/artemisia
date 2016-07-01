@@ -1,7 +1,7 @@
 package tech.artemisia.task.database
 
 import tech.artemisia.inventory.io.CSVFileReader
-import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
+import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 
 /**
  * Created by chlr on 5/1/16.
@@ -14,7 +14,7 @@ trait DefaultDataTransporter extends  DataTransporter {
 
   self: DBInterface =>
 
-  override def loadData(tableName: String, loadSettings: LoadSettings) = {
+  override def loadData(tableName: String, loadSettings: LoadSetting) = {
 
     assert(loadSettings.location.getScheme == "file", s"schema ${loadSettings.location.getScheme} is not supported. file:// is the only supported schema")
     val dbWriter = new BatchDBWriter(tableName, loadSettings, this)

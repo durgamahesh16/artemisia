@@ -2,7 +2,7 @@ package tech.artemisia.task.database.mysql
 
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.TestDBInterFactory
-import tech.artemisia.task.settings.{DBConnection, ExportSetting}
+import tech.artemisia.task.settings.{DBConnection, BasicExportSetting$}
 import tech.artemisia.util.FileSystemUtil
 
 import scala.io.Source
@@ -27,7 +27,7 @@ class MySQLTaskSpec extends TestSpec {
     val taskName = "SQLExportTest"
     FileSystemUtil.withTempFile(fileName = table) {
       file => {
-        val task = new ExportToFile(taskName, s"select * from $table", DBConnection("","","","",10), ExportSetting(file.toURI)) {
+        val task = new ExportToFile(taskName, s"select * from $table", DBConnection("","","","",10), BasicExportSetting(file.toURI)) {
           override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
         }
         val result = task.execute()

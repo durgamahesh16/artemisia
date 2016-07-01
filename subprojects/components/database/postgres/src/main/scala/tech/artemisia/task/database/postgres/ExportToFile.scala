@@ -1,18 +1,17 @@
 package tech.artemisia.task.database.postgres
 
 import com.typesafe.config.Config
-import tech.artemisia.task.TaskLike
+import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{DBConnection, ExportSetting}
-import tech.artemisia.task.database
+import tech.artemisia.task.settings.{BasicExportSetting, DBConnection}
 
 /**
   * Created by chlr on 6/10/16.
   */
 
 
-class ExportToFile(name: String, sql: String, connectionProfile: DBConnection ,exportSettings: ExportSetting)
-  extends database.ExportToFile(name: String, sql: String, connectionProfile: DBConnection ,exportSettings: ExportSetting) {
+class ExportToFile(name: String, sql: String, connectionProfile: DBConnection ,exportSettings: BasicExportSetting)
+  extends database.ExportToFile(name: String, sql: String, connectionProfile: DBConnection ,exportSettings: BasicExportSetting) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, mode = exportSettings.mode)
 

@@ -9,7 +9,7 @@ import java.sql.{Connection, ResultSet}
 
 import com.typesafe.config.Config
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
+import tech.artemisia.task.settings.{ LoadSetting, ExportSetting}
 import tech.artemisia.util.Util
 
 
@@ -86,6 +86,7 @@ trait DBInterface {
 
   /**
     * export query result to file
+    *
     * @param sql query
     * @param exportSetting export settings
     * @return no of records exported
@@ -101,7 +102,7 @@ trait DBInterface {
    * @param loadSettings load settings
    * @return tuple of total records in source and number of records rejected
    */
-  def load(tableName: String, loadSettings: LoadSettings) = {
+  def load(tableName: String, loadSettings: LoadSetting) = {
     val (total,rejected) = self.loadData(tableName, loadSettings)
       loadSettings.errorTolerance foreach {
         val errorPct = (rejected.asInstanceOf[Float] / total) * 100

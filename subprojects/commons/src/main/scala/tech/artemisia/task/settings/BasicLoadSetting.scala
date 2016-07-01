@@ -13,14 +13,13 @@ import tech.artemisia.util.URIParser
 /**
  * Load settings definition
  */
-case class LoadSettings(location: URI, skipRows: Int = 0, override val delimiter: Char = ',', override val quoting: Boolean = false,
-                        override val quotechar: Char = '"', override val escapechar: Char = '\\', mode: String = "default",
-                        batchSize: Int = 100 ,rejectFile: Option[String] = None, errorTolerance: Option[Double] = None) extends
-    CSVSettings(delimiter, quoting, quotechar, escapechar) {
+case class BasicLoadSetting(override val location: URI, override val skipRows: Int = 0, override val delimiter: Char = ',',
+                            override val quoting: Boolean = false, override val quotechar: Char = '"', override val escapechar: Char = '\\',
+                            override val mode: String = "default", override val batchSize: Int = 100, override val rejectFile: Option[String] = None,
+                            override val errorTolerance: Option[Double] = None)
+ extends LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar, mode, batchSize, rejectFile, errorTolerance)
 
-}
-
-object LoadSettings {
+object BasicLoadSetting {
 
   val structure =
  s"""|{
@@ -52,7 +51,7 @@ object LoadSettings {
   )
 
 
-  val default_config = ConfigFactory parseString
+  val defaultConfig = ConfigFactory parseString
     """
       |{
       |	  header =  no
@@ -67,9 +66,9 @@ object LoadSettings {
       |}
     """.stripMargin
 
-  def apply(inputConfig: Config): LoadSettings = {
-    val config = inputConfig withFallback default_config
-    LoadSettings (
+  def apply(inputConfig: Config): BasicLoadSetting = {
+    val config = inputConfig withFallback defaultConfig
+    BasicLoadSetting (
     location = URIParser.parse(config.as[String]("load-path")),
     skipRows = if (config.as[Int]("skip-lines") == 0) if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),
     delimiter = config.as[Char]("delimiter"),

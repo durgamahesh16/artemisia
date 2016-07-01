@@ -5,7 +5,7 @@ import java.io._
 import org.postgresql.PGConnection
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.database.{DBInterface, DataTransporter}
-import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
+import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 import tech.artemisia.util.Util
 
 /**
@@ -16,7 +16,7 @@ trait PGDataTransporter extends DataTransporter {
 
   self: DBInterface =>
 
-  override def loadData(tableName: String, loadSettings: LoadSettings) = {
+  override def loadData(tableName: String, loadSettings: LoadSetting) = {
     val copyMgr = self.connection.asInstanceOf[PGConnection].getCopyAPI
     val reader = new BufferedReader(new FileReader(new File(loadSettings.location)))
     AppLogger info Util.prettyPrintAsciiTable(PGDataTransporter.getLoadCmd(tableName, loadSettings), heading = "query")
@@ -38,7 +38,7 @@ trait PGDataTransporter extends DataTransporter {
 
 object PGDataTransporter {
 
-  private[postgres] def getLoadCmd(tableName: String, loadSettings: LoadSettings) = {
+  private[postgres] def getLoadCmd(tableName: String, loadSettings: LoadSetting) = {
     assert(loadSettings.skipRows <= 1, "this task can skip either 0 or 1 row only")
     s"""
        | COPY $tableName FROM STDIN

@@ -2,7 +2,7 @@ package tech.artemisia.inventory.io
 
 import java.io.{BufferedReader, File, FileReader}
 import com.opencsv.CSVReader
-import tech.artemisia.task.settings.LoadSettings
+import tech.artemisia.task.settings.LoadSetting
 import scala.collection.JavaConverters._
 
 /**
@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._
   */
 
 
-class CSVFileReader(settings: LoadSettings) extends Iterator[Array[String]] {
+class CSVFileReader(settings: LoadSetting) extends Iterator[Array[String]] {
 
   private var counter = 0L
 

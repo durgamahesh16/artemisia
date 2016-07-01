@@ -2,7 +2,7 @@ package tech.artemisia.task.database.mysql
 
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.database.{DBInterface, DataTransporter}
-import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
+import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 
 /**
  * Created by chlr on 5/1/16.
@@ -11,7 +11,7 @@ import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
 trait MySQLDataTransporter extends DataTransporter {
   self: DBInterface =>
 
-  override def loadData(tableName: String, loadSettings: LoadSettings) = {
+  override def loadData(tableName: String, loadSettings: LoadSetting) = {
     AppLogger debug "error file is ignored in this mode"
     this.execute(MySQLDataTransporter.getLoadSQL(tableName, loadSettings)) -> 0L
   }
@@ -24,7 +24,7 @@ trait MySQLDataTransporter extends DataTransporter {
 
 object MySQLDataTransporter {
 
-  def getLoadSQL(tableName: String, loadSettings: LoadSettings) = {
+  def getLoadSQL(tableName: String, loadSettings: LoadSetting) = {
     s"""
        | LOAD DATA LOCAL INFILE '${loadSettings.location.getPath}'
        | INTO TABLE $tableName FIELDS TERMINATED BY '${loadSettings.delimiter}' ${if (loadSettings.quoting) s"OPTIONALLY ENCLOSED BY '${loadSettings.quotechar}'"  else ""}

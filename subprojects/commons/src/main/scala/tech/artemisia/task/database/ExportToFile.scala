@@ -4,7 +4,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.Task
-import tech.artemisia.task.settings.{DBConnection, ExportSetting}
+import tech.artemisia.task.settings.{BasicExportSetting, DBConnection, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.DocStringProcessor._
 
@@ -21,7 +21,7 @@ import scala.reflect.ClassTag
   * @param connectionProfile Connection Profile settings
   * @param exportSettings Export settings
   */
-abstract class ExportToFile(name: String, val sql: String, val connectionProfile: DBConnection ,val exportSettings: ExportSetting)
+abstract class ExportToFile(val name: String, val sql: String, val connectionProfile: DBConnection ,val exportSettings: ExportSetting)
   extends Task(name: String) {
 
      val dbInterface: DBInterface
@@ -74,7 +74,7 @@ object ExportToFile  {
        |          <------------->
        |          ${DBConnection.structure(defaultPort).ident(15)}
        |         %>
-       |   export = ${ExportSetting.structure.ident(15)}
+       |   export = ${BasicExportSetting.structure.ident(15)}
        |   <%
        |     sql = "SELECT * FROM TABLE"
        |     <-------------------------->
@@ -88,7 +88,7 @@ object ExportToFile  {
 
   val fieldDefinition: Seq[(String, AnyRef)] = Seq(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
-    "export" -> ExportSetting.fieldDescription
+    "export" -> BasicExportSetting.fieldDescription
   )
 
   /**
@@ -97,14 +97,14 @@ object ExportToFile  {
     * @param config task configuration
     */
   def create[T <: ExportToFile : ClassTag](name: String, config: Config): ExportToFile = {
-    val exportSettings = ExportSetting(config.as[Config]("export"))
+    val exportSettings = BasicExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val sql =
       if (config.hasPath("sql")) config.as[String]("sql")
       else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
     implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[DBConnection],
-      classOf[ExportSetting]).newInstance(name, sql, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
+      classOf[BasicExportSetting]).newInstance(name, sql, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
   }
 
 }

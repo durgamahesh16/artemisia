@@ -3,14 +3,14 @@ package tech.artemisia.task.database.mysql
 import com.typesafe.config.Config
 import tech.artemisia.task.TaskLike
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{DBConnection, LoadSettings}
+import tech.artemisia.task.settings.{DBConnection, BasicLoadSetting}
 import tech.artemisia.util.Util
 import tech.artemisia.task.database
 
 /**
  * Created by chlr on 4/30/16.
  */
-class LoadToTable(name: String = Util.getUUID, tableName: String, connectionProfile: DBConnection, loadSettings: LoadSettings)
+class LoadToTable(name: String = Util.getUUID, tableName: String, connectionProfile: DBConnection, loadSettings: BasicLoadSetting)
   extends database.LoadToTable(name, tableName, connectionProfile, loadSettings) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)

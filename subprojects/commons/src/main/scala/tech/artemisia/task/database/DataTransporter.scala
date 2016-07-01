@@ -5,7 +5,7 @@ import java.sql.ResultSet
 
 import com.opencsv.CSVWriter
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.settings.{ExportSetting, LoadSettings}
+import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 
 /**
   * Created by chlr on 6/12/16.
@@ -26,11 +26,12 @@ trait DataTransporter {
     * @param loadSettings load settings
     * @return number of records inserted
     */
-  def loadData(tableName: String, loadSettings: LoadSettings): (Long, Long)
+  def loadData(tableName: String, loadSettings: LoadSetting): (Long, Long)
 
 
   /**
     * export query to file
+    *
     * @param sql query
     * @param exportSetting export settings
     * @return no of records exported

@@ -2,7 +2,7 @@ package tech.artemisia.task.database.postgres
 
 import java.nio.file.Paths
 import tech.artemisia.TestSpec
-import tech.artemisia.task.settings.{LoadSettings, ExportSetting}
+import tech.artemisia.task.settings.{LoadSetting, ExportSetting}
 
 /**
  * Created by chlr on 6/14/16.
