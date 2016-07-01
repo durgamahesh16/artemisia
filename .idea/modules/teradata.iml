@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="teradata" external.linked.project.path="$MODULE_DIR$/../../subprojects/components/database/teradata" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" version="4">
+<module external.linked.project.id="teradata" external.linked.project.path="$MODULE_DIR$/../../subprojects/components/database/teradata" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/scala-2.11/classes" />
     <output-test url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/scala-2.11/test-classes" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$/../../subprojects/components/database/teradata">
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/src/main/scala" isTestSource="false" />
@@ -21,6 +22,16 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="commons" exported="" />
+    <orderEntry type="module-library">
+      <library name="SBT: unmanaged-jars">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../subprojects/components/database/teradata/lib/tdgssconfig.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../subprojects/components/database/teradata/lib/terajdbc4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" scope="TEST" name="SBT: org.slf4j:slf4j-nop:1.7.6:jar" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="SBT: org.slf4j:slf4j-api:1.7.6:jar" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="SBT: org.slf4j:slf4j-api:1.6.1:jar" level="project" />

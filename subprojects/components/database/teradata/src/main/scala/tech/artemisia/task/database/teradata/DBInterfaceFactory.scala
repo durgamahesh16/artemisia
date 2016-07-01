@@ -17,26 +17,15 @@ object DbInterfaceFactory {
   /**
     *
     * @param connectionProfile ConnectionProfile object
-    * @param mode mode can be either `default` or `native` to choose loader method
+    * @param mode              mode can be either `default` or `native` to choose loader method
     * @return DbInterface
     */
-  def getInstance(connectionProfile: DBConnection, mode: String = "default") = {
+  def getInstance(connectionProfile: DBConnection, mode: String = "default", session: Int = 1) = {
     mode match {
-      case "default" => new DefaultDBInterface(connectionProfile)
-      case "fastload" => new NativeDBInterface(connectionProfile, mode)
-      case "fastexport" => new NativeDBInterface(connectionProfile, mode)
+      case "default" => new TeraDBInterface(connectionProfile, None, 1)
+      case "fastload" => new TeraDBInterface(connectionProfile, Some("fastload"), session)
+      case "fastexport" => new TeraDBInterface(connectionProfile, Some("fastexport"), session)
       case _ => throw new IllegalArgumentException(s"mode '$mode' is not supported")
-    }
-  }
-
-  /**
-    * Teradata DBInterface with default Loader/Exporter
-    *
-    * @param connectionProfile ConnectionProfile object
-    */
-  class DefaultDBInterface(connectionProfile: DBConnection) extends DBInterface with DefaultDataTransporter {
-    override def connection: Connection = {
-      getConnection(connectionProfile)
     }
   }
 
@@ -45,18 +34,16 @@ object DbInterfaceFactory {
     *
     * @param connectionProfile ConnectionProfile object
     */
-  class NativeDBInterface(connectionProfile: DBConnection, mode: String) extends DBInterface with TDDataTransporter {
+  class TeraDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface with DefaultDataTransporter {
+
     override def connection: Connection = {
-      getConnection(connectionProfile, Some(mode))
-    }
-  }
-
-
-  private def getConnection(connectionProfile: DBConnection, mode: Option[String] = None) = {
-    DriverManager.getConnection(s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
+      DriverManager.getConnection(
+        s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
       s"dbs_port=${connectionProfile.port}${mode.map(x => s",type=$x").getOrElse("")}"""
-      ,connectionProfile.username
-      ,connectionProfile.password)
+        , connectionProfile.username
+        , connectionProfile.password)
+    }
+
   }
 
 }
