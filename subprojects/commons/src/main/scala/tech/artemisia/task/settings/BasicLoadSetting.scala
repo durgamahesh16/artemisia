@@ -62,7 +62,6 @@ object BasicLoadSetting {
       |   escapechar = "\\"
       |   batch-size = 100
       |   mode = default
-      |   error-tolerence = 2
       |}
     """.stripMargin
 
@@ -77,7 +76,8 @@ object BasicLoadSetting {
     escapechar = config.as[Char]("escapechar"),
     mode = config.as[String]("mode"),
     rejectFile = if (config.hasPath("error-file")) Some(config.as[String]("error-file")) else None,
-    errorTolerance = config.getAs[Double]("error-tolerence")
+    errorTolerance = config.getAs[Double]("error-tolerence"),
+    batchSize = config.as[Int]("batch-size")
     )
   }
 

@@ -5,6 +5,7 @@ import java.sql.ResultSet
 
 import com.opencsv.CSVWriter
 import tech.artemisia.core.AppLogger
+import tech.artemisia.inventory.io.CSVFileReader
 import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 
 /**
@@ -17,6 +18,7 @@ import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 trait DataTransporter {
 
   self: DBInterface =>
+
 
   /**
     * A generic function that loads a file to table by iterating each row of the file
@@ -37,6 +39,37 @@ trait DataTransporter {
     * @return no of records exported
     */
   def exportData(sql: String, exportSetting: ExportSetting): Long
+
+
+  /**
+    * Insert records using Database Writer using batches
+    * @param dbWriter database writer object
+    * @param loadSetting load settings
+    * @return binary tuple of source rows read and rows rejected
+    */
+  protected def batchInsert(dbWriter: BaseDBWriter, loadSetting: LoadSetting) = {
+    val csvReader = new CSVFileReader(loadSetting)
+    for (batch <- csvReader.grouped(loadSetting.batchSize)) {
+      dbWriter.processBatch(batch.toArray)
+    }
+    dbWriter.close()
+    csvReader.rowCounter -> dbWriter.getErrRowCount
+  }
+
+  /**
+    * Insert records using Database Writer row by row
+    * @param dbWriter database writer object
+    * @param loadSetting load settings
+    * @return binary tuple of source rows read and rows rejected
+    */
+  protected def rowInsert(dbWriter: BaseDBWriter, loadSetting: LoadSetting) = {
+    val csvReader = new CSVFileReader(loadSetting)
+    for (row <- csvReader) {
+      dbWriter.processRow(row)
+    }
+    dbWriter.close()
+    csvReader.rowCounter -> dbWriter.getErrRowCount
+  }
 
 }
 

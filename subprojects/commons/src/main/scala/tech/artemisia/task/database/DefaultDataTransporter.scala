@@ -1,6 +1,5 @@
 package tech.artemisia.task.database
 
-import tech.artemisia.inventory.io.CSVFileReader
 import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 
 /**
@@ -14,16 +13,10 @@ trait DefaultDataTransporter extends  DataTransporter {
 
   self: DBInterface =>
 
-  override def loadData(tableName: String, loadSettings: LoadSetting) = {
-
-    assert(loadSettings.location.getScheme == "file", s"schema ${loadSettings.location.getScheme} is not supported. file:// is the only supported schema")
-    val dbWriter = new BatchDBWriter(tableName, loadSettings, this)
-    val csvReader = new CSVFileReader(loadSettings)
-    for (batch <- csvReader.grouped(loadSettings.batchSize)) {
-        dbWriter.executeBatch(batch.toArray)
-    }
-    dbWriter.close()
-    csvReader.rowCounter -> dbWriter.getErrRowCount
+  override def loadData(tableName: String, loadSetting: LoadSetting) = {
+    assert(loadSetting.location.getScheme == "file", s"schema ${loadSetting.location.getScheme} is not supported. file:// is the only supported schema")
+    val dbWriter = new DefaultDBWriter(tableName, loadSetting, this)
+    this.batchInsert(dbWriter, loadSetting)
   }
 
   override def exportData(sql: String, exportSetting: ExportSetting) = {

@@ -1,8 +1,7 @@
 package tech.artemisia.task.database.teradata
 
 import java.sql.{Connection, DriverManager}
-
-import tech.artemisia.task.database.{DBInterface, DefaultDataTransporter}
+import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 
 /**
@@ -34,7 +33,7 @@ object DbInterfaceFactory {
     *
     * @param connectionProfile ConnectionProfile object
     */
-  class TeraDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface with DefaultDataTransporter {
+  class TeraDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface with BulkDataTransporter {
 
     override def connection: Connection = {
       DriverManager.getConnection(

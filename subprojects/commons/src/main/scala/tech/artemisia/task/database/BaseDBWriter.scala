@@ -1,7 +1,7 @@
 package tech.artemisia.task.database
 
 import java.io.File
-import java.sql.{BatchUpdateException, SQLException, Types}
+import java.sql.Types
 
 import tech.artemisia.inventory.io.{CSVFileWriter, NullFileWriter}
 import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
@@ -10,15 +10,22 @@ import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
   * Created by chlr on 6/26/16.
   */
 
-class BatchDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: DBInterface) {
+/**
+  * An abstract BatchDBWriter that can be extended by each database components to customize implementations.
+  *
+  * @param tableName name of the table
+  * @param loadSettings load settings
+  * @param dBInterface database interface object
+  */
+abstract class BaseDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: DBInterface) {
 
 
-  private val tableMetadata = {
+  protected val tableMetadata = {
     val parsedTableName = DBUtil.parseTableName(tableName)
     dBInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector
   }
 
-  private val stmt = {
+  protected val stmt = {
     val insertSQL =
       s"""|INSERT INTO $tableName (${tableMetadata.map({_._1}).mkString(",")})
           |VALUES (${tableMetadata.map({ x => "?" }).mkString(",")})
@@ -26,40 +33,11 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: D
     dBInterface.connection.prepareStatement(insertSQL)
   }
 
-  private val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(BasicExportSetting(new File(x).toURI,false,'\u0001',false)) ).getOrElse(new NullFileWriter)
+  protected val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(BasicExportSetting(new File(x).toURI,false,'\u0001',false)) ).getOrElse(new NullFileWriter)
 
+  def processRow(row: Array[String])
 
-  def executeBatch(batch: Array[Array[String]]) = {
-
-    val (validRows: Array[Array[String]], invalidRows: Array[Array[String]]) = batch partition { x => x.length == tableMetadata.length }
-    invalidRows foreach {  errorWriter.writeRow }
-
-    try {
-      for (row <- validRows) {
-        try { processRow(row); stmt.addBatch() } catch { case th: Throwable =>  errorWriter.writeRow(row) }
-        stmt.executeBatch()
-      }
-    }
-    catch {
-      case e: BatchUpdateException => {
-        val results = e.getUpdateCounts
-        val retryRecords = results zip validRows filter { x => x._1 < 0 } map { _._2 }
-        stmt.clearBatch()
-        for(record <- retryRecords) {
-          processRow(record)
-          try { stmt.execute() }
-          catch {
-            case e: SQLException => errorWriter.writeRow(record)
-          }
-        }
-      }
-      case th: Throwable => ()
-    }
-    finally {
-      stmt.clearParameters()
-      stmt.clearBatch()
-    }
-  }
+  def processBatch(batch: Array[Array[String]])
 
   def close() = {
     stmt.close()
@@ -70,7 +48,7 @@ class BatchDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: D
     errorWriter.totalRows
   }
 
-  private def processRow(row: Array[String]) = {
+  protected def composeStmt(row: Array[String]) = {
     for (i <- 1 to tableMetadata.length) {
       tableMetadata(i-1)._2 match {
         case Types.BIGINT => row(i-1) match {
