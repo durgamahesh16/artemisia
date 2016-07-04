@@ -15,7 +15,7 @@ trait BulkDataTransporter extends DefaultDataTransporter {
     assert(loadSetting.location.getScheme == "file",
       s"schema ${loadSetting.location.getScheme} is not supported. file:// is the only supported schema")
     val dbWriter = new FastLoadDBWriter(tableName, loadSetting, this)
-    this.rowInsert(dbWriter, loadSetting)
+    this.batchInsert(dbWriter, loadSetting)
   }
 
 }

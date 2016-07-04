@@ -4,11 +4,12 @@ package tech.artemisia.task.database.teradata
   * Created by chlr on 6/26/16.
   */
 
-import tech.artemisia.util.HoconConfigUtil.Handler
 import com.typesafe.config.Config
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
   * Created by chlr on 6/10/16.
@@ -33,12 +34,15 @@ object ExportToFile extends TaskLike {
   override val taskName = database.ExportToFile.taskName
 
   override def apply(name: String,config: Config) = {
-    ExportToFile(database.ExportToFile.create[ExportToFile](name, config), config.as[Int]("export.session"))
+    val exportSettings = TeraExportSetting(config.as[Config]("export"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
+    val sql =
+      if (config.hasPath("sql")) config.as[String]("sql")
+      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
+      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    new ExportToFile(name, sql, connectionProfile, exportSettings)
   }
 
-  def apply(task: database.ExportToFile, session: Int): ExportToFile = {
-      new ExportToFile(task.name, task.sql, task.connectionProfile, TeraExportSetting(task.exportSettings, session))
-  }
 
   override val info: String = database.ExportToFile.info
 

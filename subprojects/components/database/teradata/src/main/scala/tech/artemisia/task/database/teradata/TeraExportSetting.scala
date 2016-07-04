@@ -1,10 +1,10 @@
 package tech.artemisia.task.database.teradata
 
 import java.net.URI
-
-import com.typesafe.config.ConfigValueFactory
+import tech.artemisia.util.HoconConfigUtil.Handler
+import com.typesafe.config.{Config, ConfigValueFactory}
 import tech.artemisia.task.settings
-import tech.artemisia.task.settings.{BasicExportSetting, ExportSetting}
+import tech.artemisia.task.settings.BasicExportSetting
 
 /**
   * Created by chlr on 6/30/16.
@@ -33,8 +33,12 @@ object TeraExportSetting {
 
   val defaultConfig = BasicExportSetting.defaultConfig.withValue("session" , ConfigValueFactory.fromAnyRef(1))
 
-  def apply(setting: ExportSetting, session: Int): TeraExportSetting = {
-    new TeraExportSetting(setting.file, setting.header, setting.delimiter, setting.quoting, setting.quotechar, setting.escapechar, setting.mode, session)
+
+  def apply(inputConfig: Config): TeraExportSetting = {
+    val config = inputConfig withFallback defaultConfig
+    val loadSetting = BasicExportSetting(inputConfig)
+    TeraExportSetting(loadSetting.file, loadSetting.header, loadSetting.delimiter, loadSetting.quoting
+      ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.mode,config.as[Int]("session"))
   }
 
 }

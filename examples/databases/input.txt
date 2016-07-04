@@ -1,5 +1,0 @@
-1,magneto
-2,stalin
-2,stalin
-4,is2
-5,gandalf
