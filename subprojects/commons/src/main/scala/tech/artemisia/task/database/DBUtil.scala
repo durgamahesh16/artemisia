@@ -1,8 +1,10 @@
 package tech.artemisia.task.database
 
-import java.sql.ResultSet
+import java.sql.{Connection, PreparedStatement, ResultSet}
 
 import com.typesafe.config.{Config, ConfigFactory}
+
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by chlr on 4/15/16.
@@ -81,6 +83,26 @@ object DBUtil {
     }
     else
       nextRecord
+  }
+
+
+  /**
+    * execute DML statements and returns either scala.util.Success with number of records updated or
+    * scala.util.Failure with the throwable object
+    * @param sql query to be executed
+    * @param connection implicit connection object
+    * @return Try monad with rows updated or exception object
+    */
+  def executeUpdateQuery(sql: String)(implicit connection: Connection): Try[Int] = {
+    var stmt: PreparedStatement = null
+    try {
+       stmt = connection.prepareStatement(sql)
+      Success(stmt.executeUpdate())
+    } catch {
+      case th: Throwable =>  Failure(th)
+    } finally {
+      try { stmt.close() } catch { case th: Throwable => () }
+    }
   }
 
 

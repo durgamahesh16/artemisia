@@ -48,10 +48,12 @@ trait DataTransporter {
     * @return binary tuple of source rows read and rows rejected
     */
   protected def batchInsert(dbWriter: BaseDBWriter, loadSetting: LoadSetting) = {
+    dbWriter.preLoad()
     val csvReader = new CSVFileReader(loadSetting)
     for (batch <- csvReader.grouped(loadSetting.batchSize)) {
       dbWriter.processBatch(batch.toArray)
     }
+    dbWriter.postLoad()
     dbWriter.close()
     csvReader.rowCounter -> dbWriter.getErrRowCount
   }
@@ -67,6 +69,7 @@ trait DataTransporter {
     for (row <- csvReader) {
       dbWriter.processRow(row)
     }
+    dbWriter.postLoad()
     dbWriter.close()
     csvReader.rowCounter -> dbWriter.getErrRowCount
   }

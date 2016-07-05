@@ -3,10 +3,12 @@ package tech.artemisia.task.database.teradata
 import java.sql.{BatchUpdateException, SQLException}
 
 import tech.artemisia.core.AppLogger
+import tech.artemisia.task.database.DBUtil.executeUpdateQuery
 import tech.artemisia.task.database.{BaseDBWriter, DBInterface}
 import tech.artemisia.task.settings.LoadSetting
 
 import scala.collection.JavaConverters._
+import scala.util.Failure
 
 /**
   * This DBWriter instance differs from the default DBWriter on how BatchUpdateException is handled
@@ -18,9 +20,27 @@ import scala.collection.JavaConverters._
 class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: DBInterface)
   extends BaseDBWriter(tableName, loadSettings, dBInterface) {
 
-  AppLogger debug "setting autocommit to false"
+  dBInterface.connection.setAutoCommit(false)
 
-  stmt.getConnection.setAutoCommit(false)
+  implicit val supportConnection = dBInterface.getNewConnection
+  private val uvTable = s"${tableName}_uv"
+  private val etTable = s"${tableName}_et"
+  private val originalETTable = s"${tableName}_ERR_1"
+  private val originalUVTable = s"${tableName}_ERR_2"
+
+
+  override def postLoad() = {
+    if (getTableRowCount(originalETTable) > 0) {
+      AppLogger debug s"persisting ET table in $etTable"
+      createETTable()
+      persistETTable()
+    }
+    if (getTableRowCount(originalUVTable) > 0) {
+      AppLogger debug s"persisting ET table in $uvTable"
+      createUVTable()
+      persistUVTable()
+    }
+  }
 
   def processBatch(batch: Array[Array[String]]) = {
     try {
@@ -44,35 +64,78 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
 
   override  def close() = {
     try {
-      persistErrorTable(s"${tableName}_ERR_1")
-      persistErrorTable(s"${tableName}_ERR_2")
-      stmt.getConnection.commit()
-      stmt.getConnection.setAutoCommit(true)
+      dBInterface.connection.commit()
+      dBInterface.connection.setAutoCommit(true)
     } catch {
-      case th: SQLException => {
-
-        AppLogger error th.iterator.asScala.toList.last.getMessage
-      }
-      case th: Throwable => { AppLogger error s"Fastload failed because of error: ${th.getMessage}" }
+      case th: SQLException => AppLogger error th.iterator.asScala.toList.last.getMessage
+      case th: Throwable =>  AppLogger error s"Fastload failed because of error: ${th.getMessage}"
     } finally {
       stmt.close()
       errorWriter.close()
     }
   }
 
-  private def persistErrorTable(table: String) = {
+  private def createETTable() = {
+    val dropTable = s"DROP TABLE $etTable"
+    val createTable =
+      s"""
+         |CREATE MULTISET TABLE $etTable ,FALLBACK ,
+         |     NO BEFORE JOURNAL,
+         |     NO AFTER JOURNAL,
+         |     CHECKSUM = DEFAULT,
+         |     DEFAULT MERGEBLOCKRATIO
+         |     (
+         |      ErrorCode INTEGER FORMAT 'ZZZZ9',
+         |      ErrorFieldName VARCHAR(120) CHARACTER SET UNICODE NOT CASESPECIFIC,
+         |      DataParcel VARBYTE(64000))
+         |PRIMARY INDEX ( DataParcel );
+      """.stripMargin
+      executeUpdateQuery(dropTable)
+    (executeUpdateQuery(createTable): @unchecked) match { case Failure(th) => throw th }
+  }
+
+  private def createUVTable() = {
+    val dropTable = s"DROP TABLE $uvTable"
+    val createTable =
+      s"""
+        | CREATE TABLE $uvTable AS $tableName WITH NO DATA NO PRIMARY INDEX;
+      """.stripMargin
+    executeUpdateQuery(dropTable)
+    (executeUpdateQuery(createTable): @unchecked) match { case Failure(th) => throw th }
+  }
+
+
+  private def persistETTable() = {
+      val sql =
+        s"""
+           |LOCKING TABLE $originalETTable FOR ACCESS
+           |INSERT INTO $etTable
+           |SELECT * FROM $originalETTable
+         """.stripMargin
+      executeUpdateQuery(sql)
+  }
+
+  private def persistUVTable() = {
+     val  sql =
+       s"""
+          |LOCKING TABLE $originalUVTable FOR ACCESS
+          |INSERT INTO $uvTable
+          |SELECT * FROM $originalUVTable
+        """.stripMargin
+  }
+
+  private def getTableRowCount(table: String) = {
+    val sql = s"SELECT count(*) as cnt FROM $table"
     try {
-      val rs = dBInterface.connection.prepareStatement(s"locking row for access SELECT count(*) as cnt FROM $table").executeQuery()
-      while(rs.next()) {
-        println(s"error row count for table $table is ${rs.getInt(1)}")
-      }
-      rs.close()
+      val stmt = supportConnection.prepareStatement(sql)
+      val rs = stmt.executeQuery()
+      rs.next()
+      rs.getInt(1)
     } catch {
-      case th: Throwable => println(s"error querying error table ${th.getMessage}")
+      case th: SQLException => 0
+    } finally {
+      stmt.close()
     }
   }
 
-  private def getErrorMessage(th: Throwable) = {
-    val rgx = """[.*] [.*] [.*] (.*)""".r
-  }
 }

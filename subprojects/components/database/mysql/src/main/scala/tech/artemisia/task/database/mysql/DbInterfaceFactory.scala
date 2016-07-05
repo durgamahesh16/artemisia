@@ -34,7 +34,7 @@ object DbInterfaceFactory {
    * @param connectionProfile ConnectionProfile object
    */
   class DefaultDBInterface(connectionProfile: DBConnection) extends DBInterface with DefaultDataTransporter {
-    override def connection: Connection = {
+    override def getNewConnection: Connection = {
       getConnection(connectionProfile)
     }
   }
@@ -45,7 +45,7 @@ object DbInterfaceFactory {
    * @param connectionProfile ConnectionProfile object
    */
   class NativeDBInterface(connectionProfile: DBConnection) extends DBInterface with MySQLDataTransporter {
-    override def connection: Connection = {
+    override def getNewConnection: Connection = {
       getConnection(connectionProfile)
     }
   }

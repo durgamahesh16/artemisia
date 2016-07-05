@@ -30,7 +30,7 @@ object DbInterfaceFactory {
   }
 
   class DefaultDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface with DefaultDataTransporter {
-    override def connection: Connection = {
+    override def getNewConnection: Connection = {
       getConnection(connectionProfile, mode, session)
     }
   }
@@ -41,7 +41,7 @@ object DbInterfaceFactory {
     * @param connectionProfile ConnectionProfile object
     */
   class TeraDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface with BulkDataTransporter {
-    override def connection: Connection = {
+    override def getNewConnection: Connection = {
         getConnection(connectionProfile, mode, session)
     }
   }

@@ -20,6 +20,10 @@ import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
 abstract class BaseDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: DBInterface) {
 
 
+  def preLoad(): Unit = ()
+
+  def postLoad(): Unit = ()
+
   protected val tableMetadata = {
     val parsedTableName = DBUtil.parseTableName(tableName)
     dBInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector

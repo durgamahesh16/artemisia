@@ -30,10 +30,15 @@ trait DBInterface {
   self: DataTransporter =>
 
   /**
-   *
-   * @return connection to the database
+   *  JDBC connection object
    */
-  def connection: Connection
+  final lazy val connection: Connection = getNewConnection
+
+  /**
+    * creates a new connection object
+    * @return JDBC connection object
+    */
+  def getNewConnection: Connection
 
   /**
    *
