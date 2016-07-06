@@ -1,11 +1,11 @@
 package tech.artemisia.task.database.teradata
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
-import tech.artemisia.util.Util
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.Util
 
 /**
   * Created by chlr on 6/26/16.
@@ -42,7 +42,6 @@ object LoadToTable extends TaskLike {
         case "default" => 100
       }
     })
-    println(mutatedConfig.root().render(ConfigRenderOptions.concise()))
     val connectionProfile = DBConnection.parseConnectionProfile(mutatedConfig.getValue("dsn"))
     val destinationTable = mutatedConfig.as[String]("destination-table")
     val loadSettings = TeraLoadSetting(mutatedConfig.as[Config]("load-setting"))

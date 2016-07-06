@@ -36,7 +36,7 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
       persistETTable()
     }
     if (getTableRowCount(originalUVTable) > 0) {
-      AppLogger debug s"persisting ET table in $uvTable"
+      AppLogger debug s"persisting UV table in $uvTable"
       createUVTable()
       persistUVTable()
     }
@@ -48,14 +48,17 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
         try{ composeStmt(row); stmt.addBatch() } catch { case th: Throwable => errorWriter.writeRow(row) }
       }
       val cnt = stmt.executeBatch()
-      println(cnt.mkString(","))
     } catch {
       case th: BatchUpdateException => {
-        println("error update cnt: "+th.getUpdateCounts.mkString(","))
-        AppLogger error th.iterator.asScala.toList.last.getMessage
+        println(s"begin batch exception chain")
+        th.iterator.asScala foreach {
+           case x: SQLException => println(s"${x.getErrorCode} and ${x.getSQLState}") ;AppLogger warn x.getMessage
+           case _ => ()
+        }
+        println(s"end batch exception chain")
       }
       case th: Throwable => {
-        AppLogger error th.getMessage
+        AppLogger warn th.getMessage
       }
     }
   }
@@ -67,7 +70,11 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
       dBInterface.connection.commit()
       dBInterface.connection.setAutoCommit(true)
     } catch {
-      case th: SQLException => AppLogger error th.iterator.asScala.toList.last.getMessage
+      case th: SQLException => {
+        println(s"begin commit exception chain")
+        th.iterator.asScala foreach { x => println(s"${x.getClass.getName}") ;AppLogger warn x.getMessage }
+        println(s"end commit exception chain")
+      }
       case th: Throwable =>  AppLogger error s"Fastload failed because of error: ${th.getMessage}"
     } finally {
       stmt.close()
@@ -91,7 +98,10 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
          |PRIMARY INDEX ( DataParcel );
       """.stripMargin
       executeUpdateQuery(dropTable)
-    (executeUpdateQuery(createTable): @unchecked) match { case Failure(th) => throw th }
+    executeUpdateQuery(createTable) match {
+      case Failure(th) => throw th
+      case _ => ()
+    }
   }
 
   private def createUVTable() = {
@@ -101,7 +111,10 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
         | CREATE TABLE $uvTable AS $tableName WITH NO DATA NO PRIMARY INDEX;
       """.stripMargin
     executeUpdateQuery(dropTable)
-    (executeUpdateQuery(createTable): @unchecked) match { case Failure(th) => throw th }
+    executeUpdateQuery(createTable) match {
+      case Failure(th) => throw th
+      case _ => ()
+    }
   }
 
 
@@ -125,14 +138,19 @@ class FastLoadDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface
   }
 
   private def getTableRowCount(table: String) = {
-    val sql = s"SELECT count(*) as cnt FROM $table"
+    val sql =
+      s"""LOCKING ROW FOR ACCESS
+         |SELECT count(*) as cnt FROM $table""".stripMargin
     try {
       val stmt = supportConnection.prepareStatement(sql)
+      println(sql)
       val rs = stmt.executeQuery()
       rs.next()
-      rs.getInt(1)
+      val result = rs.getInt(1)
+      println(s"table $table row count is $result")
+      result
     } catch {
-      case th: SQLException => 0
+      case th: SQLException => { println(s"${th.getMessage}")  ;0}
     } finally {
       stmt.close()
     }
