@@ -2,7 +2,7 @@ package tech.artemisia.task
 
 import com.typesafe.config.Config
 import tech.artemisia.inventory.exceptions.UnknownTaskException
-import tech.artemisia.util.DocStringProcessor.StringUtil
+import tech.artemisia.util.Util
 /**
  * Created by chlr on 3/3/16.
  */
@@ -57,9 +57,7 @@ abstract class Component(val name: String) {
     */
   def doc = {
 
-    def genTableRow(taskName: String, taskInfo: String) = {
-      s"| $taskName${" " * (componentTaskTableDim._1 - taskName.length -1)}| $taskInfo${" " * (componentTaskTableDim._2 - taskInfo.length - 1)}|"
-    }
+    val taskTable: Seq[Array[String]] =  Array("Task", "Description") +: tasks.map(x => Array(x.taskName, x.info))
 
     s"""/
         /$name
@@ -67,10 +65,7 @@ abstract class Component(val name: String) {
         /
         /$info
         /
-        /| TaskName${" " * (componentTaskTableDim._1 - 9)}| Description${" " * (componentTaskTableDim._2 - 12)}|
-        /|${"-" * componentTaskTableDim._1}|${"-" * componentTaskTableDim._2}|
-        /${tasks map { case x => genTableRow(x.taskName,x.info) } mkString System.lineSeparator}
-        /
+        /${Util.prettyPrintAsciiTable(taskTable.toArray)}
         /
      """.stripMargin('/')
   }

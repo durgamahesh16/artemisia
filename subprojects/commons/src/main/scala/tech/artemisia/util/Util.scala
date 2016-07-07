@@ -78,12 +78,54 @@ object Util {
       formatter.print(new DateTime())
   }
 
-  def prettyPrintAsciiTable(content: String, heading: String, width: Int = 80): String = {
+  def prettyPrintAsciiBanner(content: String, heading: String, width: Int = 80): String = {
    s"""
       |${"=" * (width / 2) } $heading ${"=" * (width / 2)}
       |$content
       |${"=" * (width / 2) } $heading ${"=" * (width / 2)}
     """.stripMargin
   }
+
+  /**
+    * An utlity function to generate markdown compatible ascii table for the two dimensional input
+    *
+    * {{{
+    * val in = Array(Array("Country", "Captial"), Array("USA", "Washington"), Array("UK", "London"), Array("Russia", "Moscow"), Array("Japan", "Tokyo"))
+    * print(prettyPrintAsciiTable(in))
+    *
+    * | Country  | Capital     |
+    * | ---------| ------------|
+    * | USA      | Washington  |
+    * | UK       | London      |
+    * | Russia   | Moscow      |
+    * | Japan    | Tokyo       |
+    * }}}
+    *
+    * @param content two dimensional array representation of the table
+    * @return content in ascii table string
+    */
+  def prettyPrintAsciiTable(content: Array[Array[String]]) = {
+
+    val tableDimensions = content.foldLeft(for(i <- 1 to content(0).length) yield 0 ) {
+      (carry , input) => {
+        carry zip input map ( x => x._1.max(x._2.length) )
+      }
+    } map { _ + 2 }
+
+    def composeRow(row: Array[String], divider: Boolean = false) = { row zip tableDimensions map {
+      x => s"|${if(divider)"-" else " "}${x._1}${" " * (x._2 - x._1.length)}" } mkString ""
+    }
+
+    content.toList match {
+      case head :: Nil => composeRow(head) :: composeRow(tableDimensions.map("-"* _ ).toArray) :: Nil
+      case head :: tail => {
+        val x = composeRow(head) :: composeRow(tableDimensions.map("-"* _ ).toArray, divider = true) :: tail.map(composeRow(_))
+        (x mkString "|\n") + "|"
+      }
+      case Nil => throw new RuntimeException("content cannot be empty")
+    }
+
+  }
+
 
 }

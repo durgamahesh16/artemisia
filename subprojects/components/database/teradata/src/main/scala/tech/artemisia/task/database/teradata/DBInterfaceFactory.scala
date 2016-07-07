@@ -48,8 +48,6 @@ object DbInterfaceFactory {
 
 
   private def getConnection(connectionProfile: DBConnection, mode: Option[String], session: Int) = {
-    println(s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
-      s"dbs_port=${connectionProfile.port}${mode.map(x => s",type=$x").getOrElse("")},SESSIONS=${session}""")
     DriverManager.getConnection(
       s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
       s"dbs_port=${connectionProfile.port}${mode.map(x => s",type=$x").getOrElse("")},SESSIONS=${session}"""

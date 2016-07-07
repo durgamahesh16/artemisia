@@ -27,7 +27,7 @@ class ScriptTask(name: String = Util.getUUID, script: String,interpreter: String
 
   override def work(): Config = {
     AppLogger info s"executing script"
-    AppLogger info Util.prettyPrintAsciiTable(script, heading = "script")
+    AppLogger info Util.prettyPrintAsciiBanner(script, heading = "script")
     var result: (String, String, Int) = null
     withTempFile(TaskContext.workingDir.toString,this.getFileHandle(scriptFileName).toString) {
       file => {

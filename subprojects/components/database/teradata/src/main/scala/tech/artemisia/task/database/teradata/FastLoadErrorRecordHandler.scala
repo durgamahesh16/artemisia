@@ -3,8 +3,10 @@ package tech.artemisia.task.database.teradata
 import java.io.{BufferedWriter, FileWriter}
 import javax.xml.bind.DatatypeConverter
 
+import tech.artemisia.core.AppLogger
 import tech.artemisia.task.TaskContext
 import tech.artemisia.task.database.DBUtil
+import tech.artemisia.util.Util
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
@@ -67,8 +69,19 @@ class FastLoadErrorRecordHandler(tableName: String) {
     uvErrorFileWriter.write(message.tail.mkString(",")+System.lineSeparator())
   }
 
+  private def displayETRecords() = {
+    val content = Array("Errorfield","Errorcode","Rowcount") +:
+    etRowsStats.toArray.map{ case (key ,value) => Array(key._1, key._2.toString, value.toString) }
+    AppLogger info
+      s"""
+         /Summary of ET records
+         /${Util.prettyPrintAsciiTable(content)}
+       """.stripMargin('/')
+  }
+
   def close() = {
     etErrorFileWriter.close()
     uvErrorFileWriter.close()
+    displayETRecords()
   }
 }

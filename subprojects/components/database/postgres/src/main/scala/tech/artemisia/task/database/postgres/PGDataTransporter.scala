@@ -1,7 +1,6 @@
 package tech.artemisia.task.database.postgres
 
 import java.io._
-
 import org.postgresql.PGConnection
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.database.{DBInterface, DataTransporter}
@@ -19,7 +18,7 @@ trait PGDataTransporter extends DataTransporter {
   override def loadData(tableName: String, loadSettings: LoadSetting) = {
     val copyMgr = self.connection.asInstanceOf[PGConnection].getCopyAPI
     val reader = new BufferedReader(new FileReader(new File(loadSettings.location)))
-    AppLogger info Util.prettyPrintAsciiTable(PGDataTransporter.getLoadCmd(tableName, loadSettings), heading = "query")
+    AppLogger info Util.prettyPrintAsciiBanner(PGDataTransporter.getLoadCmd(tableName, loadSettings), heading = "query")
      val result = copyMgr.copyIn(PGDataTransporter.getLoadCmd(tableName, loadSettings), reader)
     reader.close()
     result -> -1L
@@ -28,7 +27,7 @@ trait PGDataTransporter extends DataTransporter {
   override def exportData(sql: String, exportSetting: ExportSetting) = {
     val copyMgr = self.connection.asInstanceOf[PGConnection].getCopyAPI
     val writer = new BufferedWriter(new FileWriter(new File(exportSetting.file)))
-    AppLogger info Util.prettyPrintAsciiTable(PGDataTransporter.getExportCmd(sql, exportSetting), heading = "query")
+    AppLogger info Util.prettyPrintAsciiBanner(PGDataTransporter.getExportCmd(sql, exportSetting), heading = "query")
     val rowCount = copyMgr.copyOut(PGDataTransporter.getExportCmd(sql, exportSetting), writer)
     writer.close()
     rowCount

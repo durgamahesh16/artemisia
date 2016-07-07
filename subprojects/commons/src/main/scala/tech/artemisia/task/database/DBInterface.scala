@@ -36,6 +36,7 @@ trait DBInterface {
 
   /**
     * creates a new connection object
+    *
     * @return JDBC connection object
     */
   def getNewConnection: Connection
@@ -45,9 +46,10 @@ trait DBInterface {
    * @param sql Select query to be executed
    * @return result object
    */
-  def query(sql: String): ResultSet = {
+  def query(sql: String, printSQL: Boolean = true): ResultSet = {
     AppLogger info "executing query"
-    AppLogger info Util.prettyPrintAsciiTable(sql,"query")
+    if(printSQL)
+        AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
     val stmt = connection.prepareStatement(sql)
     stmt.executeQuery()
   }
@@ -59,7 +61,7 @@ trait DBInterface {
    */
   def execute(sql: String): Long = {
     AppLogger info "executing query"
-    AppLogger info Util.prettyPrintAsciiTable(sql,"query")
+    AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
     val stmt = connection.prepareStatement(sql)
     val recordCnt = stmt.executeUpdate()
     stmt.close()
@@ -73,7 +75,7 @@ trait DBInterface {
    */
   def queryOne(sql: String): Config = {
     AppLogger info "executing query"
-    AppLogger info Util.prettyPrintAsciiTable(sql,"query")
+    AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
     val stmt = connection.prepareStatement(sql)
     val rs = stmt.executeQuery()
     val result = DBUtil.resultSetToConfig(rs)
@@ -132,7 +134,7 @@ trait DBInterface {
   def getTableMetadata(databaseName: Option[String] ,tableName: String): Iterable[(String,Int)] = {
     val effectiveTableName = (databaseName map {x => s"$x.$tableName"}).getOrElse(tableName)
     val sql = s"SELECT * FROM $effectiveTableName"
-    val rs = this.query(sql)
+    val rs = this.query(sql, printSQL = false)
     val metadata = rs.getMetaData
     val result = for (i <- 1 to metadata.getColumnCount) yield {
       metadata.getColumnName(i) -> metadata.getColumnType(i)
