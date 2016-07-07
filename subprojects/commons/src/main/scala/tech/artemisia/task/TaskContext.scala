@@ -1,12 +1,11 @@
 package tech.artemisia.task
 
+import java.io.File
 import java.nio.file.Path
-import tech.artemisia.util.HoconConfigUtil
-import HoconConfigUtil.Handler
+
 import com.google.common.io.Files
-import com.typesafe.config.{ConfigFactory, Config}
-import tech.artemisia.task.settings.DBConnection$
-import scala.collection.JavaConverters._
+import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.util.FileSystemUtil.joinPath
 
 
 /**
@@ -24,7 +23,7 @@ private[artemisia] object TaskContext {
 
 
   /**
-   * the entire payload. This field exists here to facilitate subsitution during very late stage
+   * the entire payload. This field exists here to facilitate substitution during very late stage
    * like processing a sql_file/script_file
    */
   var payload: Config = ConfigFactory.empty
@@ -46,7 +45,20 @@ private[artemisia] object TaskContext {
     preferredWorkingDir = Some(working_dir)
   }
 
-
+  /**
+    * creates a file associated with a task in the working directory.
+    * A new directory with the name of the task is created in the working directory if it doesn't already exists
+    * The file is created inside this task directory.
+    * @param fileName name of the file
+    * @param taskName name of the task. If the taskName is not specified the current thread name is used.
+    * @return File object of the newly created file.
+    */
+  def getTaskFile(fileName: String, taskName: Option[String] = None) = {
+    val parent = new File(joinPath(workingDir.toString,
+      taskName getOrElse Thread.currentThread().getName))
+    parent.mkdirs()
+    new File(parent, fileName)
+  }
 
 
 }

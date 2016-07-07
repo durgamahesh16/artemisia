@@ -1,9 +1,9 @@
 package tech.artemisia.task.database
 
-import java.io.File
 import java.sql.Types
 
 import tech.artemisia.inventory.io.{CSVFileWriter, NullFileWriter}
+import tech.artemisia.task.TaskContext
 import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
 
 /**
@@ -37,7 +37,8 @@ abstract class BaseDBWriter(tableName: String, loadSettings: LoadSetting, dBInte
     dBInterface.connection.prepareStatement(insertSQL)
   }
 
-  protected val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(BasicExportSetting(new File(x).toURI,false,'\u0001',false)) ).getOrElse(new NullFileWriter)
+  protected val errorWriter = loadSettings.rejectFile.map( x => new CSVFileWriter(
+    BasicExportSetting(TaskContext.getTaskFile("error.txt").toURI,false,'\u0001',false))).getOrElse(new NullFileWriter)
 
   def processRow(row: Array[String])
 
