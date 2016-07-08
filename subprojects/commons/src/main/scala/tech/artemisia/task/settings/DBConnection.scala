@@ -2,7 +2,6 @@ package tech.artemisia.task.settings
 
 import com.typesafe.config._
 import tech.artemisia.core.Keywords
-import tech.artemisia.core.Keywords.Connection
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -17,17 +16,17 @@ object DBConnection extends ConnectionHelper {
 
   def structure(defaultPort: Int) =
  s""" |{
-      |  ${Connection.HOSTNAME} = db-host @required
-      |  ${Keywords.Connection.USERNAME} = username @required
-      |  ${Keywords.Connection.PASSWORD} = password @required
-      |  ${Keywords.Connection.DATABASE} = db @required
-      |  ${Keywords.Connection.PORT} = db @default($defaultPort)
+      |  ${Keywords.Connection.HOSTNAME} = "db-host @required"
+      |  ${Keywords.Connection.USERNAME} = "username @required"
+      |  ${Keywords.Connection.PASSWORD} = "password @required"
+      |  ${Keywords.Connection.DATABASE} = "db @required"
+      |  ${Keywords.Connection.PORT} = "$defaultPort @default($defaultPort)"
       | }
   """.stripMargin
 
   def apply(config: Config): DBConnection = {
        DBConnection(
-      hostname = config.as[String](Connection.HOSTNAME),
+      hostname = config.as[String](Keywords.Connection.HOSTNAME),
       username = config.as[String](Keywords.Connection.USERNAME),
       password = config.as[String](Keywords.Connection.PASSWORD),
       default_database = config.as[String](Keywords.Connection.DATABASE),

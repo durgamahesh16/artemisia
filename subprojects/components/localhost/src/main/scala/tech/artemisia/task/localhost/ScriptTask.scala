@@ -79,17 +79,18 @@ object ScriptTask extends TaskLike {
 
   override val desc: String = ""
 
-  override def configStructure(component: String): String = {
+  override val paramConfigDoc = {
+    ConfigFactory parseString
     s"""
-       | ${Keywords.Task.COMPONENT} = $component
-       | ${Keywords.Task.COMPONENT} = $taskName
-       | ${Keywords.Task.PARAMS} = {
-       |   script = "echo Hello World" @required
-       |   interpreter = "/usr/local/bin/sh" @default("/bin/sh")
-       |   cwd = "/var/tmp" @default("<your current working directory>")
-       |   env = { foo = bar, hello = world } @default("<empty object>")
-       |   parse-output = yes @default(false)
-       | }
+       |{
+       |  ${Keywords.Task.PARAMS} = {
+       |     script = "echo Hello World @required"
+       |     interpreter = "/usr/local/bin/sh @default(/bin/sh)"
+       |     cwd = "/var/tmp @default(<your current working directory>)"
+       |     env = "{ foo = bar, hello = world } @default(<empty object>)"
+       |     parse-output = "yes @default(false)"
+       |   }
+       |}
      """.stripMargin
   }
 

@@ -24,7 +24,7 @@ object SQLRead extends TaskLike {
 
   override val desc: String = database.SQLRead.desc
 
-  override def configStructure(component: String): String = database.SQLRead.configStructure(component)
+  override val paramConfigDoc = database.SQLRead.paramConfigDoc(3306)
 
   override val fieldDefinition = database.SQLRead.fieldDefinition
 

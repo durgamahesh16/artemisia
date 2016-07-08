@@ -5,12 +5,11 @@ Core
 
 Component that supports core tasks of Artemisia
 
-| TaskName      | Description                                                                                   |
-|---------------|-----------------------------------------------------------------------------------------------|
-| ScriptTask    | executes script with customizable interpreter                                                 |
-| EmailTask     | EmailTask is used to send Emails.                                                             |
-| SFTPTask      | SFTPTask supports copying files from remote sftp server to local filesystem and vice versa    |
-
+| Task        | Description                                                                                 |
+|-------------|---------------------------------------------------------------------------------------------|
+| ScriptTask  | executes script with customizable interpreter                                               |
+| EmailTask   | EmailTask is used to send Emails.                                                           |
+| SFTPTask    | SFTPTask supports copying files from remote sftp server to local filesystem and vice versa  |
 
      
 
@@ -25,17 +24,17 @@ Component that supports core tasks of Artemisia
 #### Configuration Structure:
 
 
-      
-      Component = Core
-      Component = ScriptTask
-      params = {
-        script = "echo Hello World" @required
-        interpreter = "/usr/local/bin/sh" @default("/bin/sh")
-        cwd = "/var/tmp" @default("<your current working directory>")
-        env = { foo = bar, hello = world } @default("<empty object>")
-        parse-output = yes @default(false)
+      {
+        Component = Core
+        Task = ScriptTask
+        params =  {
+         cwd = /var/tmp @default(<your current working directory>)
+         env = { foo = bar, hello = world } @default(<empty object>)
+         interpreter = /usr/local/bin/sh @default(/bin/sh)
+         parse-output = yes @default(false)
+         script = echo Hello World @required
       }
-          
+     }
 
 
 #### Field Description:
@@ -61,37 +60,35 @@ Component that supports core tasks of Artemisia
 #### Configuration Structure:
 
 
-      
-     Component = Core
-     Task = EmailTask
-     params = {
-     	  connection = <% email_connection
-                     <------------------->
-                     {
-                         host = "host" @required
-                         port = -1 @required
-                         username = "username"
-                         password = "password"
-                         ssl = no @default(no) @type(boolean)
-                         tls = no @default(no) @type(boolean)
-                         from = "xyz@example.com"
-                         reply-to ="xyx@example.com"
-                       }
-                      %> @type(str, obj)
-     	  email = {
-                        to  = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] >
-                        cc  = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] > @optional
-                        bcc = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] > @optional
-                        attachment = <%
-                                    ['/var/tmp/file1.txt', '/var/tmp/file2.txt']
-                                     <--------------------------------------->
-                                    [{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}]
-                                     %> @optional
-                        subject = "subject"
-                        message = "message"
-                       }
+      {
+        Component = Core
+        Task = EmailTask
+        params =  {
+         connection_[0] = email_connection
+         connection_[1] =   {
+           from = xyz@example.com
+           host = host @required
+           password = password
+           port = -1 @required
+           reply-to = xyx@example.com
+           ssl = no @default(no) @type(boolean)
+           tls = no @default(no) @type(boolean)
+           username = username
+        }
+         email =   {
+           attachment_[0] = ['/var/tmp/file1.txt', '/var/tmp/file2.txt'] @optional
+           attachment_[1] = [{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}] @optional
+           bcc_[0] = xyz@example.com @optional
+           bcc_[1] = [ xyz1@example.com, xyz2@example.com ] @optional
+           cc_[0] = xyz@example.com @optional
+           cc_[1] = [ xyz1@example.com, xyz2@example.com ] @optional
+           message = message
+           subject = subject
+           to_[0] = xyz@example.com
+           to_[1] = [xyz1@example.com, xyz2@example.com]
+        }
+      }
      }
-          
 
 
 #### Field Description:
@@ -130,29 +127,22 @@ Component that supports core tasks of Artemisia
 
       {
         Component = Core
-        Component = SFTPTask
-        params = {
-           connection = <%sftp_connection_name
-                       <--------------------->
-                       {
-                         hostname = sftp-host-name @required
-                         port = sftp-host-port @default(22)
-                         username = sftp-username @required
-                         password = sftppassword @optional(not required if key based authentication is used)
-                         pkey = "/home/user/.ssh/id_rsa" @optional(not required if username/password authentication is used)
-                       }%>
-           get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },
-                   'root_sftp_dir/file2.txt' ]
-             @type(array)
-           put = [
-               { '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },
-               '/var/tmp/file1.txt'
-            ] @type(array)
-           local-dir = /var/tmp @default(your current working directory.) @info(current working directory)
-           remote-dir = /root @info(remote working directory)
+        Task = SFTPTask
+        params =  {
+         connection_[0] = sftp_connection_name
+         connection_[1] =   {
+           hostname = sftp-host-name @required
+           password = sftppassword @optional(not required if key based authentication is used)
+           pkey = /home/user/.ssh/id_rsa @optional(not required if username/password authentication is used)
+           port = sftp-host-port @default(22)
+           username = sftp-username @required
         }
+         get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },'root_sftp_dir/file2.txt'] @type(array)
+         local-dir = /var/tmp @default(your current working directory.) @info(current working directory)
+         put = [{ '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },'/var/tmp/file1.txt'] @type(array)
+         remote-dir = /root @info(remote working directory)
       }
-          
+     }
 
 
 #### Field Description:

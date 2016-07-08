@@ -38,15 +38,12 @@ object EmailTask extends TaskLike {
 
   override val desc: String = ""
 
-  override def configStructure(component: String): String = {
+  override val paramConfigDoc = {
+    ConfigFactory parseString
     s"""
-       |Component = $component
-       |Task = $taskName
        |params = {
-       |	  connection = <% email_connection
-       |                <------------------->
-       |                ${EmailConnection.structure.ident(18)}
-       |                 %> @type(str, obj)
+       |	  "connection_[0]" = email_connection
+       |    "connection_[1]" = ${EmailConnection.structure.ident(18)}
        |	  email = ${EmailRequest.structure.ident(18)}
        |}
      """.stripMargin

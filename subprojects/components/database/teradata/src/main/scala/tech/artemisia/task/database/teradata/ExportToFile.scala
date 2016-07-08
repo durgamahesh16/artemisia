@@ -48,7 +48,7 @@ object ExportToFile extends TaskLike {
 
   override val desc: String = database.ExportToFile.desc
 
-  override def configStructure(component: String): String = database.ExportToFile.configStructure(component, 1025)
+  override val paramConfigDoc = database.SQLRead.paramConfigDoc(1025)
 
   override val fieldDefinition = database.ExportToFile.fieldDefinition
 

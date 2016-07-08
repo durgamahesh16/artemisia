@@ -63,28 +63,18 @@ object ExportToFile  {
        |The typical task $taskName configuration is as shown below
      """.stripMargin
 
-  def configStructure(component: String, defaultPort: Int): String = {
+  def paramConfigDoc(defaultPort: Int) = {
+    ConfigFactory parseString
     s"""
        |{
-       | Component = $component
-       | Task =  $taskName
-       | params = {
-       |   dsn = <%
-       |          connection-name
-       |          <------------->
-       |          ${DBConnection.structure(defaultPort).ident(15)}
-       |         %>
+       |   "dsn_[1]" = connection-name
+       |   "dsn_[2]" = ${DBConnection.structure(defaultPort).ident(15)}
        |   export = ${BasicExportSetting.structure.ident(15)}
-       |   <%
-       |     sql = "SELECT * FROM TABLE"
-       |     <-------------------------->
-       |     sqlfile = run_queries.sql
-       |   %> @required
+       |   sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
+       |   sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
        |}
      """.stripMargin
-
   }
-
 
   val fieldDefinition: Seq[(String, AnyRef)] = Seq(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",

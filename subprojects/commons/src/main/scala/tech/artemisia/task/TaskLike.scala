@@ -1,7 +1,9 @@
 package tech.artemisia.task
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.core.Keywords
 import tech.artemisia.util.DocStringProcessor.StringUtil
+import tech.artemisia.util.HoconConfigUtil
 
 /**
   * Created by chlr on 6/7/16.
@@ -24,11 +26,25 @@ trait TaskLike {
   val desc: String
 
   /**
+    * Sequence of config keys and their associated values
+    */
+  val paramConfigDoc: Config
+
+  /**
     *
     * @param component name of the component
     * @return config structure of the task
     */
-  def configStructure(component: String): String
+  final def configStructure(component: String): String = {
+   val config = ConfigFactory parseString  s"""
+       | {
+       |   ${Keywords.Task.COMPONENT} = $component
+       |   ${Keywords.Task.TASK} = $taskName
+       |
+       | }
+     """.stripMargin withFallback paramConfigDoc
+    HoconConfigUtil.render(config.root())
+  }
 
 
   /**

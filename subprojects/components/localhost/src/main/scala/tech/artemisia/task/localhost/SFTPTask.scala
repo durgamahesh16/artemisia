@@ -3,7 +3,6 @@ package tech.artemisia.task.localhost
 import java.nio.file.{Path, Paths}
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
-import tech.artemisia.core.Keywords
 import tech.artemisia.task.localhost.util.SFTPManager
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.util.DocStringProcessor.StringUtil
@@ -68,21 +67,14 @@ object SFTPTask extends TaskLike {
 
 
 
-  override def configStructure(component: String): String =
+  override val paramConfigDoc =  ConfigFactory parseString
     s"""| {
-        |   ${Keywords.Task.COMPONENT} = $component
-        |   ${Keywords.Task.COMPONENT} = $taskName
         |   params = {
-        |      connection = ${SFTPConnection.configStructure.ident(15)}
-        |      get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },
-        |              'root_sftp_dir/file2.txt' ]
-        |        @type(array)
-        |      put = [
-        |          { '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },
-        |          '/var/tmp/file1.txt'
-        |       ] @type(array)
-        |      local-dir = /var/tmp @default(your current working directory.) @info(current working directory)
-        |      remote-dir = /root @info(remote working directory)
+        |      ${SFTPConnection.configStructure.ident(15)}
+        |      get = "[{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },'root_sftp_dir/file2.txt'] @type(array)"
+        |      put = "[{ '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },'/var/tmp/file1.txt'] @type(array)"
+        |      local-dir = "/var/tmp @default(your current working directory.) @info(current working directory)"
+        |      remote-dir = "/root @info(remote working directory)"
         |   }
         | }
      """.stripMargin

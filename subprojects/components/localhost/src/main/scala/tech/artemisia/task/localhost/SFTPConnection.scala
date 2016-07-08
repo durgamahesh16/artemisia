@@ -18,15 +18,14 @@ object SFTPConnection extends ConnectionHelper {
   type T = SFTPConnection
 
   val configStructure =
-    s"""|   <%sftp_connection_name
-        |   <--------------------->
-        |   {
-        |     hostname = sftp-host-name @required
-        |     port = sftp-host-port @default(22)
-        |     username = sftp-username @required
-        |     password = sftppassword @optional(not required if key based authentication is used)
-        |     pkey = "/home/user/.ssh/id_rsa" @optional(not required if username/password authentication is used)
-        |   }%>""".stripMargin
+    s"""|  "connection_[0]" = sftp_connection_name
+        |  "connection_[1]" = {
+        |     hostname = "sftp-host-name @required"
+        |     port = "sftp-host-port @default(22)"
+        |     username = "sftp-username @required"
+        |     password = "sftppassword @optional(not required if key based authentication is used)"
+        |     pkey = "/home/user/.ssh/id_rsa @optional(not required if username/password authentication is used)"
+        |   }""".stripMargin
 
 
   val fieldDefinition = Seq(

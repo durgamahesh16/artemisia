@@ -22,18 +22,18 @@ case class BasicLoadSetting(override val location: URI, override val skipRows: I
 object BasicLoadSetting {
 
   val structure =
- s"""|{
-     | load-path = /var/tmp/file.txt @required
-     | header = no @default(false) @type(boolean)
-     | skip-lines = 0 @default(0) @type(int)
-     | delimiter = '|' @default(',') @type(char)
-     | quoting = no @default(false) @type(boolean)
-     | quotechar = "\"" @default('"') @type(char)
-     | escapechar = "\\" @default('\') @type(char)
-     | mode = default @default("default") @type(string)
-     | batch-size = 200 @default(100)
-     | error-tolerence = 0.57 @default(2) @type(double,0,1)
-     | error-file = /var/tmp/error_file.txt @required
+ raw"""|{
+     | load-path = "/var/tmp/file.txt @required"
+     | header = "no @default(false) @type(boolean)"
+     | skip-lines = "0 @default(0) @type(int)"
+     | delimiter = "'|' @default(',') @type(char)"
+     | quoting = "no @default(false) @type(boolean)"
+     | quotechar = "\" @default('\"') @type(char)"
+     | escapechar = "\" @default(\\) @type(char)"
+     | mode = "default @default(default) @type(string)"
+     | batch-size = "200 @default(100)"
+     | error-tolerence = "0.57 @default(2) @type(double,0,1)"
+     | error-file = "/var/tmp/error_file.txt @required"
      |}""".stripMargin
 
   val fieldDescription = Seq(

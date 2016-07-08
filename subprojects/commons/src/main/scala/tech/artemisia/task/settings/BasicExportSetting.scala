@@ -28,16 +28,16 @@ case class BasicExportSetting(override val file: URI, override val header: Boole
 object BasicExportSetting {
 
   val structure =
-    s"""|{
-        |  file = /var/tmp/file.out @required
-        |  header =  yes @default(false) @type(boolean)
-        |  delimiter = '|' @default(",") @type(char)
-        |  quoting = yes @default(false) @type(boolean)
-        |  quotechar = "\"" @default('"') @type(char)
-        |  escapechar = "\\" @default("\") @type(char)
-        |  sql = "select * from table" @required
-        |  mode = @default("default")
-        |}""".stripMargin
+    raw"""|{
+          |  file = "/var/tmp/file.out @required"
+          |  header =  "yes @default(false) @type(boolean)"
+          |  delimiter = "| @default(,) @type(char)"
+          |  quoting = "yes @default(false) @type(boolean)"
+          |  quotechar = "'\"' @default(\") @type(char)"
+          |  escapechar = "'\\' @default(\\) @type(char)"
+          |  sql = "select * from table @required"
+          |  mode = "default @default(default)"
+          |}""".stripMargin
 
   val fieldDescription = Seq[(String, String)](
     "file" -> "location of the file to which data is to be exported. eg: /var/tmp/output.txt",

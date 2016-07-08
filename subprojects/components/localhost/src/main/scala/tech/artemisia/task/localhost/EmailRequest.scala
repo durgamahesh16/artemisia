@@ -28,14 +28,14 @@ object EmailRequest {
 
   val structure =
     s"""|{
-        | to  = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] >
-        | cc  = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] > @optional
-        | bcc = < xyz@example.com <-> [ xyz1@example.com, xyz2@example.com ] > @optional
-        | attachment = <%
-        |             ['/var/tmp/file1.txt', '/var/tmp/file2.txt']
-        |              <--------------------------------------->
-        |             [{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}]
-        |              %> @optional
+        | "to_[0]" = "xyz@example.com"
+        | "to_[1]" = [ "xyz1@example.com", "xyz2@example.com" ]
+        | "cc_[0]" = "xyz@example.com @optional"
+        | "cc_[1]" = "[ xyz1@example.com, xyz2@example.com ] @optional"
+        | "bcc_[0]" = "xyz@example.com @optional"
+        | "bcc_[1]" = "[ xyz1@example.com, xyz2@example.com ] @optional"
+        | "attachment_[0]" = "['/var/tmp/file1.txt', '/var/tmp/file2.txt'] @optional"
+        | "attachment_[1]" = "[{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}] @optional"
         | subject = "subject"
         | message = "message"
         |}""".stripMargin

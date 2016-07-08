@@ -30,12 +30,12 @@ object EmailConnection extends ConnectionHelper {
 
   def structure =
     """|{
-       |  host = "host" @required
-       |  port = -1 @required
+       |  host = "host @required"
+       |  port = "-1 @required"
        |  username = "username"
        |  password = "password"
-       |  ssl = no @default(no) @type(boolean)
-       |  tls = no @default(no) @type(boolean)
+       |  ssl = "no @default(no) @type(boolean)"
+       |  tls = "no @default(no) @type(boolean)"
        |  from = "xyz@example.com"
        |  reply-to ="xyx@example.com"
        |}""".stripMargin

@@ -1,12 +1,13 @@
 package tech.artemisia.task.database
 
-import com.typesafe.config.{Config, ConfigRenderOptions}
+import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
+import tech.artemisia.util.DocStringProcessor.StringUtil
 
 import scala.reflect.ClassTag
 
@@ -59,15 +60,13 @@ object SQLRead {
       |The configuration object is shown below.
     """.stripMargin
 
-  def configStructure(component: String): String = {
-    s"""
+  def paramConfigDoc(defaultPort: Int) = {
+    ConfigFactory parseString  s"""
        |{
-       |  Component = $component
-       |  Task = $taskName
-       |    params = {
-       |     dsn = ?
-       |     [sql|sqlfile] = ?
-       |   }
+       |  dsn = ${DBConnection.structure(defaultPort).ident(20)}
+       |  sql = "SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)"
+       |  sqlfile =  "/var/tmp/sqlfile.sql @optional(either this or sql key is required)"
+       |}
   """.stripMargin
   }
 

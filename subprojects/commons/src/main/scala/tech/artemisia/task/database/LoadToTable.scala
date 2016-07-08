@@ -64,18 +64,14 @@ object LoadToTable {
       |the configuration object for this task is as shown below.
     """.stripMargin
 
-  def configStructure(component: String, defaultPort: Int) = {
-    s"""
-       |     Component = $component
-       |     Task = $taskName
-       |     params = {
-       |	             dsn = <% connection-name
-       |                     <-------------------------------->
-       |                      ${DBConnection.structure(defaultPort).ident(20)}
-       |                     %>
-       |	             destination-table = "dummy_table" @required
-       |	             load-setting = ${BasicLoadSetting.structure.ident(20)}
-       |            }
+  def paramConfigDoc(defaultPort: Int) = {
+    ConfigFactory parseString s"""
+       |params = {
+       |           "dsn_[1]" = connection-name
+       |           "dsn_[2]" = ${DBConnection.structure(defaultPort).ident(20)}
+       |           destination-table = "dummy_table @required"
+       |           load-setting = ${BasicLoadSetting.structure.ident(20)}
+       |       }
      """.stripMargin
   }
 
