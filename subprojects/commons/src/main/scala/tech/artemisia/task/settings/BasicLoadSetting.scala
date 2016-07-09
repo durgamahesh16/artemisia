@@ -15,13 +15,13 @@ import tech.artemisia.util.URIParser
  */
 case class BasicLoadSetting(override val location: URI, override val skipRows: Int = 0, override val delimiter: Char = ',',
                             override val quoting: Boolean = false, override val quotechar: Char = '"', override val escapechar: Char = '\\',
-                            override val mode: String = "default", override val batchSize: Int = 100, override val rejectFile: Option[String] = None,
-                            override val errorTolerance: Option[Double] = None)
- extends LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar, mode, batchSize, rejectFile, errorTolerance)
+                            override val truncate: Boolean, override val mode: String = "default", override val batchSize: Int = 100,
+                            override val rejectFile: Option[String] = None, override val errorTolerance: Option[Double] = None)
+ extends LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, rejectFile, errorTolerance)
 
 object BasicLoadSetting {
 
-  val structure =
+  val structure = ConfigFactory parseString
  raw"""|{
      | load-path = "/var/tmp/file.txt @required"
      | header = "no @default(false) @type(boolean)"
@@ -30,13 +30,14 @@ object BasicLoadSetting {
      | quoting = "no @default(false) @type(boolean)"
      | quotechar = "\" @default('\"') @type(char)"
      | escapechar = "\" @default(\\) @type(char)"
+     | truncate = "yes @type(boolean)"
      | mode = "default @default(default) @type(string)"
      | batch-size = "200 @default(100)"
      | error-tolerence = "0.57 @default(2) @type(double,0,1)"
      | error-file = "/var/tmp/error_file.txt @required"
      |}""".stripMargin
 
-  val fieldDescription = Seq(
+  val fieldDescription = Map(
      "load-path" -> "path to load from (eg: /var/tmp/input.txt)",
      "header" -> "boolean field to enable/disable headers",
      "skip-lines" -> "number of lines to skip in he table",
@@ -44,6 +45,7 @@ object BasicLoadSetting {
      "quoting" -> "boolean field to indicate if the file is quoted.",
      "quotechar" -> "character to be used for quoting",
      "escapechar" -> "escape character used in the file",
+     "truncate" -> "truncate the target table before loading data",
      "mode" -> "mode of loading the table",
      "batch-size" -> "loads into table will be grouped into batches of this size.",
      "error-file" -> "location of the file where rejected error records are saved",
@@ -60,6 +62,7 @@ object BasicLoadSetting {
       |	  quoting = no
       |	  quotechar = "\""
       |   escapechar = "\\"
+      |   truncate = false
       |   batch-size = 100
       |   mode = default
       |}
@@ -75,6 +78,7 @@ object BasicLoadSetting {
     quotechar = config.as[Char]("quotechar"),
     escapechar = config.as[Char]("escapechar"),
     mode = config.as[String]("mode"),
+    truncate = config.as[Boolean]("truncate"),
     rejectFile = if (config.hasPath("error-file")) Some(config.as[String]("error-file")) else None,
     errorTolerance = config.getAs[Double]("error-tolerence"),
     batchSize = config.as[Int]("batch-size")

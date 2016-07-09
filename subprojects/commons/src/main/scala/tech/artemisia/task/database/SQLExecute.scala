@@ -5,7 +5,7 @@ import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.util.DocStringProcessor.StringUtil
+
 import scala.reflect.ClassTag
 
 /**
@@ -58,18 +58,19 @@ object SQLExecute {
   val desc = s"$taskName task is used execute arbitary DML statements against a database"
 
   def paramConfigDoc(defaultPort: Int) = {
-    ConfigFactory parseString
+    val config = ConfigFactory parseString
     s"""
        |{
        |  "dsn_[1]" = connection-name
-       |  "dsn_[2]" = ${DBConnection.structure(defaultPort).ident(20)}
        |  sql = "DELETE FROM TABLENAME @optional(either this or sqlfile key is required)"
        |  sqlfile =  "/var/tmp/sqlfile.sql @optional(either this or sql key is required)"
        |}
      """.stripMargin
+    config
+        .withValue(""""dsn_[2]"""",DBConnection.structure(defaultPort).root())
   }
 
-  val fieldDefinition = Seq(
+  val fieldDefinition = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "sql" -> "select query to be run",
     "sqlfile" -> "the file containing the query"

@@ -49,7 +49,7 @@ object EmailTask extends TaskLike {
      """.stripMargin
   }
 
-  override val fieldDefinition = Seq(
+  override val fieldDefinition = Map(
     "connection" -> EmailConnection.fieldDefinition,
     "email" -> EmailRequest.fieldDefinition
   )

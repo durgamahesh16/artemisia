@@ -94,7 +94,7 @@ object ScriptTask extends TaskLike {
      """.stripMargin
   }
 
-  override val fieldDefinition = Seq(
+  override val fieldDefinition = Map(
     "script" -> "string whose content while be flushed to a temp file and executed with the interpreter",
     "interpreter" -> "the interpreter used to execute the script. it can be bash, python, perl etc",
     "cwd" -> "set the current working directory for the script execution",

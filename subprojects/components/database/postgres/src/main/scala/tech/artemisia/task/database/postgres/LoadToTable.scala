@@ -11,8 +11,8 @@ import tech.artemisia.util.Util
   */
 
 
-class LoadToTable(name: String = Util.getUUID, tablename: String, connectionProfile: DBConnection, loadSettings: BasicLoadSetting)
-  extends database.LoadToTable(name, tablename, connectionProfile, loadSettings) {
+class LoadToTable(name: String = Util.getUUID, tableName: String, connectionProfile: DBConnection, loadSettings: BasicLoadSetting)
+  extends database.LoadToTable(name, tableName, connectionProfile, loadSettings) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
 

@@ -15,6 +15,7 @@ object DBConnection extends ConnectionHelper {
   type T = DBConnection
 
   def structure(defaultPort: Int) =
+  ConfigFactory parseString
  s""" |{
       |  ${Keywords.Connection.HOSTNAME} = "db-host @required"
       |  ${Keywords.Connection.USERNAME} = "username @required"

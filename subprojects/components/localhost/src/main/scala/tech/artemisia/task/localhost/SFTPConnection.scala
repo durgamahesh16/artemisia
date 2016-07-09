@@ -28,7 +28,7 @@ object SFTPConnection extends ConnectionHelper {
         |   }""".stripMargin
 
 
-  val fieldDefinition = Seq(
+  val fieldDefinition = Map(
     "hostname" -> "hostname of the sftp-server",
     "port" -> "sftp port number",
     "username" -> "username to be used for sftp connection",

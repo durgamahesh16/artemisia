@@ -6,6 +6,7 @@ import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
+import scala.collection.mutable
 
 /**
   * Created by chlr on 6/26/16.
@@ -20,7 +21,17 @@ class LoadToTable(override val taskName: String = Util.getUUID, override val tab
   /**
     * No operations are done in this phase
     */
-  override protected[task] def setup(): Unit = {}
+  override protected[task] def setup(): Unit = {
+    if (loadSettings.recreateTable) {
+        val rs = dbInterface.query(s"SHOW TABLE $tableName", printSQL = false)
+        val buffer = mutable.ArrayBuffer[String]()
+        while(rs.next()) { buffer += rs.getString(1) }
+        dbInterface.query(s"DROP TABLE $tableName", printSQL = true)
+        dbInterface.query(buffer.mkString("\n"))
+    } else {
+        super.setup()
+    }
+  }
 
   /**
     * No operations are done in this phase
@@ -48,12 +59,12 @@ object LoadToTable extends TaskLike {
     new LoadToTable(name, destinationTable, connectionProfile, loadSettings)
   }
 
-
   override val desc: String = database.LoadToTable.desc
 
-  override val paramConfigDoc = database.LoadToTable.paramConfigDoc(1025)
+  override val paramConfigDoc =  database.LoadToTable.paramConfigDoc(1025).withValue("load-setting",
+    TeraLoadSetting.structure.root())
 
-  override val fieldDefinition = database.LoadToTable.fieldDefinition
+  override val fieldDefinition = database.LoadToTable.fieldDefinition ++ Map("load-setting" -> TeraLoadSetting.fieldDescription )
 
 }
 

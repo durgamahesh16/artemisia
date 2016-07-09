@@ -7,7 +7,6 @@ import tech.artemisia.task.Task
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
-import tech.artemisia.util.DocStringProcessor.StringUtil
 
 import scala.reflect.ClassTag
 
@@ -61,17 +60,17 @@ object SQLRead {
     """.stripMargin
 
   def paramConfigDoc(defaultPort: Int) = {
-    ConfigFactory parseString  s"""
+    val config = ConfigFactory parseString  s"""
        |{
-       |  dsn = ${DBConnection.structure(defaultPort).ident(20)}
        |  sql = "SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)"
        |  sqlfile =  "/var/tmp/sqlfile.sql @optional(either this or sql key is required)"
        |}
   """.stripMargin
+    config.withValue("dsn", DBConnection.structure(defaultPort).root())
   }
 
 
-  val fieldDefinition = Seq(
+  val fieldDefinition = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "sql" -> "select query to be run",
     "sqlfile" -> "the file containing the query"

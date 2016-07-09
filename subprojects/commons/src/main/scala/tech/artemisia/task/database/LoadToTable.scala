@@ -5,7 +5,7 @@ import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection, LoadSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.util.DocStringProcessor._
+
 import scala.reflect.ClassTag
 
 /**
@@ -24,6 +24,14 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
                            val loadSettings: LoadSetting) extends Task(name) {
 
   val dbInterface: DBInterface
+
+
+  override protected[task] def setup() = {
+    if (loadSettings.truncate) {
+      AppLogger info s"truncating table $tableName"
+      dbInterface.execute(s"DELETE FROM $tableName",printSQL =  false)
+    }
+  }
 
   /**
    * Actual data export is done in this phase.
@@ -65,20 +73,19 @@ object LoadToTable {
     """.stripMargin
 
   def paramConfigDoc(defaultPort: Int) = {
-    ConfigFactory parseString s"""
-       |params = {
-       |           "dsn_[1]" = connection-name
-       |           "dsn_[2]" = ${DBConnection.structure(defaultPort).ident(20)}
-       |           destination-table = "dummy_table @required"
-       |           load-setting = ${BasicLoadSetting.structure.ident(20)}
-       |       }
+   val config = ConfigFactory parseString s"""
+       |  "dsn_[1]" = connection-name
+       |  destination-table = "dummy_table @required"
      """.stripMargin
+    config
+      .withValue("load-setting",BasicLoadSetting.structure.root())
+      .withValue(""""dsn_[2]"""",DBConnection.structure(defaultPort).root())
   }
 
-  val fieldDefinition = Seq(
+  val fieldDefinition = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table" -> "destination table to load",
-    s"loadsetting" -> BasicLoadSetting.fieldDescription
+    s"load-setting" -> BasicLoadSetting.fieldDescription
   )
 
 

@@ -40,7 +40,7 @@ object EmailConnection extends ConnectionHelper {
        |  reply-to ="xyx@example.com"
        |}""".stripMargin
 
-  val fieldDefinition = Seq(
+  val fieldDefinition = Map(
     "host" -> "SMTP host address",
     "port" -> "port of the stmp server",
     "username" -> "username used for authentication",

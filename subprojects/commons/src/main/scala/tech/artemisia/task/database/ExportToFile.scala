@@ -6,7 +6,6 @@ import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{BasicExportSetting, DBConnection, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.util.DocStringProcessor._
 
 import scala.reflect.ClassTag
 
@@ -64,19 +63,20 @@ object ExportToFile  {
      """.stripMargin
 
   def paramConfigDoc(defaultPort: Int) = {
-    ConfigFactory parseString
+    val config = ConfigFactory parseString
     s"""
        |{
        |   "dsn_[1]" = connection-name
-       |   "dsn_[2]" = ${DBConnection.structure(defaultPort).ident(15)}
-       |   export = ${BasicExportSetting.structure.ident(15)}
        |   sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
        |   sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
        |}
      """.stripMargin
+    config
+      .withValue(""""dsn_[2]"""",DBConnection.structure(defaultPort).root())
+      .withValue("export",BasicExportSetting.structure.root())
   }
 
-  val fieldDefinition: Seq[(String, AnyRef)] = Seq(
+  val fieldDefinition: Map[String, AnyRef] = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "export" -> BasicExportSetting.fieldDescription
   )

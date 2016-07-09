@@ -27,7 +27,7 @@ case class BasicExportSetting(override val file: URI, override val header: Boole
 
 object BasicExportSetting {
 
-  val structure =
+  val structure = ConfigFactory parseString
     raw"""|{
           |  file = "/var/tmp/file.out @required"
           |  header =  "yes @default(false) @type(boolean)"
@@ -39,7 +39,7 @@ object BasicExportSetting {
           |  mode = "default @default(default)"
           |}""".stripMargin
 
-  val fieldDescription = Seq[(String, String)](
+  val fieldDescription = Map[String, String](
     "file" -> "location of the file to which data is to be exported. eg: /var/tmp/output.txt",
     "header" -> "boolean literal to enable/disable header",
     "delimiter" -> "character to be used for delimiter",

@@ -59,9 +59,11 @@ trait DBInterface {
    * @param sql DML query to be executed
    * @return number of records updated/deleted/inserted
    */
-  def execute(sql: String): Long = {
-    AppLogger info "executing query"
-    AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
+  def execute(sql: String, printSQL: Boolean = true): Long = {
+    if (printSQL) {
+      AppLogger info "executing query"
+      AppLogger info Util.prettyPrintAsciiBanner(sql, "query")
+    }
     val stmt = connection.prepareStatement(sql)
     val recordCnt = stmt.executeUpdate()
     stmt.close()

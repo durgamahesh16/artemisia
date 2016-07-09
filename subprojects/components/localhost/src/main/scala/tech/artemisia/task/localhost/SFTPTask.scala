@@ -80,7 +80,7 @@ object SFTPTask extends TaskLike {
      """.stripMargin
 
 
-  override val fieldDefinition: Seq[(String, AnyRef)] = Seq(
+  override val fieldDefinition = Map(
     "connection" -> SFTPConnection.fieldDefinition,
     "get" -> "array of object or strings providing source and target (optional if type is string) paths",
     "put" -> "array of object or strings providing source and target (optional if type is string) paths",

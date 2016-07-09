@@ -28,15 +28,17 @@ This Component supports exporting loading and executing queries against Teradata
       {
         Component = Teradata
         Task = SQLExecute
-        dsn =  {
-         database = db @required
-         host = db-host @required
-         password = password @required
-         port = 1025 @default(1025)
-         username = username @required
+        param =  {
+         dsn =   {
+           database = db @required
+           host = db-host @required
+           password = password @required
+           port = 1025 @default(1025)
+           username = username @required
+        }
+         sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
+         sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
       }
-        sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
-        sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
      }
 
 
@@ -68,15 +70,17 @@ The configuration object is shown below.
       {
         Component = Teradata
         Task = SQLRead
-        dsn =  {
-         database = db @required
-         host = db-host @required
-         password = password @required
-         port = 1025 @default(1025)
-         username = username @required
+        param =  {
+         dsn =   {
+           database = db @required
+           host = db-host @required
+           password = password @required
+           port = 1025 @default(1025)
+           username = username @required
+        }
+         sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
+         sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
       }
-        sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
-        sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
      }
 
 
@@ -107,7 +111,7 @@ the configuration object for this task is as shown below.
       {
         Component = Teradata
         Task = LoadToTable
-        params =  {
+        param =  {
          destination-table = dummy_table @required
          dsn_[1] = connection-name
          dsn_[2] =   {
@@ -120,6 +124,7 @@ the configuration object for this task is as shown below.
          load-setting =   {
            batch-size = 200 @default(100)
            delimiter = '|' @default(',') @type(char)
+           drop-recreate-table = no @default(false)
            error-file = /var/tmp/error_file.txt @required
            error-tolerence = 0.57 @default(2) @type(double,0,1)
            escapechar = " @default(\) @type(char)
@@ -128,7 +133,9 @@ the configuration object for this task is as shown below.
            mode = default @default(default) @type(string)
            quotechar = " @default('"') @type(char)
            quoting = no @default(false) @type(boolean)
+           session = "x1 @default(small-load -> 1, fastload -> 10)"
            skip-lines = 0 @default(0) @type(int)
+           truncate = yes @type(boolean)
         }
       }
      }
@@ -138,18 +145,21 @@ the configuration object for this task is as shown below.
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
- * loadsetting:
-    * load-path: path to load from (eg: /var/tmp/input.txt)
-    * header: boolean field to enable/disable headers
+ * load-setting:
+    * drop-recreate-table: drop and recreate the target table. This may be required for Fastload for restartablity
     * skip-lines: number of lines to skip in he table
-    * delimiter: delimiter of the file
-    * quoting: boolean field to indicate if the file is quoted.
     * quotechar: character to be used for quoting
-    * escapechar: escape character used in the file
-    * mode: mode of loading the table
-    * batch-size: loads into table will be grouped into batches of this size.
     * error-file: location of the file where rejected error records are saved
+    * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
+    * session: no of sessions used for the load
+    * load-path: path to load from (eg: /var/tmp/input.txt)
+    * mode: mode of loading the table
+    * header: boolean field to enable/disable headers
+    * escapechar: escape character used in the file
+    * batch-size: loads into table will be grouped into batches of this size.
+    * quoting: boolean field to indicate if the file is quoted.
+    * delimiter: delimiter of the file
 
      
 
@@ -172,15 +182,17 @@ The typical task ExportToFile configuration is as shown below
       {
         Component = Teradata
         Task = ExportToFile
-        dsn =  {
-         database = db @required
-         host = db-host @required
-         password = password @required
-         port = 1025 @default(1025)
-         username = username @required
+        param =  {
+         dsn =   {
+           database = db @required
+           host = db-host @required
+           password = password @required
+           port = 1025 @default(1025)
+           username = username @required
+        }
+         sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
+         sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
       }
-        sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
-        sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
      }
 
 
@@ -188,14 +200,14 @@ The typical task ExportToFile configuration is as shown below
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * export:
-    * file: location of the file to which data is to be exported. eg: /var/tmp/output.txt
-    * header: boolean literal to enable/disable header
-    * delimiter: character to be used for delimiter
-    * quoting: boolean literal to enable/disable quoting of fields.
-    * quotechar: quotechar to use if quoting is enabled.
-    * escapechar: escape character use for instance to escape delimiter values in field
     * sql: SQL query whose result-set will be exported.
+    * quotechar: quotechar to use if quoting is enabled.
+    * header: boolean literal to enable/disable header
+    * file: location of the file to which data is to be exported. eg: /var/tmp/output.txt
     * sqlfile: used in place of sql key to pass the file containing the SQL
+    * escapechar: escape character use for instance to escape delimiter values in field
+    * quoting: boolean literal to enable/disable quoting of fields.
+    * delimiter: character to be used for delimiter
 
      
 

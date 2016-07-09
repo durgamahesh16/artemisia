@@ -29,7 +29,7 @@ object TeraExportSetting {
         |  session = 1
         |}""".stripMargin
 
-  val fieldDescription = BasicExportSetting.fieldDescription :+ ("session" -> "")
+  val fieldDescription = BasicExportSetting.fieldDescription + ("session" -> "")
 
   val defaultConfig = BasicExportSetting.defaultConfig.withValue("session" , ConfigValueFactory.fromAnyRef(1))
 

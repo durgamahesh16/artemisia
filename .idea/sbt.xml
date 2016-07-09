@@ -37,7 +37,7 @@
             <option value="$PROJECT_DIR$/subprojects/components/database/postgres/project" />
           </set>
         </option>
-        <option name="sbtVersion" value="0.13.9" />
+        <option name="sbtVersion" value="0.13.5" />
         <option name="useAutoImport" value="true" />
         <option name="useOurOwnAutoImport" value="true" />
       </SbtProjectSettings>
@@ -51,7 +51,7 @@
             <option value="$PROJECT_DIR$/subprojects/components/database/teradata/project" />
           </set>
         </option>
-        <option name="sbtVersion" value="0.13.9" />
+        <option name="sbtVersion" value="0.13.5" />
         <option name="useAutoImport" value="true" />
         <option name="useOurOwnAutoImport" value="true" />
       </SbtProjectSettings>

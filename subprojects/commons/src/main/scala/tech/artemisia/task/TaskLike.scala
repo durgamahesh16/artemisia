@@ -40,17 +40,16 @@ trait TaskLike {
        | {
        |   ${Keywords.Task.COMPONENT} = $component
        |   ${Keywords.Task.TASK} = $taskName
-       |
        | }
-     """.stripMargin withFallback paramConfigDoc
-    HoconConfigUtil.render(config.root())
+     """.stripMargin
+    HoconConfigUtil.render(config.withValue("param", paramConfigDoc.root()).root())
   }
 
 
   /**
     * definition of the fields in task param config
     */
-  val fieldDefinition: Seq[(String, AnyRef)]
+  val fieldDefinition: Map[String, AnyRef]
 
 
   /**
@@ -95,10 +94,10 @@ trait TaskLike {
 object TaskLike {
 
 
-  def displayFieldListing(fieldDefinition: Seq[(String, AnyRef)], ident: Int = 0): String  = {
+  def displayFieldListing(fieldDefinition: Map[String, AnyRef], ident: Int = 0): String  = {
     fieldDefinition map {
       case (field, value: String) => s"${" " * ident}* $field: $value"
-      case (field, value: Seq[(String, AnyRef)] @unchecked) => s"${" " * ident}* $field:\n${displayFieldListing(value, ident+3)}"
+      case (field, value: Map[String, AnyRef] @unchecked) => s"${" " * ident}* $field:\n${displayFieldListing(value, ident+3)}"
     } mkString System.lineSeparator()
   }
 
