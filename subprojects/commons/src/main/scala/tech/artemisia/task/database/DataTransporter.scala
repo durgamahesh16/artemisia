@@ -78,7 +78,6 @@ trait DataTransporter {
 
 object DataTransporter {
 
-
   /**
     *
     * @param resultSet ResultSet to be exported

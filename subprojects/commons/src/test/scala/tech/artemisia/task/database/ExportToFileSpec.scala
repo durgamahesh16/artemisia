@@ -3,7 +3,7 @@ package tech.artemisia.task.database
 import java.io.File
 import tech.artemisia.TestSpec
 import tech.artemisia.core.Keywords
-import tech.artemisia.task.settings.{DBConnection, BasicExportSetting$}
+import tech.artemisia.task.settings.{DBConnection, BasicExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**

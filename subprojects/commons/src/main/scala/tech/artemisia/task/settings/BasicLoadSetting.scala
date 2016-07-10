@@ -15,9 +15,9 @@ import tech.artemisia.util.URIParser
  */
 case class BasicLoadSetting(override val location: URI, override val skipRows: Int = 0, override val delimiter: Char = ',',
                             override val quoting: Boolean = false, override val quotechar: Char = '"', override val escapechar: Char = '\\',
-                            override val truncate: Boolean, override val mode: String = "default", override val batchSize: Int = 100,
-                            override val rejectFile: Option[String] = None, override val errorTolerance: Option[Double] = None)
- extends LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, rejectFile, errorTolerance)
+                            override val truncate: Boolean = false, override val mode: String = "default", override val batchSize: Int = 100,
+                            override val errorTolerance: Option[Double] = None)
+ extends LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, errorTolerance)
 
 object BasicLoadSetting {
 
@@ -34,7 +34,6 @@ object BasicLoadSetting {
      | mode = "default @default(default) @type(string)"
      | batch-size = "200 @default(100)"
      | error-tolerence = "0.57 @default(2) @type(double,0,1)"
-     | error-file = "/var/tmp/error_file.txt @required"
      |}""".stripMargin
 
   val fieldDescription = Map(
@@ -48,7 +47,6 @@ object BasicLoadSetting {
      "truncate" -> "truncate the target table before loading data",
      "mode" -> "mode of loading the table",
      "batch-size" -> "loads into table will be grouped into batches of this size.",
-     "error-file" -> "location of the file where rejected error records are saved",
      "error-tolerance" -> "% of data that is allowable to get rejected value ranges from (0.00 to 1.00)"
   )
 
@@ -79,7 +77,6 @@ object BasicLoadSetting {
     escapechar = config.as[Char]("escapechar"),
     mode = config.as[String]("mode"),
     truncate = config.as[Boolean]("truncate"),
-    rejectFile = if (config.hasPath("error-file")) Some(config.as[String]("error-file")) else None,
     errorTolerance = config.getAs[Double]("error-tolerence"),
     batchSize = config.as[Int]("batch-size")
     )

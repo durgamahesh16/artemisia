@@ -1,7 +1,6 @@
 package tech.artemisia.task.database
 
 import java.sql.{Connection, DriverManager}
-
 import tech.artemisia.task.settings.DBConnection
 
 /**
@@ -12,7 +11,7 @@ object TestDBInterFactory {
   
   def withDefaultDataLoader(table: String, mode: Option[String] = None) = {
     val dbInterface: DBInterface = new DBInterface with DefaultDataTransporter  {
-      override def connection: Connection = {
+      override def getNewConnection: Connection = {
         val modeOption = (mode map { x => s"MODE=$x;" }).getOrElse("")
         Class.forName("org.h2.Driver")
         DriverManager.getConnection(s"jdbc:h2:mem:test;${modeOption}DB_CLOSE_DELAY=-1","","")

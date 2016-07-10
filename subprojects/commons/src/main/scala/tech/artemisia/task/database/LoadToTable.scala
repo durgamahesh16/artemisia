@@ -5,7 +5,6 @@ import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection, LoadSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 import scala.reflect.ClassTag
 
 /**
