@@ -30,10 +30,6 @@ class FastLoadErrorRecordHandler(tableName: String) {
     else if (message.head.contains(s"""${parsedTableName}_ERR_2""")) {
       processUV(message)
     }
-    else {
-      println("unknown message. neither ET nor UV")
-      println(message.mkString("\n"))
-    }
   }
 
   private def processET(message: Seq[String]) = {
@@ -70,13 +66,15 @@ class FastLoadErrorRecordHandler(tableName: String) {
   }
 
   private def displayETRecords() = {
-    val content = Array("Errorfield","Errorcode","Rowcount") +:
-    etRowsStats.toArray.map{ case (key ,value) => Array(key._1, key._2.toString, value.toString) }
-    AppLogger info
-      s"""
+    if (etRowsStats.nonEmpty) {
+      val content = Array("Errorfield", "Errorcode", "Rowcount") +:
+        etRowsStats.toArray.map { case (key, value) => Array(key._1, key._2.toString, value.toString) }
+      AppLogger info
+        s"""
          /Summary of ET records
          /${Util.prettyPrintAsciiTable(content)}
        """.stripMargin('/')
+      }
   }
 
   def close() = {

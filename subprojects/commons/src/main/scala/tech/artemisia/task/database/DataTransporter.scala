@@ -92,12 +92,19 @@ object DataTransporter {
     val buffer = new BufferedWriter(new FileWriter(new File(exportSettings.file)))
     val csvWriter = new CSVWriter(buffer, exportSettings.delimiter,
       if (exportSettings.quoting) exportSettings.quotechar else CSVWriter.NO_QUOTE_CHARACTER, exportSettings.escapechar)
-    val data = DBUtil.streamResultSet(resultSet, header = exportSettings.header)
-    for (record <- data) {
-      recordCounter += 1
-      csvWriter.writeNext(record)
+
+    val columnCount = resultSet.getMetaData.getColumnCount
+    if (exportSettings.header) {
+      val header = for (i <- 1 to columnCount) yield { resultSet.getMetaData.getColumnLabel(i) }
+      csvWriter.writeNext(header.toArray)
     }
-    recordCounter = if (exportSettings.header) recordCounter -1 else recordCounter // recordCounter counts header too
+
+    while(resultSet.next()) {
+      val record = for ( i <- 1 to columnCount) yield { resultSet.getString(i) }
+      recordCounter += 1
+      csvWriter.writeNext(record.toArray)
+    }
+
     buffer.close()
     AppLogger info s"exported $recordCounter rows to ${exportSettings.file.getPath}"
     recordCounter

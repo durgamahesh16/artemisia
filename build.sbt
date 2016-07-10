@@ -10,6 +10,8 @@ coverageEnabled.in(ThisBuild ,Test, test) := true
 
 //addCommandAlias("full-test", "clean;test;coverageReport")
 
+javaOptions in Universal += "-J-Xmx4g"
+
 
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"))

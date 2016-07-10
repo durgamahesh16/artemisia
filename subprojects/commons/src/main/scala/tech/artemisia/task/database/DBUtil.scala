@@ -59,32 +59,6 @@ object DBUtil {
   }
 
 
-  /**
-    *
-    * @param rs input ResultSet
-    * @param header include header
-    * @return Stream of records represented as array of columns
-    */
-  def streamResultSet(rs: ResultSet, header: Boolean = false) = {
-    val columnCount = rs.getMetaData.getColumnCount
-
-    def nextRecord: Stream[Array[String]] = {
-      if (rs.next()) {
-        val record = for ( i <- 1 to columnCount) yield { rs.getString(i) }
-        Stream.cons(record.toArray,nextRecord)
-      } else {
-        Stream.empty
-      }
-    }
-
-    if (header) {
-      val headerRow = for (i <- 1 to columnCount) yield { rs.getMetaData.getColumnLabel(i) }
-      Stream.cons(headerRow.toArray, nextRecord)
-    }
-    else
-      nextRecord
-  }
-
 
   /**
     * execute DML statements and returns either scala.util.Success with number of records updated or
