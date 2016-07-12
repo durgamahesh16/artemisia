@@ -19,7 +19,7 @@ class MySQLDataTransporterSpec extends TestSpec {
       override def getNewConnection: Connection = ???
     }
     val ex = intercept[UnsupportedOperationException]{
-      transporter.exportData(sql, exportSetting)
+      transporter.export(sql, exportSetting)
     }
     ex.getMessage must be ("bulk export utility is not supported")
   }

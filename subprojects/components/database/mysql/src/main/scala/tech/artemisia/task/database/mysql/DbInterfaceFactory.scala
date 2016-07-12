@@ -1,7 +1,7 @@
 package tech.artemisia.task.database.mysql
 
 import java.sql.{Connection, DriverManager}
-import tech.artemisia.task.database.{DBInterface, DefaultDataTransporter}
+import tech.artemisia.task.database._
 import tech.artemisia.task.settings.DBConnection
 
 
@@ -33,7 +33,7 @@ object DbInterfaceFactory {
    *
    * @param connectionProfile ConnectionProfile object
    */
-  class DefaultDBInterface(connectionProfile: DBConnection) extends DBInterface with DefaultDataTransporter {
+  class DefaultDBInterface(connectionProfile: DBConnection) extends DBInterface with DefaultDBExporter with DefaultDBBatchImporter {
     override def getNewConnection: Connection = {
       getConnection(connectionProfile)
     }

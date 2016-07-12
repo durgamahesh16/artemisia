@@ -39,7 +39,7 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
     * @return any output of the work phase be encoded as a HOCON Config object.
    */
   override def work(): Config = {
-    val (totalRows, rejectedCnt) = dbInterface.load(tableName, loadSettings)
+    val (totalRows, rejectedCnt) = dbInterface.loadTable(tableName, loadSettings)
     AppLogger info s"${totalRows - rejectedCnt} rows loaded into table $tableName"
     AppLogger info s"$rejectedCnt row were rejected"
     wrapAsStats {

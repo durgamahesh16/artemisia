@@ -1,22 +1,22 @@
 package tech.artemisia.task.database.mysql
 
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.database.{DBInterface, DataTransporter}
+import tech.artemisia.task.database.{DBImporter, DBDataExporter, DBInterface}
 import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 
 /**
  * Created by chlr on 5/1/16.
  */
 
-trait MySQLDataTransporter extends DataTransporter {
+trait MySQLDataTransporter extends DBDataExporter with DBImporter {
   self: DBInterface =>
 
-  override def loadData(tableName: String, loadSettings: LoadSetting) = {
+  override def load(tableName: String, loadSettings: LoadSetting) = {
     AppLogger debug "error file is ignored in this mode"
     this.execute(MySQLDataTransporter.getLoadSQL(tableName, loadSettings)) -> 0L
   }
 
-  override def exportData(sql: String, exportSetting: ExportSetting) = {
+  override def export(sql: String, exportSetting: ExportSetting) = {
     throw new UnsupportedOperationException("bulk export utility is not supported")
   }
 

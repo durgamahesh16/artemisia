@@ -59,7 +59,6 @@ object DBUtil {
   }
 
 
-
   /**
     * execute DML statements and returns either scala.util.Success with number of records updated or
     * scala.util.Failure with the throwable object

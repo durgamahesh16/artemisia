@@ -15,18 +15,19 @@ import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
   *
   * @param tableName name of the table
   * @param loadSettings load settings
-  * @param dBInterface database interface object
+  * @param dbInterface database interface object
   */
-abstract class BaseDBWriter(tableName: String, loadSettings: LoadSetting, dBInterface: DBInterface) {
 
 
-  def preLoad(): Unit = ()
 
-  def postLoad(): Unit = ()
+
+
+abstract class BaseDBBatchWriter(tableName: String, loadSettings: LoadSetting, dbInterface: DBInterface)  {
+
 
   protected val tableMetadata = {
     val parsedTableName = DBUtil.parseTableName(tableName)
-    dBInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector
+    dbInterface.getTableMetadata(parsedTableName._1, parsedTableName._2).toVector
   }
 
   protected val stmt = {
@@ -34,13 +35,11 @@ abstract class BaseDBWriter(tableName: String, loadSettings: LoadSetting, dBInte
       s"""|INSERT INTO $tableName (${tableMetadata.map({_._1}).mkString(",")})
           |VALUES (${tableMetadata.map({ x => "?" }).mkString(",")})
        """.stripMargin
-    dBInterface.connection.prepareStatement(insertSQL)
+    dbInterface.connection.prepareStatement(insertSQL)
   }
 
-  protected val errorWriter = new CSVFileWriter(BasicExportSetting(TaskContext.getTaskFile("error.txt").toURI,false,
-    '\u0001',false))
-
-  def processRow(row: Array[String])
+  protected val errorWriter = new CSVFileWriter(BasicExportSetting(TaskContext.getTaskFile("error.txt").toURI,header = false,
+    '\u0001',quoting = false))
 
   def processBatch(batch: Array[Array[String]])
 

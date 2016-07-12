@@ -27,7 +27,7 @@ import tech.artemisia.util.Util
  */
 trait DBInterface {
 
-  self: DataTransporter =>
+  self: DBImporter with DBDataExporter =>
 
   /**
    *  JDBC connection object
@@ -101,7 +101,7 @@ trait DBInterface {
     * @return no of records exported
     */
   def export(sql: String, exportSetting: ExportSetting): Long = {
-    self.exportData(sql, exportSetting)
+      self.export(sql, exportSetting)
   }
 
   /**
@@ -111,8 +111,8 @@ trait DBInterface {
    * @param loadSettings load settings
    * @return tuple of total records in source and number of records rejected
    */
-  def load(tableName: String, loadSettings: LoadSetting) = {
-    val (total,rejected) = self.loadData(tableName, loadSettings)
+  def loadTable(tableName: String, loadSettings: LoadSetting) = {
+    val (total,rejected) = self.load(tableName, loadSettings)
       loadSettings.errorTolerance foreach {
         val errorPct = (rejected.asInstanceOf[Float] / total) * 100
         x => assert( errorPct < x , s"Load Error % ${"%3.2f".format(errorPct)} greater than defined limit: ${x * 100}")
