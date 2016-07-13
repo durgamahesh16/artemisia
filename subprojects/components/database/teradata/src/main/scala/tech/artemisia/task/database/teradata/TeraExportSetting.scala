@@ -16,18 +16,7 @@ case class TeraExportSetting(override val file: URI, override val header: Boolea
 
 object TeraExportSetting {
 
-  val structure =
-    s"""|{
-        |  file = /var/tmp/file.out @required
-        |  header =  yes @default(false) @type(boolean)
-        |  delimiter = '|' @default(",") @type(char)
-        |  quoting = yes @default(false) @type(boolean)
-        |  quotechar = "\"" @default('"') @type(char)
-        |  escapechar = "\\" @default("\") @type(char)
-        |  sql = "select * from table" @required
-        |  mode = @default("default")
-        |  session = 1
-        |}""".stripMargin
+  val structure = BasicExportSetting.structure.withValue("session", ConfigValueFactory.fromAnyRef("1"))
 
   val fieldDescription = BasicExportSetting.fieldDescription + ("session" -> "number of sessions to use.")
 

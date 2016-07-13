@@ -124,8 +124,6 @@ the configuration object for this task is as shown below.
          load-setting =   {
            batch-size = 200 @default(100)
            delimiter = '|' @default(',') @type(char)
-           drop-recreate-table = no @default(false)
-           error-file = /var/tmp/error_file.txt @required
            error-tolerence = 0.57 @default(2) @type(double,0,1)
            escapechar = " @default(\) @type(char)
            header = no @default(false) @type(boolean)
@@ -133,6 +131,7 @@ the configuration object for this task is as shown below.
            mode = default @default(default) @type(string)
            quotechar = " @default('"') @type(char)
            quoting = no @default(false) @type(boolean)
+           recreate-table = no @default(false)
            session = "x1 @default(small-load -> 1, fastload -> 10)"
            skip-lines = 0 @default(0) @type(int)
            truncate = yes @type(boolean)
@@ -146,10 +145,8 @@ the configuration object for this task is as shown below.
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
  * load-setting:
-    * drop-recreate-table: drop and recreate the target table. This may be required for Fastload for restartablity
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
-    * error-file: location of the file where rejected error records are saved
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * session: no of sessions used for the load
@@ -160,6 +157,7 @@ the configuration object for this task is as shown below.
     * batch-size: loads into table will be grouped into batches of this size.
     * quoting: boolean field to indicate if the file is quoted.
     * delimiter: delimiter of the file
+    * recreate-table: drop and recreate the target table. This may be required for Fastload for restartablity
 
      
 

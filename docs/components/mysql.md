@@ -103,7 +103,6 @@ the configuration object for this task is as shown below.
          load-setting =   {
            batch-size = 200 @default(100)
            delimiter = '|' @default(',') @type(char)
-           error-file = /var/tmp/error_file.txt @required
            error-tolerence = 0.57 @default(2) @type(double,0,1)
            escapechar = " @default(\) @type(char)
            header = no @default(false) @type(boolean)
@@ -125,7 +124,6 @@ the configuration object for this task is as shown below.
  * load-setting:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
-    * error-file: location of the file where rejected error records are saved
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * load-path: path to load from (eg: /var/tmp/input.txt)

@@ -13,7 +13,10 @@ class TeraComponent(name: String) extends Component(name: String) {
 
   override val defaultConfig: Config = ConfigFactory parseString
     """
+      | {
+      | dsn = { port: 1025 }
       | load-setting.mode = default
+      | }
     """.stripMargin
 
   override val info: String = "This Component supports exporting loading and executing queries against Teradata database"

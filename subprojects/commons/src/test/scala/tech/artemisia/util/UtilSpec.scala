@@ -38,5 +38,13 @@ class UtilSpec extends TestSpec {
      Util.getGlobalConfigFile(None, defaultConfig =  "a_dummy_non_existant_file") must be (None)
   }
 
+  it must "pretty print an ascii table" in {
+    val content = Array(Array("Col1", "Col2"), Array("r1c1", "r1c2"), Array("r2c1", "r2c2"))
+    val result = Util.prettyPrintAsciiTable(content)
+    result.head must be ("| Col1  | Col2  |")
+    result(1) must be ("|-------|-------|")
+    result(2) must be ("| r1c1  | r1c2  |")
+  }
+
 
 }

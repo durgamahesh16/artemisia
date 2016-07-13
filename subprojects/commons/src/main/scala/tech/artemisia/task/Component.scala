@@ -46,7 +46,6 @@ abstract class Component(val name: String) {
     }
   }
 
-
   /**
     * one line description of the Component
     */
@@ -68,13 +67,6 @@ abstract class Component(val name: String) {
         /${Util.prettyPrintAsciiTable(taskTable.toArray)}
         /
      """.stripMargin('/')
-  }
-
-
-  private def componentTaskTableDim = {
-    val minimumTaskWidth = 13
-    val minimumInfoWidth = 25
-    (tasks.map(_.taskName.length).max + 5).max(minimumTaskWidth) -> (tasks.map(_.info.length).max + 5).max(minimumInfoWidth)
   }
 
 

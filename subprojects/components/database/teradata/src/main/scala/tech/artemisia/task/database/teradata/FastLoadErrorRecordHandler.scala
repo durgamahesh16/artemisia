@@ -2,12 +2,10 @@ package tech.artemisia.task.database.teradata
 
 import java.io.{BufferedWriter, FileWriter}
 import javax.xml.bind.DatatypeConverter
-
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.TaskContext
 import tech.artemisia.task.database.DBUtil
 import tech.artemisia.util.Util
-
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
@@ -49,7 +47,7 @@ class FastLoadErrorRecordHandler(tableName: String) {
     val dataParcel = Try(dataParcelLenRgx.findFirstMatchIn(message(3)).map(_.group(1).toInt).getOrElse(-1)) match {
       case Success(x) if x > 0 => {
         val rgx = s"[0-9]{5}\\s+(.{${x * 3}})".r
-        Try(rgx.findFirstMatchIn(message(5)).map(x => DatatypeConverter.parseHexBinary(x.group(1).replace(" ",""))).map(new String(_))).getOrElse("") match {
+        Try(rgx.findFirstMatchIn(message(5)).map(x => DatatypeConverter.parseHexBinary(x.group(1).replace(" ",""))).map(new String(_)).getOrElse("")) match {
           case Success(y) => y
           case _ => ""
         }
@@ -72,7 +70,7 @@ class FastLoadErrorRecordHandler(tableName: String) {
       AppLogger info
         s"""
          /Summary of ET records
-         /${Util.prettyPrintAsciiTable(content)}
+         /${Util.prettyPrintAsciiTable(content).mkString(System.lineSeparator())}
        """.stripMargin('/')
       }
   }

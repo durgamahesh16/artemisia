@@ -103,7 +103,7 @@ object Util {
     * @param content two dimensional array representation of the table
     * @return content in ascii table string
     */
-  def prettyPrintAsciiTable(content: Array[Array[String]]) = {
+  def prettyPrintAsciiTable(content: Array[Array[String]]): Seq[String] = {
 
     val tableDimensions = content.foldLeft(for(i <- 1 to content(0).length) yield 0 ) {
       (carry , input) => {
@@ -118,8 +118,8 @@ object Util {
     content.toList match {
       case head :: Nil => composeRow(head) :: composeRow(tableDimensions.map("-"* _ ).toArray) :: Nil
       case head :: tail => {
-        val x = composeRow(head) :: composeRow(tableDimensions.map("-"* _ ).toArray, divider = true) :: tail.map(composeRow(_))
-        (x mkString "|\n") + "|"
+        val x = composeRow(head) :: composeRow(tableDimensions.map("-" * _).toArray, divider = true) :: tail.map(composeRow(_))
+        ((x mkString s"|${System.lineSeparator()}") + "|") split System.lineSeparator
       }
       case Nil => throw new RuntimeException("content cannot be empty")
     }

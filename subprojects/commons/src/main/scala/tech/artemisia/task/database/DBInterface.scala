@@ -47,7 +47,6 @@ trait DBInterface {
    * @return result object
    */
   def query(sql: String, printSQL: Boolean = true): ResultSet = {
-    AppLogger info "executing query"
     if(printSQL)
         AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
     val stmt = connection.prepareStatement(sql)

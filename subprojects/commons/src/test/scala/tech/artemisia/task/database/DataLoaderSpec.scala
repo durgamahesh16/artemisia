@@ -6,7 +6,6 @@ import tech.artemisia.task.TaskContext
 import tech.artemisia.task.settings.BasicLoadSetting
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 import scala.io.Source
 
 
