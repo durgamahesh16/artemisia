@@ -44,6 +44,8 @@ object LoadToTable extends TaskLike {
 
   override val info = database.LoadToTable.info
 
+  override val defaultConfig = ConfigFactory.empty().withValue("load-setting", TeraLoadSetting.defaultConfig.root())
+
   override val taskName = database.LoadToTable.taskName
 
   override def apply(name: String, config: Config) = {

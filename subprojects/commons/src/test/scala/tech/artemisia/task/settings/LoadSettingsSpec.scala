@@ -23,7 +23,7 @@ class LoadSettingsSpec extends TestSpec {
         |	escapechar = "\\"
         |	quotechar = "\""
         |}
-      """.stripMargin
+      """.stripMargin withFallback BasicLoadSetting.defaultConfig
     val setting = BasicLoadSetting(config)
     setting.escapechar must be ('\\')
     setting.skipRows must be (10)

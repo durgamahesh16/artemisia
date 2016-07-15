@@ -1,6 +1,6 @@
 package tech.artemisia.task.database.postgres
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
@@ -20,6 +20,8 @@ class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: DBCon
 object SQLRead extends TaskLike {
 
   override val taskName = database.SQLRead.taskName
+
+  override val defaultConfig = ConfigFactory.empty()
 
   override val info = database.SQLRead.info
 

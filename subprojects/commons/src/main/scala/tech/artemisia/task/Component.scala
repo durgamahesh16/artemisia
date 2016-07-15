@@ -40,7 +40,7 @@ abstract class Component(val name: String) {
    */
   def dispatchTask(task: String, name: String, config: Config): Task = {
     tasks filter { _.taskName == task } match {
-      case x :: Nil => x.apply(name, config withFallback defaultConfig)
+      case x :: Nil => x.apply(name, config withFallback x.defaultConfig withFallback defaultConfig);
       case Nil => throw new UnknownTaskException(s"unknown task $task in component $name")
       case _ => throw new RuntimeException(s"multiple tasks named $task is register component $name")
     }

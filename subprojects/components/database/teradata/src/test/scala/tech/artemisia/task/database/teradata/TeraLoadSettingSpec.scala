@@ -26,7 +26,7 @@ class TeraLoadSettingSpec extends TestSpec {
       |   session = 20
       |   recreate-table = yes
       |}
-    """.stripMargin
+    """.stripMargin withFallback TeraLoadSetting.defaultConfig
     val setting = TeraLoadSetting(config)
     setting.recreateTable mustBe true
     setting.sessions must be (20)

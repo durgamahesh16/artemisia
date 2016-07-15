@@ -32,9 +32,8 @@ object TeraLoadSetting {
             .withValue("recreate-table", ConfigValueFactory.fromAnyRef(false))
 
 
-  def apply(inputConfig: Config): TeraLoadSetting = {
-    val config = inputConfig withFallback defaultConfig
-    val loadSetting = BasicLoadSetting(inputConfig)
+  def apply(config: Config): TeraLoadSetting = {
+    val loadSetting = BasicLoadSetting(config)
     TeraLoadSetting(loadSetting.location, loadSetting.skipRows, loadSetting.delimiter, loadSetting.quoting
       ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.truncate, loadSetting.mode, loadSetting.batchSize
       ,loadSetting.errorTolerance, config.as[Boolean]("recreate-table") ,config.as[Int]("session")

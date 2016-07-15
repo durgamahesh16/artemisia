@@ -51,7 +51,7 @@ object EmailConnection extends ConnectionHelper {
     "reply-to" -> "replies to the sent email will be addressed to this address"
   )
 
-  val defaultConfig = ConfigFactory parseString
+   val defaultConfig = ConfigFactory parseString
    s"""
       |{
       |  ssl = no
@@ -59,8 +59,7 @@ object EmailConnection extends ConnectionHelper {
       |}
     """.stripMargin
 
-  def apply(inputConfig: Config): EmailConnection = {
-    val config = inputConfig withFallback defaultConfig
+  def apply(config: Config): EmailConnection = {
     EmailConnection(
       host = config.as[String]("host"),
       port = config.as[Int]("port"),

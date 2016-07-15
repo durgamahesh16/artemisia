@@ -66,8 +66,7 @@ object BasicLoadSetting {
       |}
     """.stripMargin
 
-  def apply(inputConfig: Config): BasicLoadSetting = {
-    val config = inputConfig withFallback defaultConfig
+  def apply(config: Config): BasicLoadSetting = {
     BasicLoadSetting (
     location = URIParser.parse(config.as[String]("load-path")),
     skipRows = if (config.as[Int]("skip-lines") == 0) if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),

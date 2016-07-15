@@ -21,7 +21,7 @@ class ExportSettingsSpec extends TestSpec {
           |	escapechar = "\\"
           |	quotechar = "\""
           |}
-        """.stripMargin
+        """.stripMargin withFallback BasicExportSetting.defaultConfig
     val setting = BasicExportSetting(config)
     setting.escapechar must be ('\\')
     setting.header must be (true)

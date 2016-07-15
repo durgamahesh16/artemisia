@@ -65,8 +65,7 @@ object ScriptTask extends TaskLike {
       | }
     """.stripMargin
 
-  override def apply(name: String, inputConfig: Config) = {
-    val config = inputConfig withFallback defaultConfig
+  override def apply(name: String, config: Config) = {
     new ScriptTask (
       name
      ,script = config.as[String]("script")

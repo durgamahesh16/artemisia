@@ -63,8 +63,7 @@ object BasicExportSetting {
       |	}
     """.stripMargin
 
-  def apply(inputConfig: Config): BasicExportSetting = {
-    val config = inputConfig withFallback defaultConfig
+  def apply(config: Config): BasicExportSetting = {
     BasicExportSetting(
       file = FileSystemUtil.makeURI(config.as[String]("file")),
       header = config.as[Boolean]("header"),

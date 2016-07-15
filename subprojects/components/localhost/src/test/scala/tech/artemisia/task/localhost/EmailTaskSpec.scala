@@ -48,7 +48,7 @@ class EmailTaskSpec extends TestSpec {
   }
 
   "EmailConnect" must "construct itself with a config" in {
-    val config =  EmailTaskSpec.defaultConnectionConfig
+    val config =  EmailTaskSpec.defaultConnectionConfig withFallback EmailConnection.defaultConfig
 
     val connection = EmailConnection(config)
 
@@ -66,7 +66,7 @@ class EmailTaskSpec extends TestSpec {
     withTempFile(fileName = "email_builder.txt") {
       file =>
           val request = EmailRequest(EmailTaskSpec.defaultEmailRequestConfig) copy (attachments = Seq(Some("File.txt") -> file))
-          val connection = EmailConnection(EmailTaskSpec.defaultConnectionConfig)
+          val connection = EmailConnection(EmailTaskSpec.defaultConnectionConfig withFallback EmailConnection.defaultConfig)
           val builder = new EmailBuilder(Some(connection))
           val email = builder.build(request)
           email.getToAddresses.asScala map { _.asInstanceOf[InternetAddress].getAddress }  must be(Seq("x@example.com"))

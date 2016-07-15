@@ -35,7 +35,7 @@ object EmailTask extends TaskLike {
   override val taskName: String = "EmailTask"
 
   override val defaultConfig: Config = ConfigFactory.empty()
-                .withValue("connection", EmailConnection.defaultConfig.root())
+    .withValue("connection", EmailConnection.defaultConfig.root())
 
   override val info: String = s"$taskName is used to send Emails."
 

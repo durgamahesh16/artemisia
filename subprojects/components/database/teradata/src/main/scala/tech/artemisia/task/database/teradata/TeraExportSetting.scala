@@ -23,9 +23,8 @@ object TeraExportSetting {
   val defaultConfig = BasicExportSetting.defaultConfig.withValue("session" , ConfigValueFactory.fromAnyRef(1))
 
 
-  def apply(inputConfig: Config): TeraExportSetting = {
-    val config = inputConfig withFallback defaultConfig
-    val loadSetting = BasicExportSetting(inputConfig)
+  def apply(config: Config): TeraExportSetting = {
+    val loadSetting = BasicExportSetting(config)
     TeraExportSetting(loadSetting.file, loadSetting.header, loadSetting.delimiter, loadSetting.quoting
       ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.mode,config.as[Int]("session"))
   }

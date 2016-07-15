@@ -22,7 +22,7 @@ class TeraExportSettingSpec extends TestSpec {
         |	quotechar = "\""
         | session = 100
         |}
-      """.stripMargin
+      """.stripMargin withFallback TeraExportSetting.defaultConfig
 
     val setting = TeraExportSetting(config)
     setting.delimiter must be ('\t')

@@ -2,7 +2,7 @@ package tech.artemisia.core
 
 import java.io.File
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import tech.artemisia.task.Component
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -16,7 +16,7 @@ class ReferenceGenerator {
     val components = config.getConfig(s"${Keywords.Config.SETTINGS_SECTION}.components").asMap[String](s"${Keywords.Config.SETTINGS_SECTION}.components") map {
       case (name,component) => { (name, Class.forName(component).getConstructor(classOf[String]).newInstance(name).asInstanceOf[Component] ) }
     }
-    components.foldLeft(ConfigFactory.empty()){ (x: Config, y: Config) => x withFallback y }
+  //  components.foldLeft(ConfigFactory.empty()){ (x: Config, y: Config) => x withFallback y }
   }
 
 }

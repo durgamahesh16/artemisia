@@ -27,7 +27,7 @@ object TestAdderTask extends TaskLike {
   override val desc: String = ""
   override val paramConfigDoc = ConfigFactory.empty()
   override val fieldDefinition = Map[String, AnyRef]()
-
+  override val defaultConfig: Config = ConfigFactory.empty()
 }
 
 
@@ -44,7 +44,7 @@ object TestFailTask extends TaskLike {
   override def apply(name: String, param: Config) = {
     new TestFailTask(name)
   }
-
+  override val defaultConfig: Config = ConfigFactory.empty()
   override val taskName: String = "TestFailTask"
   override def doc(component: String): String = "This is a sample test task that always fail"
   override val info: String = "test fail task"

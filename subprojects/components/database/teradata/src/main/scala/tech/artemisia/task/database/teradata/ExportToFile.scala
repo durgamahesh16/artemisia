@@ -4,7 +4,7 @@ package tech.artemisia.task.database.teradata
   * Created by chlr on 6/26/16.
   */
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
@@ -33,6 +33,8 @@ object ExportToFile extends TaskLike {
 
   override val taskName = database.ExportToFile.taskName
 
+  override val defaultConfig = ConfigFactory.empty().withValue("export",TeraExportSetting.defaultConfig.root())
+
   override def apply(name: String,config: Config) = {
     val exportSettings = TeraExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
@@ -48,7 +50,7 @@ object ExportToFile extends TaskLike {
 
   override val desc: String = database.ExportToFile.desc
 
-  override val paramConfigDoc = database.SQLRead.paramConfigDoc(1025)
+  override val paramConfigDoc = database.ExportToFile.paramConfigDoc(1025)
 
   override val fieldDefinition = database.ExportToFile.fieldDefinition
 
