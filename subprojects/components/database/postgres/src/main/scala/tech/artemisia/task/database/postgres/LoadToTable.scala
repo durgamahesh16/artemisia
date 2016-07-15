@@ -1,6 +1,6 @@
 package tech.artemisia.task.database.postgres
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection}
 import tech.artemisia.task.{TaskLike, database}
@@ -31,6 +31,9 @@ class LoadToTable(name: String = Util.getUUID, tableName: String, connectionProf
 object LoadToTable extends TaskLike {
 
   override val info = database.LoadToTable.info
+
+  override val defaultConfig: Config = ConfigFactory.empty()
+            .withValue("load-setting", BasicLoadSetting.defaultConfig.root())
 
   override val taskName = database.LoadToTable.taskName
 

@@ -8,11 +8,10 @@ assemblySettings
 
 coverageEnabled.in(ThisBuild ,Test, test) := true
 
-javaOptions in Universal += "-J-Xmx4g"
-
 
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
-  .settings(General.settings("artemisia"))
+  .settings(General.settings("artemisia"),
+    bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/settings.conf"""")
   .settings(libraryDependencies ++= Artemisia.dependencies,
           mainClass in Compile := Some("tech.artemisia.core.Main"),
     fullRunTask(TaskKey[Unit]("docgen"), Compile, "tech.artemisia.core.DocGenerator", "/Users/chlr/dev/T800/projects/artemisia"))

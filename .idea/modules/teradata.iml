@@ -20,7 +20,6 @@
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/scala-2.10" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/streams" />
-      <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/test-reports" />
       <excludeFolder url="file://$MODULE_DIR$/../../subprojects/components/database/teradata/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />

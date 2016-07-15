@@ -16,6 +16,11 @@ trait TaskLike {
   val taskName: String
 
   /**
+    *
+    */
+  val defaultConfig: Config
+
+  /**
     * one line info about the task
     */
   val info: String

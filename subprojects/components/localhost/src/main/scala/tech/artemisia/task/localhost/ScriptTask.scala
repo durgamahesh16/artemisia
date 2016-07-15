@@ -55,7 +55,7 @@ object ScriptTask extends TaskLike {
 
   override val info = "executes script with customizable interpreter"
 
-  val defaultConfig = ConfigFactory parseString
+  override val defaultConfig = ConfigFactory parseString
     s"""
       | {
       |   interpreter = "/bin/sh"

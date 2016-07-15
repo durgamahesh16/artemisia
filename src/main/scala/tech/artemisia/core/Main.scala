@@ -8,6 +8,7 @@ object Main {
   var show_usage_on_error = true
 
   def main(args: Array[String]): Unit = {
+    println(System.getProperty("config.file"))
     Thread.currentThread().setName(Keywords.APP)
     parseCmdLineArguments(args,show_usage_on_error) match {
       case cmdLineParams @ AppSetting(Some("run"), Some(_), _, _, _, _, _, _, _, _) => Command.run(cmdLineParams)

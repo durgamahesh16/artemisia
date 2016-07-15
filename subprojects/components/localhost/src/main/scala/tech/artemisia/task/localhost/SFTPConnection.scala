@@ -1,7 +1,8 @@
 package tech.artemisia.task.localhost
 
 import java.io.File
-import com.typesafe.config.Config
+
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.settings.ConnectionHelper
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -16,6 +17,13 @@ case class SFTPConnection(host: String, port: Int = 22, username: String, passwo
 object SFTPConnection extends ConnectionHelper {
 
   type T = SFTPConnection
+
+  val defaultConfig = ConfigFactory parseString
+    s"""
+       | {
+       |   port = 22
+       | }
+     """.stripMargin
 
   val configStructure =
     s"""|  "connection_[0]" = sftp_connection_name

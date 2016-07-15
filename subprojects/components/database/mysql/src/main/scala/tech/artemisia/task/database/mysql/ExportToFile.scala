@@ -1,9 +1,9 @@
 package tech.artemisia.task.database.mysql
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.TaskLike
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{DBConnection, BasicExportSetting}
+import tech.artemisia.task.settings.{BasicExportSetting, DBConnection}
 import tech.artemisia.task.database
 
 /**
@@ -24,6 +24,9 @@ class ExportToFile(name: String, sql: String, connectionProfile: DBConnection ,e
 object ExportToFile extends TaskLike {
 
   override val taskName = database.ExportToFile.taskName
+
+  override val defaultConfig: Config = ConfigFactory.empty()
+              .withValue("export",BasicExportSetting.defaultConfig.root())
 
   override def apply(name: String,config: Config) = database.ExportToFile.create[ExportToFile](name, config)
 

@@ -33,7 +33,7 @@ abstract class Component(val name: String) {
    * }}}
    *
    *
-   * @param task task the Component has to execute
+   * @param task task the Component has to wexecute
    * @param name name assigned to the instance of the task
    * @param config HOCON config payload with configuration data for the task
    * @return an instance of [[Task]]

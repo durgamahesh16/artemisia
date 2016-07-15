@@ -51,7 +51,7 @@ object EmailConnection extends ConnectionHelper {
     "reply-to" -> "replies to the sent email will be addressed to this address"
   )
 
-  private val defaultConfig = ConfigFactory parseString
+  val defaultConfig = ConfigFactory parseString
    s"""
       |{
       |  ssl = no

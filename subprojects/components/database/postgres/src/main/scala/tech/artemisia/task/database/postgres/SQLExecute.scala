@@ -1,6 +1,6 @@
 package tech.artemisia.task.database.postgres
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
@@ -29,6 +29,8 @@ class SQLExecute(name: String, sql: String, connectionProfile: DBConnection) ext
 object SQLExecute extends TaskLike {
 
   override val taskName = database.SQLExecute.taskName
+
+  override val defaultConfig: Config = ConfigFactory.empty()
 
   override def apply(name: String, config: Config) = database.SQLExecute.create[SQLExecute](name, config)
 
