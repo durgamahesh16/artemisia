@@ -1,6 +1,6 @@
 package tech.artemisia.task
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.inventory.exceptions.UnknownTaskException
 import tech.artemisia.util.Util
 /**
@@ -24,6 +24,17 @@ abstract class Component(val name: String) {
     * default config applicable to all task
     */
   val defaultConfig: Config
+
+
+  /**
+    * consolidated config structure for the component
+    */
+  final def consolidateDefaultConfig = tasks.foldLeft(ConfigFactory.empty.withValue(name, ConfigFactory.empty.root())) {
+       (carry: Config, task: TaskLike) =>
+        ConfigFactory.empty
+          .withValue(s"$name.${task.taskName}",task.defaultConfig.root() withFallback defaultConfig)
+          .withFallback(carry)
+  }
 
   /**
    * returns an instance of [[Task]] configured via the config object

@@ -132,7 +132,7 @@ object HoconConfigUtil {
         s"""|[${config.unwrapped().asScala map { ConfigValueFactory.fromAnyRef } map { render(_, indent+1) } mkString ", "}]""".stripMargin
       }
       case config => {
-        config.unwrapped().toString
+        config.render(ConfigRenderOptions.concise())
       }
     }
   }

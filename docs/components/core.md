@@ -5,11 +5,7 @@ Core
 
 Component that supports core tasks of Artemisia
 
-| Task        | Description                                                                                 |
-|-------------|---------------------------------------------------------------------------------------------|
-| ScriptTask  | executes script with customizable interpreter                                               |
-| EmailTask   | EmailTask is used to send Emails.                                                           |
-| SFTPTask    | SFTPTask supports copying files from remote sftp server to local filesystem and vice versa  |
+WrappedArray(| Task        | Description                                                                                 |, |-------------|---------------------------------------------------------------------------------------------|, | ScriptTask  | executes script with customizable interpreter                                               |, | EmailTask   | EmailTask is used to send Emails.                                                           |, | SFTPTask    | SFTPTask supports copying files from remote sftp server to local filesystem and vice versa  |)
 
      
 
@@ -25,15 +21,15 @@ Component that supports core tasks of Artemisia
 
 
       {
-        Component = Core
-        Task = ScriptTask
+        Component = "Core"
+        Task = "ScriptTask"
         param =  {
          params =   {
-           cwd = /var/tmp @default(<your current working directory>)
-           env = { foo = bar, hello = world } @default(<empty object>)
-           interpreter = /usr/local/bin/sh @default(/bin/sh)
-           parse-output = yes @default(false)
-           script = echo Hello World @required
+           cwd = "/var/tmp @default(<your current working directory>)"
+           env = "{ foo = bar, hello = world } @default(<empty object>)"
+           interpreter = "/usr/local/bin/sh @default(/bin/sh)"
+           parse-output = "yes @default(false)"
+           script = "echo Hello World @required"
         }
       }
      }
@@ -63,32 +59,32 @@ Component that supports core tasks of Artemisia
 
 
       {
-        Component = Core
-        Task = EmailTask
+        Component = "Core"
+        Task = "EmailTask"
         param =  {
          params =   {
-           connection_[0] = email_connection
+           connection_[0] = "email_connection"
            connection_[1] =    {
-              from = xyz@example.com
-              host = host @required
-              password = password
-              port = -1 @required
-              reply-to = xyx@example.com
-              ssl = no @default(no) @type(boolean)
-              tls = no @default(no) @type(boolean)
-              username = username
+              from = "xyz@example.com"
+              host = "host @required"
+              password = "password"
+              port = "-1 @required"
+              reply-to = "xyx@example.com"
+              ssl = "no @default(no) @type(boolean)"
+              tls = "no @default(no) @type(boolean)"
+              username = "username"
            }
            email =    {
-              attachment_[0] = ['/var/tmp/file1.txt', '/var/tmp/file2.txt'] @optional
-              attachment_[1] = [{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}] @optional
-              bcc_[0] = xyz@example.com @optional
-              bcc_[1] = [ xyz1@example.com, xyz2@example.com ] @optional
-              cc_[0] = xyz@example.com @optional
-              cc_[1] = [ xyz1@example.com, xyz2@example.com ] @optional
-              message = message
-              subject = subject
-              to_[0] = xyz@example.com
-              to_[1] = [xyz1@example.com, xyz2@example.com]
+              attachment_[0] = "['/var/tmp/file1.txt', '/var/tmp/file2.txt'] @optional"
+              attachment_[1] = "[{'attachment1.txt', '/var/tmp/file1.txt'}, {'attachment2.txt', '/var/tmp/file2.txt'}] @optional"
+              bcc_[0] = "xyz@example.com @optional"
+              bcc_[1] = "[ xyz1@example.com, xyz2@example.com ] @optional"
+              cc_[0] = "xyz@example.com @optional"
+              cc_[1] = "[ xyz1@example.com, xyz2@example.com ] @optional"
+              message = "message"
+              subject = "subject"
+              to_[0] = "xyz@example.com"
+              to_[1] = ["xyz1@example.com", "xyz2@example.com"]
            }
         }
       }
@@ -130,22 +126,22 @@ Component that supports core tasks of Artemisia
 
 
       {
-        Component = Core
-        Task = SFTPTask
+        Component = "Core"
+        Task = "SFTPTask"
         param =  {
          params =   {
-           connection_[0] = sftp_connection_name
+           connection_[0] = "sftp_connection_name"
            connection_[1] =    {
-              hostname = sftp-host-name @required
-              password = sftppassword @optional(not required if key based authentication is used)
-              pkey = /home/user/.ssh/id_rsa @optional(not required if username/password authentication is used)
-              port = sftp-host-port @default(22)
-              username = sftp-username @required
+              hostname = "sftp-host-name @required"
+              password = "sftppassword @optional(not required if key based authentication is used)"
+              pkey = "/home/user/.ssh/id_rsa @optional(not required if username/password authentication is used)"
+              port = "sftp-host-port @default(22)"
+              username = "sftp-username @required"
            }
-           get = [{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },'root_sftp_dir/file2.txt'] @type(array)
-           local-dir = /var/tmp @default(your current working directory.) @info(current working directory)
-           put = [{ '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },'/var/tmp/file1.txt'] @type(array)
-           remote-dir = /root @info(remote working directory)
+           get = "[{ 'root_sftp_dir/file1.txt' = '/var/tmp/file1.txt' },'root_sftp_dir/file2.txt'] @type(array)"
+           local-dir = "/var/tmp @default(your current working directory.) @info(current working directory)"
+           put = "[{ '/var/tmp/file1.txt' = 'sftp_root_dir/file1.txt' },'/var/tmp/file1.txt'] @type(array)"
+           remote-dir = "/root @info(remote working directory)"
         }
       }
      }

@@ -19,6 +19,7 @@ object Keywords {
     val CONNECTION_SECTION = "__connections__"
     val DEFAULT_GLOBAL_CONFIG_FILE = FileSystemUtil.joinPath(System.getProperty("user.home"), "artemisia.conf")
     val CHECKPOINT_FILE = "checkpoint.conf"
+    val DEFAULTS = "__defaults__"
   }
 
   object Connection {

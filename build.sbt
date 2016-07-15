@@ -2,19 +2,36 @@ import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
 import Modules._
+import sbt.Attributed.data
 
 assemblySettings
 
 
 coverageEnabled.in(ThisBuild ,Test, test) := true
 
+lazy val docgen = taskKey[Unit]("Generate Components documentation")
+
+lazy val refgen = taskKey[Unit]("Generate settings conf file")
+
+docgen := {
+    val r = (runner in Compile).value
+    val input = baseDirectory.value
+    val cp = (fullClasspath in Compile).value
+    toError(r.run("tech.artemisia.core.DocGenerator", data(cp), Seq(input.toString), streams.value.log))
+}
+
+refgen := {
+    val r = (runner in Compile).value
+    val input = baseDirectory.value / "src/universal/conf/settings.conf"
+    val cp = (fullClasspath in Compile).value
+    toError(r.run("tech.artemisia.core.ReferenceGenerator", data(cp), Seq(input.toString), streams.value.log))
+}
 
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"),
     bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/settings.conf"""")
   .settings(libraryDependencies ++= Artemisia.dependencies,
-          mainClass in Compile := Some("tech.artemisia.core.Main"),
-    fullRunTask(TaskKey[Unit]("docgen"), Compile, "tech.artemisia.core.DocGenerator", "/Users/chlr/dev/T800/projects/artemisia"))
+          mainClass in Compile := Some("tech.artemisia.core.Main"))
   .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata)
 
 

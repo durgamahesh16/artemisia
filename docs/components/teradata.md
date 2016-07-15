@@ -5,12 +5,7 @@ Teradata
 
 This Component supports exporting loading and executing queries against Teradata database
 
-| Task          | Description                                             |
-|---------------|---------------------------------------------------------|
-| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
-| SQLRead       | execute select queries and wraps the results in config  |
-| LoadToTable   | load a file into a table                                |
-| ExportToFile  | export query results to a file                          |
+WrappedArray(| Task          | Description                                             |, |---------------|---------------------------------------------------------|, | SQLExecute    | executes DML statements such as Insert/Update/Delete    |, | SQLRead       | execute select queries and wraps the results in config  |, | LoadToTable   | load a file into a table                                |, | ExportToFile  | export query results to a file                          |)
 
      
 
@@ -26,18 +21,18 @@ This Component supports exporting loading and executing queries against Teradata
 
 
       {
-        Component = Teradata
-        Task = SQLExecute
+        Component = "Teradata"
+        Task = "SQLExecute"
         param =  {
          dsn =   {
-           database = db @required
-           host = db-host @required
-           password = password @required
-           port = 1025 @default(1025)
-           username = username @required
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
         }
-         sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
-         sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
+         sql = "SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)"
+         sqlfile = "/var/tmp/sqlfile.sql @optional(either this or sql key is required)"
       }
      }
 
@@ -68,18 +63,18 @@ The configuration object is shown below.
 
 
       {
-        Component = Teradata
-        Task = SQLRead
+        Component = "Teradata"
+        Task = "SQLRead"
         param =  {
          dsn =   {
-           database = db @required
-           host = db-host @required
-           password = password @required
-           port = 1025 @default(1025)
-           username = username @required
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
         }
-         sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
-         sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
+         sql = "SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)"
+         sqlfile = "/var/tmp/sqlfile.sql @optional(either this or sql key is required)"
       }
      }
 
@@ -109,32 +104,32 @@ the configuration object for this task is as shown below.
 
 
       {
-        Component = Teradata
-        Task = LoadToTable
+        Component = "Teradata"
+        Task = "LoadToTable"
         param =  {
-         destination-table = dummy_table @required
-         dsn_[1] = connection-name
+         destination-table = "dummy_table @required"
+         dsn_[1] = "connection-name"
          dsn_[2] =   {
-           database = db @required
-           host = db-host @required
-           password = password @required
-           port = 1025 @default(1025)
-           username = username @required
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
         }
          load-setting =   {
-           batch-size = 200 @default(100)
-           delimiter = '|' @default(',') @type(char)
-           error-tolerence = 0.57 @default(2) @type(double,0,1)
-           escapechar = " @default(\) @type(char)
-           header = no @default(false) @type(boolean)
-           load-path = /var/tmp/file.txt @required
-           mode = default @default(default) @type(string)
-           quotechar = " @default('"') @type(char)
-           quoting = no @default(false) @type(boolean)
-           recreate-table = no @default(false)
-           session = "x1 @default(small-load -> 1, fastload -> 10)"
-           skip-lines = 0 @default(0) @type(int)
-           truncate = yes @type(boolean)
+           batch-size = "200 @default(100)"
+           delimiter = "'|' @default(',') @type(char)"
+           error-tolerence = "0.57 @default(2) @type(double,0,1)"
+           escapechar = "\" @default(\\) @type(char)"
+           header = "no @default(false) @type(boolean)"
+           load-path = "/var/tmp/file.txt @required"
+           mode = "default @default(default) @type(string)"
+           quotechar = "\" @default('\"') @type(char)"
+           quoting = "no @default(false) @type(boolean)"
+           recreate-table = "no @default(false)"
+           session = "\"x1 @default(small-load -> 1, fastload -> 10)\""
+           skip-lines = "0 @default(0) @type(int)"
+           truncate = "yes @type(boolean)"
         }
       }
      }
@@ -178,18 +173,29 @@ The typical task ExportToFile configuration is as shown below
 
 
       {
-        Component = Teradata
-        Task = ExportToFile
+        Component = "Teradata"
+        Task = "ExportToFile"
         param =  {
-         dsn =   {
-           database = db @required
-           host = db-host @required
-           password = password @required
-           port = 1025 @default(1025)
-           username = username @required
+         dsn_[1] = "connection-name"
+         dsn_[2] =   {
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
         }
-         sql = SELECT count(*) as cnt from table @optional(either this or sqlfile key is required)
-         sqlfile = /var/tmp/sqlfile.sql @optional(either this or sql key is required)
+         export =   {
+           delimiter = "| @default(,) @type(char)"
+           escapechar = "'\\' @default(\\) @type(char)"
+           file = "/var/tmp/file.out @required"
+           header = "yes @default(false) @type(boolean)"
+           mode = "default @default(default)"
+           quotechar = "'\"' @default(\") @type(char)"
+           quoting = "yes @default(false) @type(boolean)"
+           sql = "select * from table @required"
+        }
+         sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
+         sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
       }
      }
 
