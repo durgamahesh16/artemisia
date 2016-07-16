@@ -10,8 +10,14 @@ class TaskDocSpec extends TestSpec {
       val appSetting = AppSetting(cmd = Some("doc"), component = Some("TestComponent"), task = None)
       val appContext = new AppContext(appSetting)
       val result = Command.getDoc(appContext, appSetting)
-      result must be("this is TestComponent doc")
-  }
+      val expectedResult =
+      """!| Task           | Description     |
+        !|----------------|-----------------|
+        !| TestAdderTask  | test add task   |
+        !| TestFailTask   | test fail task  |""".stripMargin('!')
+
+      result must include (expectedResult)
+  } 
 
   it must "fetch task doc when requested" in {
       val appSetting = AppSetting(cmd = Some("doc"), component = Some("TestComponent"), task = Some("TestAdderTask"))
