@@ -22,7 +22,7 @@ class AppContextTestSpec extends TestSpec {
 
   "The Config Object" must s"Read the Global File and merge it with default config file" in {
 
-      val app_context = new AppContext(AppContextTestSpec.defualtTestCmdLineParams)
+      val app_context = new AppContext(AppContextTestSpec.defaultTestCmdLineParams)
       app_context.payload = app_context.payload.resolve()
       info("checking if job_config is in effect")
       app_context.payload.as[String]("dummy_step1.config.table") must be ("dummy_table")
@@ -36,7 +36,7 @@ class AppContextTestSpec extends TestSpec {
 
   it must "throw an FileNotFoundException when the GLOBAL File doesn't exists" in  {
       val configFile = this.getClass.getResource("/global_config.conf").getFile+"_not_exists"
-      val appSetting = AppContextTestSpec.defualtTestCmdLineParams.copy(
+      val appSetting = AppContextTestSpec.defaultTestCmdLineParams.copy(
         globalConfigFileRef = Some(configFile)
       )
       val ex = intercept[FileNotFoundException] {
@@ -48,7 +48,7 @@ class AppContextTestSpec extends TestSpec {
 
   it must "throw an FileNotFoundException when the config file doesn't exist" in  {
       val configFile = "/not_exists_file1"
-      val appSetting = AppContextTestSpec.defualtTestCmdLineParams.copy(config = Some(configFile))
+      val appSetting = AppContextTestSpec.defaultTestCmdLineParams.copy(config = Some(configFile))
       info("intercepting exception")
       val ex = intercept[FileNotFoundException] {
          new AppContext(appSetting)
@@ -58,7 +58,7 @@ class AppContextTestSpec extends TestSpec {
   }
 
   it must "throw a ConfigException.Parse exception on invalid context string" in {
-    val appSetting = AppContextTestSpec.defualtTestCmdLineParams.copy(context = Some("a==b==c"))
+    val appSetting = AppContextTestSpec.defaultTestCmdLineParams.copy(context = Some("a==b==c"))
     info("intercepting exception")
     intercept[ConfigException.Parse] {
       new AppContext(appSetting)
@@ -69,7 +69,7 @@ class AppContextTestSpec extends TestSpec {
     withTempDirectory("AppContextSpec") {
       workingDir => {
         val task_name = "dummy_task"
-        val cmd = AppContextTestSpec.defualtTestCmdLineParams.copy(working_dir = Some(workingDir.toString))
+        val cmd = AppContextTestSpec.defaultTestCmdLineParams.copy(working_dir = Some(workingDir.toString))
         val appContext = new AppContext(cmd)
         appContext.commitCheckpoint(task_name, AppContextTestSpec.getTaskStatsConfigObject)
         val checkpoint = ConfigFactory.parseFile(new File(FileSystemUtil.joinPath(workingDir.toString, "checkpoint.conf")))
@@ -106,7 +106,7 @@ class AppContextTestSpec extends TestSpec {
             |  }
             |}
           """.stripMargin
-        val cmd = AppContextTestSpec.defualtTestCmdLineParams.copy(working_dir = Some(workingDir.toString))
+        val cmd = AppContextTestSpec.defaultTestCmdLineParams.copy(working_dir = Some(workingDir.toString))
         val appContext = new AppContext(cmd)
         val task_stats = appContext.checkpoints.taskStatRepo(task_name)
         info("validating end_time")
@@ -119,7 +119,7 @@ class AppContextTestSpec extends TestSpec {
 
   it must "make working_dir is configurable from cmdline" in {
     val workingDir = "/var/tmp"
-    val cmdLineParam = AppContextTestSpec.defualtTestCmdLineParams.copy(working_dir = Some(workingDir))
+    val cmdLineParam = AppContextTestSpec.defaultTestCmdLineParams.copy(working_dir = Some(workingDir))
     val appContext = new AppContext(cmdLineParam)
     appContext.workingDir must be (workingDir)
   }
@@ -167,7 +167,7 @@ object AppContextTestSpec {
   }
 
 
-  def defualtTestCmdLineParams = {
+  def defaultTestCmdLineParams = {
 
     val job_config = Some(this.getClass.getResource("/job_config.conf").getFile)
     val code = Some(this.getClass.getResource("/code/code_with_simple_mysql_component.conf").getFile)

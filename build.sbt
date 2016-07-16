@@ -15,7 +15,7 @@ lazy val refgen = taskKey[Unit]("Generate settings conf file")
 
 fork := true
 
-javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "src/test/resources/settings.conf"
+javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
 
 docgen := {
     val r = (runner in Compile).value

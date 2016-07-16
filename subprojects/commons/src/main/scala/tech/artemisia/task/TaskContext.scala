@@ -3,8 +3,10 @@ package tech.artemisia.task
 import java.io.File
 import java.nio.file.Path
 
+import tech.artemisia.util.HoconConfigUtil.Handler
 import com.google.common.io.Files
 import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.core.Keywords
 import tech.artemisia.util.FileSystemUtil.joinPath
 
 
@@ -58,6 +60,10 @@ private[artemisia] object TaskContext {
       taskName getOrElse Thread.currentThread().getName))
     parent.mkdirs()
     new File(parent, fileName)
+  }
+
+  def getDefaults(component: String, task: String) = {
+    payload.getAs[Config](s"${Keywords.Config.DEFAULTS}.$component.$task").getOrElse(ConfigFactory.empty)
   }
 
 

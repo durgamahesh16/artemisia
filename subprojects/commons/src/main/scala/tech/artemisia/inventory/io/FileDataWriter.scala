@@ -15,3 +15,22 @@ abstract class FileDataWriter {
   def close(): Unit
 
 }
+
+object FileDataWriter {
+
+//  class NullFileWriter extends FileDataWriter {
+//
+//    override def writeRow(data: Array[String]): Unit = {
+//      totalRows += 1
+//    }
+//
+//    override def writeRow(data: String): Unit = {
+//      totalRows += 1
+//    }
+//
+//    override def close(): Unit = {}
+//
+//    override var totalRows: Long = 0
+//  }
+
+}

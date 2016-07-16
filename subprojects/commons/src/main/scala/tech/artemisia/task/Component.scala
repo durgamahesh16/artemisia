@@ -51,7 +51,11 @@ abstract class Component(val name: String) {
    */
   def dispatchTask(task: String, name: String, config: Config): Task = {
     tasks filter { _.taskName == task } match {
-      case x :: Nil => x.apply(name, config withFallback x.defaultConfig withFallback defaultConfig);
+      case x :: Nil => x.apply(name, config
+                                  .withFallback(TaskContext.getDefaults(this.name, task))
+                                  .withFallback(x.defaultConfig)
+                                  .withFallback(defaultConfig))
+
       case Nil => throw new UnknownTaskException(s"unknown task $task in component $name")
       case _ => throw new RuntimeException(s"multiple tasks named $task is register component $name")
     }
@@ -65,7 +69,7 @@ abstract class Component(val name: String) {
   /**
     * A brief overview of the components and the tasks it supports.
     */
-  def doc = {
+  final def doc = {
 
     val taskTable: Seq[Array[String]] =  Array("Task", "Description") +: tasks.map(x => Array(x.taskName, x.info))
 
@@ -75,7 +79,7 @@ abstract class Component(val name: String) {
         /
         /$info
         /
-        /${Util.prettyPrintAsciiTable(taskTable.toArray)}
+        /${Util.prettyPrintAsciiTable(taskTable.toArray).mkString(System.lineSeparator())}
         /
      """.stripMargin('/')
   }

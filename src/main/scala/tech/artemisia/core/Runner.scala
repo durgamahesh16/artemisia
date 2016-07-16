@@ -1,12 +1,9 @@
 package tech.artemisia.core
 
-import java.nio.file.Paths
-
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
 import org.slf4j.LoggerFactory
 import tech.artemisia.dag.{ActorSysManager, Dag}
-import tech.artemisia.task.TaskContext
 
 /**
   * A helper class that orchestrates the execution of the dag workflow
@@ -30,7 +27,6 @@ object Runner {
     if (appContext.globalConfigFile.nonEmpty) {
       AppLogger debug s"global config file: ${appContext.globalConfigFile.get}"
     }
-    TaskContext.setWorkingDir(Paths.get(appContext.workingDir))
   }
 
 

@@ -15,7 +15,7 @@ import scala.util.{Failure, Success, Try}
  * Created by chlr on 1/7/16.
  */
 
-class DagPlayer(dag: Dag, app_context: AppContext, val router: ActorRef) extends Actor {
+class DagPlayer(val dag: Dag, app_context: AppContext, val router: ActorRef) extends Actor {
 
 
   def play: Receive = {
@@ -105,8 +105,12 @@ class DagPlayer(dag: Dag, app_context: AppContext, val router: ActorRef) extends
 
   }
 
+  /**
+    *
+    * @param name name of the node
+    * @param task_stats task stats info
+    */
   def checkpoint(name: String, task_stats: TaskStats) = {
-
     AppLogger debug s"running checkpoint for $name"
     dag.getNodeByName(name).setStatus(task_stats.status)
     app_context.commitCheckpoint(name,task_stats)

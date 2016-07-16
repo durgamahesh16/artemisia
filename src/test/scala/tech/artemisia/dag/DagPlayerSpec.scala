@@ -14,7 +14,7 @@ import scala.concurrent.duration._
  * Created by chlr on 1/25/16.
  */
 
-  class DagPlayerSpec extends ActorTestSpec {
+class DagPlayerSpec extends ActorTestSpec {
 
   var workers: ActorRef = _
   var probe: DagPlayerSpec.DagProbe = _
@@ -146,6 +146,25 @@ import scala.concurrent.duration._
       expectNoMsg
     }
     dag.getNodeByName("step1").getStatus must be (Status.FAILED)
+  }
+
+  it must "apply defaults defined in settings.conf" in {
+    setUpArtifacts(this.getClass.getResource("/code/apply_defaults.conf").getFile)
+    within(1000 millis) {
+      dag_player ! new Tick
+      probe.validateAndRelay(workers) {
+        case TaskWrapper("step2",task_handler: TaskHandler) => {
+          task_handler.task mustBe a[TestAdderTask]
+        }
+        case x => info(x.toString)
+      }
+      probe.validateAndRelay(dag_player) {
+        case TaskSuceeded("step1", stats: TaskStats) => {
+          stats.status must be (Status.SUCCEEDED)
+          stats.taskOutput.as[Int]("foo") must be (50)
+        }
+      }
+    }
   }
   
 

@@ -16,4 +16,15 @@ class TestComponentSpec extends TestSpec {
     testComponent.consolidateDefaultConfig.getString("Test.TestFailTask.tkey2") must be ("tval2")
     testComponent.consolidateDefaultConfig.getString("Test.TestAdderTask.tkey1") must be ("tval1")
   }
+
+  it must "render component doc" in {
+    System.out.println(testComponent.doc)
+    val expectedResult =
+      """!| Task           | Description     |
+         !|----------------|-----------------|
+         !| TestAdderTask  | test add task   |
+         !| TestFailTask   | test fail task  |""".stripMargin('!')
+      testComponent.doc must include (expectedResult)
+
+  }
 }

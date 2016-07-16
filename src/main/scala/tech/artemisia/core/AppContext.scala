@@ -1,12 +1,13 @@
 package tech.artemisia.core
 
 import java.io.File
+import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
 import tech.artemisia.core.AppContext.{DagSetting, Logging}
 import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.dag.Message.TaskStats
-import tech.artemisia.task.Component
+import tech.artemisia.task.{Component, TaskContext}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.{FileSystemUtil, Util}
 
@@ -31,6 +32,8 @@ class AppContext(private val cmdLineParam: AppSetting) {
   val componentMapper: Map[String,Component] = payload.asMap[String](s"${Keywords.Config.SETTINGS_SECTION}.components") map {
     case (name,component) => { (name, Class.forName(component).getConstructor(classOf[String]).newInstance(name).asInstanceOf[Component] ) }
   }
+
+  TaskContext.setWorkingDir(Paths.get(this.workingDir))
 
   /**
    * merge all config objects (Global, Code, Context) to provide unified code config object

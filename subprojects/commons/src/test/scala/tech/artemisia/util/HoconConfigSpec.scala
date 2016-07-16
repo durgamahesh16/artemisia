@@ -1,9 +1,11 @@
 package tech.artemisia.util
 
 import java.util.concurrent.TimeUnit
-import com.typesafe.config.{Config, ConfigFactory}
+
+import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
 import HoconConfigUtil.Handler
 import tech.artemisia.TestSpec
+
 import scala.concurrent.duration.FiniteDuration
 
 /**
@@ -105,6 +107,27 @@ class HoconConfigSpec extends TestSpec {
   it must "parse encoded characters correctly" in {
     config.as[Char]("encodedchar") must be ('\u0001')
   }
+
+  it must "render Config Objects" in {
+    val config = ConfigFactory parseString
+      s"""
+         | {
+         |   goku = vegeta
+         |   avengers = [ ironman, thor, hulk, capt america, black widow ]
+         |   justice_league = {
+         |              batman = bruce
+         |              superman = clark
+         |              wonderwoman = gal gadot
+         |              others = [supergirl, martian, green latern]
+         |           }
+         | }
+       """.stripMargin
+    val reConfig = ConfigFactory parseString  HoconConfigUtil.render(config.root())
+
+   reConfig.root().render(ConfigRenderOptions.concise()) must be (config.root().render(ConfigRenderOptions.concise()))
+
+  }
+
 
 
 }

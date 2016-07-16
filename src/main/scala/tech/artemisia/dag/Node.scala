@@ -31,8 +31,10 @@ class Node(val name: String, var payload: Config) {
   }
 
   def getNodeTask(app_context: AppContext): TaskHandler = {
-    val component = app_context.componentMapper(payload.as[String](Task.COMPONENT))
-    val task = component.dispatchTask(payload.as[String](Keywords.Task.TASK), name, payload.as[Config](Keywords.Task.PARAMS))
+    val componentName = payload.as[String](Task.COMPONENT)
+    val taskName = payload.as[String](Keywords.Task.TASK)
+    val component = app_context.componentMapper(componentName)
+    val task = component.dispatchTask(taskName, name, payload.as[Config](Keywords.Task.PARAMS))
     new TaskHandler(TaskConfig(payload,app_context),task)
   }
 
