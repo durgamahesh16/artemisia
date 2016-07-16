@@ -24,7 +24,7 @@ object Util {
     * @param globalConfigFileRef config file set as environment variable
     * @return effective config file
     */
-  def getGlobalConfigFile(globalConfigFileRef: Option[String], defaultConfig: String = Keywords.Config.DEFAULT_GLOBAL_CONFIG_FILE) = {
+  def getGlobalConfigFile(globalConfigFileRef: Option[String], defaultConfig: String = Keywords.Config.USER_DEFAULT_CONFIG_FILE) = {
     globalConfigFileRef match {
       case Some(configFile) =>  Some(configFile)
       case None if Files exists Paths.get(defaultConfig) => Some(defaultConfig)

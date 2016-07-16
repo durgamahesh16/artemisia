@@ -23,12 +23,12 @@ class AppContext(private val cmdLineParam: AppSetting) {
   val skipCheckpoints = cmdLineParam.skip_checkpoints
   val globalConfigFile = cmdLineParam.globalConfigFileRef
   var payload = getConfigObject
-  val logging: Logging =  AppContext.parseLoggingFromPayload(payload.as[Config]("__setting__.logging"))
-  val dagSetting: DagSetting = AppContext.parseDagSettingFromPayload(payload.as[Config]("__setting__.dag"))
+  val logging: Logging =  AppContext.parseLoggingFromPayload(payload.as[Config](s"${Keywords.Config.SETTINGS_SECTION}.logging"))
+  val dagSetting: DagSetting = AppContext.parseDagSettingFromPayload(payload.as[Config](s"${Keywords.Config.SETTINGS_SECTION}.dag"))
   val runId: String = cmdLineParam.run_id.getOrElse(Util.getUUID)
   val workingDir: String = computeWorkingDir
   private val checkpointMgr = if (skipCheckpoints) new BasicCheckpointManager else new FileCheckPointManager(checkpointFile)
-  val componentMapper: Map[String,Component] = payload.asMap[String]("__setting__.components") map {
+  val componentMapper: Map[String,Component] = payload.asMap[String](s"${Keywords.Config.SETTINGS_SECTION}.components") map {
     case (name,component) => { (name, Class.forName(component).getConstructor(classOf[String]).newInstance(name).asInstanceOf[Component] ) }
   }
 
@@ -38,7 +38,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
    */
   private[core] def getConfigObject: Config = {
     val empty_object = ConfigFactory.empty()
-    val reference = ConfigFactory parseString FileSystemUtil.readResource("/reference.conf")
+    val reference = ConfigFactory parseFile new File(System.getProperty(Keywords.Config.SYSTEM_DEFAULT_CONFIG_FILE_JVM_PARAM))
     val context = (cmdLineParam.context map ( ConfigFactory parseString _ )).getOrElse(empty_object)
     val config_file = (cmdLineParam.config map { x => Util.readConfigFile(new File(x)) }).getOrElse(empty_object)
     val code = (cmdLineParam.cmd filter { _ == "run" } map
@@ -84,7 +84,7 @@ class AppContext(private val cmdLineParam: AppSetting) {
    * @return working dir selected for the job
    */
   private[core] def computeWorkingDir = {
-    val configAssigned  = payload.getAs[String]("__setting__.core.working_dir") map { FileSystemUtil.joinPath(_,runId) }
+    val configAssigned  = payload.getAs[String]("__settings__.core.working_dir") map { FileSystemUtil.joinPath(_,runId) }
     val cmdLineAssigned = cmdLineParam.working_dir
     val defaultAssigned = FileSystemUtil.joinPath(FileSystemUtil.baseDir.toString,runId)
     cmdLineAssigned.getOrElse(configAssigned.getOrElse(defaultAssigned))

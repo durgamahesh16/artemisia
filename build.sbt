@@ -13,6 +13,10 @@ lazy val docgen = taskKey[Unit]("Generate Components documentation")
 
 lazy val refgen = taskKey[Unit]("Generate settings conf file")
 
+fork := true
+
+javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "src/test/resources/settings.conf"
+
 docgen := {
     val r = (runner in Compile).value
     val input = baseDirectory.value
@@ -29,7 +33,7 @@ refgen := {
 
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"),
-    bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/settings.conf"""")
+    bashScriptExtraDefines += """addJava "-Dsetting.file=${app_home}/../conf/settings.conf"""")
   .settings(libraryDependencies ++= Artemisia.dependencies,
           mainClass in Compile := Some("tech.artemisia.core.Main"))
   .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata)

@@ -1,8 +1,7 @@
 package tech.artemisia.task
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.util.HoconConfigUtil
-import HoconConfigUtil.Handler
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
  * Created by chlr on 1/26/16.
@@ -27,7 +26,12 @@ object TestAdderTask extends TaskLike {
   override val desc: String = ""
   override val paramConfigDoc = ConfigFactory.empty()
   override val fieldDefinition = Map[String, AnyRef]()
-  override val defaultConfig: Config = ConfigFactory.empty()
+  override val defaultConfig: Config = ConfigFactory parseString
+    s"""
+       | {
+       |   tkey1 = tval1
+       | }
+     """.stripMargin
 }
 
 
@@ -44,11 +48,16 @@ object TestFailTask extends TaskLike {
   override def apply(name: String, param: Config) = {
     new TestFailTask(name)
   }
-  override val defaultConfig: Config = ConfigFactory.empty()
   override val taskName: String = "TestFailTask"
   override def doc(component: String): String = "This is a sample test task that always fail"
   override val info: String = "test fail task"
   override val desc: String = ""
   override val paramConfigDoc = ConfigFactory.empty()
   override val fieldDefinition = Map[String, AnyRef]()
+  override val defaultConfig: Config = ConfigFactory parseString
+    s"""
+       | {
+       |   tkey2 = tval2
+       | }
+     """.stripMargin
 }

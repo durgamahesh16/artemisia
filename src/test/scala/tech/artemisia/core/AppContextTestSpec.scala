@@ -131,7 +131,7 @@ class AppContextTestSpec extends TestSpec {
       file => {
         file <<=
          s"""
-            |__setting__.core.working_dir = $workingDir
+            |${Keywords.Config.SETTINGS_SECTION}.core.working_dir = $workingDir
             |
             |step1 = {
             | Component = SomeDummyComponent
