@@ -2,17 +2,15 @@ package tech.artemisia.util
 
 import java.io._
 import java.net.URI
-import java.nio.file.{Files, Paths}
-
+import java.nio.file._
+import java.nio.file.attribute.BasicFileAttributes
 import tech.artemisia.core.Keywords
-
+import scala.collection.mutable
 import scala.io.Source
 
 /**
  * Created by chlr on 3/6/16.
  */
-
-
 
 
 /**
@@ -113,6 +111,58 @@ object FileSystemUtil {
     finally
       dir.delete()
   }
+
+
+  /**
+    * An utility to convert path with Java style globs to a list of file.
+    * Java's glob patterns such as *, **, ? are supported.
+    * @param path path to expand
+    */
+  def expandPathToFiles(path: Path, filesOnly: Boolean = true): Seq[File] = {
+
+    def walkFileTree(baseDir: Path, glob: String, filesOnly: Boolean) = {
+      val fileList = mutable.Buffer[File]()
+      val fileSystem = FileSystems.getDefault
+      val matcher = fileSystem.getPathMatcher("glob:" + joinPath(baseDir.toString, glob))
+      val fileSystemVisitor = new SimpleFileVisitor[Path]() {
+        override def visitFile(currentPath: Path, attribs: BasicFileAttributes) = {
+          if (matcher.matches(currentPath) && (!filesOnly || currentPath.toFile.isFile)) {
+            fileList += currentPath.toFile
+          }
+          FileVisitResult.CONTINUE
+        }
+      }
+      Files.walkFileTree(baseDir, fileSystemVisitor)
+      fileList
+    }
+
+    val globSymbols = "*" :: "?" :: "[" :: "{" :: Nil
+    val inputPath = path.toAbsolutePath.toString.split(File.separator).toSeq
+    val baseDir =  inputPath takeWhile {
+      x => { ! globSymbols.exists(x.contains) }
+    } mkString File.separator
+   baseDir match {
+      case x if x == path.toString => path.toFile :: Nil
+      case _ => {
+        val glob = inputPath drop baseDir.split(File.separator).length mkString File.separator
+        walkFileTree(Paths.get(baseDir), glob, filesOnly)
+      }
+    }
+  }
+
+  /**
+    * creates a single BufferedReader for multiple input files.
+    * @param files
+    * @return
+    */
+  def mergeFileStreams(files: Seq[File]) = {
+    val identityStream: InputStream = new ByteArrayInputStream(Array[Byte]())
+    val inputStream = files.foldLeft(identityStream) {
+      (x, y) => new SequenceInputStream(x, new FileInputStream(y))
+    }
+    new BufferedReader(new InputStreamReader(inputStream))
+  }
+
 
 
   /**

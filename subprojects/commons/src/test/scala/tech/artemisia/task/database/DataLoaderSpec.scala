@@ -1,11 +1,14 @@
 package tech.artemisia.task.database
 
 import java.io.File
+
 import tech.artemisia.TestSpec
 import tech.artemisia.task.TaskContext
 import tech.artemisia.task.settings.BasicLoadSetting
+import tech.artemisia.util.FileSystemUtil
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.io.Source
 
 
@@ -105,6 +108,18 @@ class DataLoaderSpec extends TestSpec {
         result.as[String]("COL2") must be ("victor")
       }
     }
+  }
+
+
+  it must "load mutiple files via globbed path" in {
+    val tableName = "DataLoaderSpec_5"
+    val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
+    val path = this.getClass.getClassLoader.getResource("arbitary/glob")
+    val location = FileSystemUtil.joinPath(path.getFile ,"**/*.txt")
+    dbInterface.execute(s"delete from $tableName")
+    val loadSettings = BasicLoadSetting(FileSystemUtil.makeURI(location), delimiter = ',')
+    val result = dbInterface.loadTable(tableName,loadSettings)
+    result._1 must be (8)
   }
 
 
