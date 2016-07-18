@@ -6,12 +6,13 @@ import sbt.Attributed.data
 
 assemblySettings
 
-
 coverageEnabled.in(ThisBuild ,Test, test) := true
 
 lazy val docgen = taskKey[Unit]("Generate Components documentation")
 
 lazy val refgen = taskKey[Unit]("Generate settings conf file")
+
+logBuffered := false
 
 fork := true
 
