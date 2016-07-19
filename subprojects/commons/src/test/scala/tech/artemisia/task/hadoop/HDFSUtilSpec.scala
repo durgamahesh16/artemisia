@@ -2,7 +2,6 @@ package tech.artemisia.task.hadoop
 
 import java.io._
 import java.net.URI
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileUtil, Path}
 import org.apache.hadoop.hdfs.MiniDFSCluster
@@ -63,6 +62,25 @@ class HDFSUtilSpec extends TestSpec with BeforeAndAfterAll {
     val reader = new BufferedReader(new InputStreamReader(HDFSUtil.readIOStream(uri)))
     reader.readLine() must be (data)
     reader.close()
+  }
+
+
+  it must "handle compression for both read and write" in {
+    val data = "I find your lack of faith, disturbing"
+    val uri = new URI(s"hdfs://localhost:${HDFSUtilSpec.dfs.getNameNodePort}/test/dir1/file4.gz")
+    val writeStream = HDFSUtil.writeIOStream(
+      uri =uri
+    ,overwrite = true
+    ,bufferSize = 2042
+    ,replication = 1
+    ,blockSize = 512
+    ,codec = Some("bzip2"))
+    val writer = new BufferedWriter(new OutputStreamWriter(writeStream))
+    writer.write(data)
+    writer.close()
+    val readStream = HDFSUtil.readIOStream(uri, Some("bzip2"))
+    val reader = new BufferedReader(new InputStreamReader(readStream))
+    reader.readLine must be (data)
   }
 
 

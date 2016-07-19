@@ -2,31 +2,34 @@ package tech.artemisia.task.hadoop
 
 import java.io._
 import java.net.URI
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.hadoop.io.compress.{CompressionCodec, CompressionCodecFactory}
+import org.apache.hadoop.io.compress.CompressionCodecFactory
 import org.apache.hadoop.util.Progressable
 
 
 /**
-  * Created by chlr on 7/17/16.
+  * This Object houses assortments of HDFS based utility functions.
+  * The following compression formats are supported both for reading and writing.
+  *  - default
+  *  - bzip2
+  *  - gzip
   */
-
-
 object HDFSUtil {
 
   /**
     *
     * @param uri input uri to read
     * @param codec Option of compression codec to be used
-    * @param fs Option of FileSystem object to be used
     * @return InputStream of the input URI
     */
-  def readIOStream(uri: URI, codec: Option[CompressionCodec] = None , fs: Option[FileSystem] = None) = {
+  def readIOStream(uri: URI, codec: Option[String] = None ) = {
     val path = new Path(uri)
-    val fileSystem = fs.getOrElse(FileSystem.get(uri, new Configuration()))
+    val fileSystem = FileSystem.get(uri, new Configuration())
     getEffectiveCodec(codec, path) map { x => x.createInputStream(fileSystem.open(path)) } getOrElse fileSystem.open(path)
+
   }
 
   /**
@@ -40,7 +43,7 @@ object HDFSUtil {
     * @return outputstream for the input URI
     */
   def writeIOStream(uri: URI, overwrite: Boolean = false, bufferSize: Int, replication: Short = 3, blockSize: Int
-                   ,codec: Option[CompressionCodec] = None, fs: Option[FileSystem] = None) = {
+                   ,codec: Option[String] = None, fs: Option[FileSystem] = None) = {
     val path = new Path(uri)
     val fileSystem = fs.getOrElse(FileSystem.get(uri, new Configuration()))
     val stream = fileSystem.create(new Path(uri), new FsPermission(644: Short)
@@ -62,11 +65,11 @@ object HDFSUtil {
     * @param filesOnly allow only files in the result and filter any directories
     * @return list of files/directories resolved from URI.
     */
-  def expandPath(uri: URI, filesOnly: Boolean = true, fs: Option[FileSystem] = None) = {
-    val fileSystem = fs.getOrElse(FileSystem.get(uri, new Configuration()))
+  def expandPath(uri: URI, filesOnly: Boolean = true) = {
+    val fileSystem = FileSystem.get(uri, new Configuration())
     val paths = fileSystem.globStatus(new Path(uri))
     paths filter {
-      !filesOnly || ! _.isFile
+      !filesOnly || ! _.isDir
     } map {
       _.getPath
     }
@@ -81,9 +84,9 @@ object HDFSUtil {
     * @param path path object to detect implicit compression codec
     * @return Option of effective compression codec to be used.
     */
-  private[hadoop] def getEffectiveCodec(explicitCodec: Option[CompressionCodec], path: Path) = {
+  private[hadoop] def getEffectiveCodec(explicitCodec: Option[String], path: Path) = {
     val factory = new CompressionCodecFactory(new Configuration())
-    (explicitCodec ++  Option(factory.getCodec(path))).headOption
+    (explicitCodec.map(factory.getCodecByName) ++  Option(factory.getCodec(path))).headOption
   }
 
   /**
@@ -92,12 +95,11 @@ object HDFSUtil {
     * @param files list of the files in HDFS
     * @return a single IOStream
     */
-  def mergeFileIOStreams(files: Seq[Path], codec: Option[CompressionCodec] = None, fs: Option[FileSystem] = None) = {
-    val fileSystem = fs.getOrElse(FileSystem.get(new URI(files.head.toString), new Configuration()))
+  def mergeFileIOStreams(files: Seq[Path], codec: Option[String] = None) = {
     val identity: InputStream = new ByteArrayInputStream(Array[Byte]())
     files.foldLeft(identity) {
       (carry: InputStream, input: Path) =>
-          new SequenceInputStream(carry, HDFSUtil.readIOStream(input.toUri,codec ,Some(fileSystem)))
+          new SequenceInputStream(carry, HDFSUtil.readIOStream(input.toUri,codec))
     }
   }
 
