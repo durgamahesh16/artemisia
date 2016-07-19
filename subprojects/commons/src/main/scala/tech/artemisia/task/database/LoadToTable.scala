@@ -61,7 +61,7 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
 
 object LoadToTable {
 
-  val taskName = "LoadToTable"
+  val taskName = "SQLLoad"
 
   val info = "load a file into a table"
 

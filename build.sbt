@@ -16,6 +16,8 @@ logBuffered := false
 
 fork := true
 
+javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
+
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
 
 docgen := {

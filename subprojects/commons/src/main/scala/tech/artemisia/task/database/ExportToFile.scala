@@ -52,7 +52,7 @@ abstract class ExportToFile(val name: String, val sql: String, val connectionPro
 
 object ExportToFile  {
 
-  val taskName = "ExportToFile"
+  val taskName = "SQLExport"
 
   val info = "export query results to a file"
 

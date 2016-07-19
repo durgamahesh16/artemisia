@@ -65,7 +65,7 @@ class MySQLComponentSpec extends TestSpec {
          |}
       """.stripMargin
 
-    val task = component.dispatchTask("LoadToTable", "sql_read", config).asInstanceOf[LoadToTable]
+    val task = component.dispatchTask("SQLLoad", "sql_read", config).asInstanceOf[LoadToTable]
     task.tableName must be ("test_table")
     task.loadSettings.delimiter must be ('\u0001')
     Paths.get(task.loadSettings.location).getFileName.toString must be ("output.txt")
@@ -85,7 +85,7 @@ class MySQLComponentSpec extends TestSpec {
         |    sql = "select * from dual"
         |  }
       """.stripMargin
-    val task = component.dispatchTask("ExportToFile", "sql_read", config).asInstanceOf[ExportToFile]
+    val task = component.dispatchTask("SQLExport", "sql_read", config).asInstanceOf[ExportToFile]
     task.sql must be ("select * from dual")
     task.exportSettings.delimiter must be ('\t')
     task.exportSettings.header must be (true)

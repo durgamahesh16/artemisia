@@ -5,7 +5,12 @@ Teradata
 
 This Component supports exporting loading and executing queries against Teradata database
 
-WrappedArray(| Task          | Description                                             |, |---------------|---------------------------------------------------------|, | SQLExecute    | executes DML statements such as Insert/Update/Delete    |, | SQLRead       | execute select queries and wraps the results in config  |, | LoadToTable   | load a file into a table                                |, | ExportToFile  | export query results to a file                          |)
+| Task        | Description                                             |
+|-------------|---------------------------------------------------------|
+| SQLExecute  | executes DML statements such as Insert/Update/Delete    |
+| SQLRead     | execute select queries and wraps the results in config  |
+| SQLLoad     | load a file into a table                                |
+| SQLExport   | export query results to a file                          |
 
      
 
@@ -90,13 +95,13 @@ The configuration object is shown below.
 
 
 
-### LoadToTable:
+### SQLLoad:
 
 
 #### Description:
 
  
-LoadToTable task is used to load content into a table typically from a file.
+SQLLoad task is used to load content into a table typically from a file.
 the configuration object for this task is as shown below.
     
 
@@ -105,7 +110,7 @@ the configuration object for this task is as shown below.
 
       {
         Component = "Teradata"
-        Task = "LoadToTable"
+        Task = "SQLLoad"
         param =  {
          destination-table = "dummy_table @required"
          dsn_[1] = "connection-name"
@@ -159,14 +164,14 @@ the configuration object for this task is as shown below.
 
 
 
-### ExportToFile:
+### SQLExport:
 
 
 #### Description:
 
  
-ExportToFile task is used to export SQL query results to a file.
-The typical task ExportToFile configuration is as shown below
+SQLExport task is used to export SQL query results to a file.
+The typical task SQLExport configuration is as shown below
      
 
 #### Configuration Structure:
@@ -174,7 +179,7 @@ The typical task ExportToFile configuration is as shown below
 
       {
         Component = "Teradata"
-        Task = "ExportToFile"
+        Task = "SQLExport"
         param =  {
          dsn_[1] = "connection-name"
          dsn_[2] =   {

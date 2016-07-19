@@ -18,7 +18,6 @@ class TestComponentSpec extends TestSpec {
   }
 
   it must "render component doc" in {
-    System.out.println(testComponent.doc)
     val expectedResult =
       """!| Task           | Description     |
          !|----------------|-----------------|

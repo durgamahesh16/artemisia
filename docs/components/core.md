@@ -5,7 +5,11 @@ Core
 
 Component that supports core tasks of Artemisia
 
-WrappedArray(| Task        | Description                                                                                 |, |-------------|---------------------------------------------------------------------------------------------|, | ScriptTask  | executes script with customizable interpreter                                               |, | EmailTask   | EmailTask is used to send Emails.                                                           |, | SFTPTask    | SFTPTask supports copying files from remote sftp server to local filesystem and vice versa  |)
+| Task        | Description                                                                                 |
+|-------------|---------------------------------------------------------------------------------------------|
+| ScriptTask  | executes script with customizable interpreter                                               |
+| EmailTask   | EmailTask is used to send Emails.                                                           |
+| SFTPTask    | SFTPTask supports copying files from remote sftp server to local filesystem and vice versa  |
 
      
 
