@@ -10,7 +10,7 @@ import com.typesafe.config.Config
   * Any Configuration nodes like export/load setting or connection definition must implement this trait
   * to define defaults, configuration structure and fieldDescriptions.
   */
-trait ConfigurationNode {
+trait ConfigurationNode[T] {
 
   val defaultConfig: Config
 
@@ -18,5 +18,6 @@ trait ConfigurationNode {
 
   val fieldDescription: Map[String, Any]
 
+  def apply(config: Config): T
 
 }

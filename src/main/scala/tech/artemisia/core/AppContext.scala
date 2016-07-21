@@ -41,7 +41,6 @@ class AppContext(private val cmdLineParam: AppSetting) {
    */
   private[core] def getConfigObject: Config = {
     val empty_object = ConfigFactory.empty()
-    println(s"Tango down ${System.getProperty(Keywords.Config.SYSTEM_DEFAULT_CONFIG_FILE_JVM_PARAM)}")
     val reference = ConfigFactory parseFile new File(System.getProperty(Keywords.Config.SYSTEM_DEFAULT_CONFIG_FILE_JVM_PARAM))
     val context = (cmdLineParam.context map ( ConfigFactory parseString _ )).getOrElse(empty_object)
     val config_file = (cmdLineParam.config map { x => Util.readConfigFile(new File(x)) }).getOrElse(empty_object)

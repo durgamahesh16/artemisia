@@ -36,19 +36,18 @@ object HDFSUtil {
     *
     * @param uri uri to write to
     * @param overwrite set true to overwrite file if already exists.
-    * @param bufferSize buffer size for the stream
     * @param replication replication factor for the file.
     * @param blockSize hdfs block size for the target file
     * @return outputstream for the input URI
     */
 
-  def writeIOStream(uri: URI, overwrite: Boolean = false, bufferSize: Int = 62914560, replication: Short = 3, blockSize: Int
+  def writeIOStream(uri: URI, overwrite: Boolean = false, replication: Short = 3, blockSize: Long
                    ,codec: Option[String] = None) = {
     val path = new Path(uri)
     val fileSystem = FileSystem.get(uri, new Configuration())
     val stream = fileSystem.create(new Path(uri), new FsPermission(644: Short)
       , overwrite
-      , bufferSize
+      , 62914560 // should buffer size be configurable by the user?
       , replication
       , blockSize
       , new Progressable {
