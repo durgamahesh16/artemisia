@@ -1,11 +1,15 @@
 package tech.artemisia.task.database.teradata
 
+import java.io.{File, FileInputStream, InputStream}
+import java.net.URI
+
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
+
 import scala.collection.mutable
 
 /**
@@ -13,10 +17,12 @@ import scala.collection.mutable
   */
 
 class LoadToTable(override val taskName: String = Util.getUUID, override val tableName: String,
-                  override val connectionProfile: DBConnection, override val loadSettings: TeraLoadSetting)
-  extends database.LoadToTable(taskName, tableName, connectionProfile, loadSettings) {
+                  location: URI, override val connectionProfile: DBConnection, override val loadSettings: TeraLoadSetting)
+  extends database.LoadToTable(taskName, tableName, location, connectionProfile, loadSettings) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
+
+  override val source: Either[InputStream, URI] = Left(new FileInputStream(new File(location)))
 
   /**
     * No operations are done in this phase
@@ -38,6 +44,7 @@ class LoadToTable(override val taskName: String = Util.getUUID, override val tab
     */
   override protected[task] def teardown(): Unit = {}
 
+
 }
 
 object LoadToTable extends TaskLike {
@@ -58,7 +65,7 @@ object LoadToTable extends TaskLike {
     val connectionProfile = DBConnection.parseConnectionProfile(mutatedConfig.getValue("dsn"))
     val destinationTable = mutatedConfig.as[String]("destination-table")
     val loadSettings = TeraLoadSetting(mutatedConfig.as[Config]("load-setting"))
-    new LoadToTable(name, destinationTable, connectionProfile, loadSettings)
+    new LoadToTable(name, destinationTable, new URI(config.as[String]("location")) ,connectionProfile, loadSettings)
   }
 
   override val desc: String = database.LoadToTable.desc

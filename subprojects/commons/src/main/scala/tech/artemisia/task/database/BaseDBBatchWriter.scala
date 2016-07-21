@@ -1,5 +1,6 @@
 package tech.artemisia.task.database
 
+import java.io.FileOutputStream
 import java.sql.Types
 
 import tech.artemisia.inventory.io.CSVFileWriter
@@ -38,7 +39,7 @@ abstract class BaseDBBatchWriter(tableName: String, loadSettings: LoadSetting, d
     dbInterface.connection.prepareStatement(insertSQL)
   }
 
-  protected val errorWriter = new CSVFileWriter(BasicExportSetting(TaskContext.getTaskFile("error.txt").toURI,header = false,
+  protected val errorWriter = new CSVFileWriter(new FileOutputStream(TaskContext.getTaskFile("error.txt")),BasicExportSetting(header = false,
     '\u0001',quoting = false))
 
   def processBatch(batch: Array[Array[String]])

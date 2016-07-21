@@ -1,6 +1,5 @@
 package tech.artemisia.task.database.postgres
 
-import java.nio.file.Paths
 import tech.artemisia.TestSpec
 import tech.artemisia.task.settings.{BasicExportSetting, BasicLoadSetting}
 
@@ -13,7 +12,7 @@ class PGDataTransporterSpec extends TestSpec {
   "PGDataTransporter" must "compile copy command for export" in {
 
     val sql = "select * from dummy_table"
-    val exportSetting = BasicExportSetting(file = Paths.get("dummy_file").toUri, delimiter = '\t', quoting = true, quotechar = '"')
+    val exportSetting = BasicExportSetting(delimiter = '\t', quoting = true, quotechar = '"')
     var command = PGDataTransporter.getExportCmd(sql, exportSetting)
     command = command.replace("\n"," ").replace("\r"," ").replaceAll("""[ ]+"""," ")
 
@@ -28,7 +27,7 @@ class PGDataTransporterSpec extends TestSpec {
   it must "compile copy command for load" in {
 
     val destinationTable = "dummy_table"
-    val exportSetting = BasicLoadSetting(location = Paths.get("dummy_file").toUri, delimiter = '\t', quoting = true, quotechar = '"')
+    val exportSetting = BasicLoadSetting(delimiter = '\t', quoting = true, quotechar = '"')
     var command = PGDataTransporter.getLoadCmd(destinationTable, exportSetting)
     command = command.replace("\n"," ").replace("\r"," ").replaceAll("""[ ]+"""," ")
     command must include (s"COPY $destinationTable")

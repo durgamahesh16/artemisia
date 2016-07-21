@@ -51,6 +51,7 @@ class MySQLComponentSpec extends TestSpec {
 
   it must "dispatch LoadToTable when request" in {
 
+
     val config = ConfigFactory parseString
       s"""
          |{
@@ -60,15 +61,15 @@ class MySQLComponentSpec extends TestSpec {
          |         header =  yes
          |         delimiter = "\\u0001"
          |         quoting = no,
-         |         load-path = output.txt
          |       }
+         |  load-path = ${this.getClass.getResource("/dummy_load_file.txt").getFile}
          |}
       """.stripMargin
 
     val task = component.dispatchTask("SQLLoad", "sql_read", config).asInstanceOf[LoadToTable]
     task.tableName must be ("test_table")
     task.loadSettings.delimiter must be ('\u0001')
-    Paths.get(task.loadSettings.location).getFileName.toString must be ("output.txt")
+    Paths.get(task.location.toString).getFileName.toString must be ("dummy_load_file.txt")
   }
 
 
@@ -79,9 +80,9 @@ class MySQLComponentSpec extends TestSpec {
         |  ${MySQLComponentSpec.getDSN()}
         |    export = {
         |      delimiter = "\\t"
-        |      file = output.txt
         |      header = yes
         |    }
+        |    file = output.txt
         |    sql = "select * from dual"
         |  }
       """.stripMargin

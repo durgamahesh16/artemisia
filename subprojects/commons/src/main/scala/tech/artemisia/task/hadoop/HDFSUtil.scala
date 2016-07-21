@@ -2,7 +2,6 @@ package tech.artemisia.task.hadoop
 
 import java.io._
 import java.net.URI
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -42,10 +41,11 @@ object HDFSUtil {
     * @param blockSize hdfs block size for the target file
     * @return outputstream for the input URI
     */
-  def writeIOStream(uri: URI, overwrite: Boolean = false, bufferSize: Int, replication: Short = 3, blockSize: Int
-                   ,codec: Option[String] = None, fs: Option[FileSystem] = None) = {
+
+  def writeIOStream(uri: URI, overwrite: Boolean = false, bufferSize: Int = 62914560, replication: Short = 3, blockSize: Int
+                   ,codec: Option[String] = None) = {
     val path = new Path(uri)
-    val fileSystem = fs.getOrElse(FileSystem.get(uri, new Configuration()))
+    val fileSystem = FileSystem.get(uri, new Configuration())
     val stream = fileSystem.create(new Path(uri), new FsPermission(644: Short)
       , overwrite
       , bufferSize
@@ -69,7 +69,7 @@ object HDFSUtil {
     val fileSystem = FileSystem.get(uri, new Configuration())
     val paths = fileSystem.globStatus(new Path(uri))
     paths filter {
-      !filesOnly || ! _.isDir
+      !filesOnly ||  _.isFile
     } map {
       _.getPath
     }

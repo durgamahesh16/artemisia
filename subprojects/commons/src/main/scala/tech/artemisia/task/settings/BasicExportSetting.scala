@@ -1,9 +1,6 @@
 package tech.artemisia.task.settings
 
-import java.net.URI
-
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.util.FileSystemUtil
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -13,23 +10,21 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 /**
   * A case class for storing Export settings
   *
-  * @param file       Target file to store exported data
   * @param header     include header in file
   * @param delimiter  delimiter of the file
   * @param quoting    enable/disable quoting fields
   * @param quotechar  character to be used for quoting if enabled
   * @param escapechar escape character to be used for escaping special characters
   */
-case class BasicExportSetting(override val file: URI, override val header: Boolean = false, override val delimiter: Char = ',',
+case class BasicExportSetting(override val header: Boolean = false, override val delimiter: Char = ',',
                               override val quoting: Boolean = false, override val quotechar: Char = '"',
                               override val escapechar: Char = '\\', override val mode: String = "default")
-  extends ExportSetting(file, header, delimiter, quoting, quotechar, escapechar, mode)
+  extends ExportSetting(header, delimiter, quoting, quotechar, escapechar, mode)
 
 object BasicExportSetting {
 
   val structure = ConfigFactory parseString
     raw"""|{
-          |  file = "/var/tmp/file.out @required"
           |  header =  "yes @default(false) @type(boolean)"
           |  delimiter = "| @default(,) @type(char)"
           |  quoting = "yes @default(false) @type(boolean)"
@@ -40,7 +35,6 @@ object BasicExportSetting {
           |}""".stripMargin
 
   val fieldDescription = Map[String, String](
-    "file" -> "location of the file to which data is to be exported. eg: /var/tmp/output.txt",
     "header" -> "boolean literal to enable/disable header",
     "delimiter" -> "character to be used for delimiter",
     "quoting" -> "boolean literal to enable/disable quoting of fields.",
@@ -65,7 +59,6 @@ object BasicExportSetting {
 
   def apply(config: Config): BasicExportSetting = {
     BasicExportSetting(
-      file = FileSystemUtil.makeURI(config.as[String]("file")),
       header = config.as[Boolean]("header"),
       delimiter = config.as[Char]("delimiter"),
       quoting = config.as[Boolean]("quoting"),

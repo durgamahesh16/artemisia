@@ -1,15 +1,12 @@
 package tech.artemisia.task.database
 
-/**
- * Created by chlr on 4/22/16.
- */
 
-
+import java.io.{InputStream, OutputStream}
+import java.net.URI
 import java.sql.{Connection, ResultSet}
-
 import com.typesafe.config.Config
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.settings.{ LoadSetting, ExportSetting}
+import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 import tech.artemisia.util.Util
 
 
@@ -27,7 +24,7 @@ import tech.artemisia.util.Util
  */
 trait DBInterface {
 
-  self: DBImporter with DBDataExporter =>
+  self: DBImporter with DBExporter =>
 
   /**
    *  JDBC connection object
@@ -99,8 +96,11 @@ trait DBInterface {
     * @param exportSetting export settings
     * @return no of records exported
     */
-  def export(sql: String, exportSetting: ExportSetting): Long = {
-      self.export(sql, exportSetting)
+  def exportSQL(sql: String, target: Either[OutputStream, URI], exportSetting: ExportSetting): Long = {
+    target match {
+      case Left(outputStream) => self.export(sql, outputStream, exportSetting)
+      case Right(location) => self.export(sql, location, exportSetting)
+    }
   }
 
   /**
@@ -110,8 +110,11 @@ trait DBInterface {
    * @param loadSettings load settings
    * @return tuple of total records in source and number of records rejected
    */
-  def loadTable(tableName: String, loadSettings: LoadSetting) = {
-    val (total,rejected) = self.load(tableName, loadSettings)
+  def loadTable(tableName: String, source: Either[InputStream,URI] , loadSettings: LoadSetting) = {
+      val (total,rejected) = source match {
+        case Left(inputStream) => self.load(tableName, inputStream, loadSettings)
+        case Right(location) => self.load(tableName, location, loadSettings)
+      }
       loadSettings.errorTolerance foreach {
         val errorPct = (rejected.asInstanceOf[Float] / total) * 100
         x => assert( errorPct < x , s"Load Error % ${"%3.2f".format(errorPct)} greater than defined limit: ${x * 100}")

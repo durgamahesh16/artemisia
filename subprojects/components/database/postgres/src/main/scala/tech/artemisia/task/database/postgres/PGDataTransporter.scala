@@ -1,9 +1,10 @@
 package tech.artemisia.task.database.postgres
 
 import java.io._
+import java.net.URI
 import org.postgresql.PGConnection
 import tech.artemisia.core.AppLogger
-import tech.artemisia.task.database.{DBImporter, DBDataExporter, DBInterface}
+import tech.artemisia.task.database.{DBExporter, DBImporter, DBInterface}
 import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 import tech.artemisia.util.Util
 
@@ -11,26 +12,34 @@ import tech.artemisia.util.Util
   * Created by chlr on 6/11/16.
   */
 
-trait PGDataTransporter extends DBDataExporter with DBImporter {
+trait PGDataTransporter extends DBExporter with DBImporter {
 
   self: DBInterface =>
 
-  override def load(tableName: String, loadSettings: LoadSetting) = {
+  override def load(tableName: String, location: URI ,loadSettings: LoadSetting) = {
     val copyMgr = self.connection.asInstanceOf[PGConnection].getCopyAPI
-    val reader = new BufferedReader(new FileReader(new File(loadSettings.location)))
+    val reader = new BufferedReader(new FileReader(new File(location)))
     AppLogger info Util.prettyPrintAsciiBanner(PGDataTransporter.getLoadCmd(tableName, loadSettings), heading = "query")
      val result = copyMgr.copyIn(PGDataTransporter.getLoadCmd(tableName, loadSettings), reader)
     reader.close()
     result -> -1L
   }
 
-  override def export(sql: String, exportSetting: ExportSetting) = {
+  override def load(tableName: String, inputStream: InputStream, loadSetting: LoadSetting) = {
+    throw new UnsupportedOperationException("load operation is not supported in this mode")
+  }
+
+  override def export(sql: String, location: URI, exportSetting: ExportSetting) = {
     val copyMgr = self.connection.asInstanceOf[PGConnection].getCopyAPI
-    val writer = new BufferedWriter(new FileWriter(new File(exportSetting.file)))
+    val writer = new BufferedWriter(new FileWriter(new File(location)))
     AppLogger info Util.prettyPrintAsciiBanner(PGDataTransporter.getExportCmd(sql, exportSetting), heading = "query")
     val rowCount = copyMgr.copyOut(PGDataTransporter.getExportCmd(sql, exportSetting), writer)
     writer.close()
     rowCount
+  }
+
+  override def export(sql: String, outputStream: OutputStream, exportSetting: ExportSetting) = {
+    throw new UnsupportedOperationException("export operation is not supported in this mode")
   }
 
 }

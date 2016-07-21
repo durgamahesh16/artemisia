@@ -27,7 +27,7 @@ class MySQLTaskSpec extends TestSpec {
     val taskName = "SQLExportTest"
     FileSystemUtil.withTempFile(fileName = table) {
       file => {
-        val task = new ExportToFile(taskName, s"select * from $table", DBConnection("","","","",10), BasicExportSetting(file.toURI)) {
+        val task = new ExportToFile(taskName, s"select * from $table", file.toURI ,DBConnection("","","","",10), BasicExportSetting()) {
           override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
         }
         val result = task.execute()

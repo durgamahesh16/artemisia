@@ -1,19 +1,25 @@
 package tech.artemisia.task.database.mysql
 
+import java.io.{File, FileInputStream}
+import java.net.URI
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.task.TaskLike
+import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection}
 import tech.artemisia.util.Util
-import tech.artemisia.task.database
 
 /**
  * Created by chlr on 4/30/16.
  */
-class LoadToTable(name: String = Util.getUUID, tableName: String, connectionProfile: DBConnection, loadSettings: BasicLoadSetting)
-  extends database.LoadToTable(name, tableName, connectionProfile, loadSettings) {
+class LoadToTable(name: String = Util.getUUID, tableName: String, location: URI, connectionProfile: DBConnection, loadSettings: BasicLoadSetting)
+  extends database.LoadToTable(name, tableName, location, connectionProfile, loadSettings) {
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
+
+  override val source = loadSettings.mode match {
+    case "default" => Left(new FileInputStream(new File(location)))
+    case "bulk" => Right(location)
+  }
 
   /**
    * No operations are done in this phase
@@ -24,6 +30,7 @@ class LoadToTable(name: String = Util.getUUID, tableName: String, connectionProf
    * No operations are done in this phase
    */
   override protected[task] def teardown(): Unit = {}
+
 
 }
 

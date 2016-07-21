@@ -17,6 +17,7 @@ trait DefaultDBBatchImporter extends BatchDBImporter {
     new DefaultDBBatchImporter.DefaultDBBatchImporter(tableName, loadSetting, this)
   }
 
+
 }
 
 object DefaultDBBatchImporter {

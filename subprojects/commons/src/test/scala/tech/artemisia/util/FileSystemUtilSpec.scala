@@ -1,5 +1,6 @@
 package tech.artemisia.util
 
+import java.io.{BufferedReader, InputStreamReader}
 import java.nio.file.Paths
 
 import tech.artemisia.TestSpec
@@ -44,7 +45,7 @@ class FileSystemUtilSpec extends TestSpec  {
     val path = this.getClass.getClassLoader.getResource("arbitary/glob")
     val location = FileSystemUtil.joinPath(path.getFile ,"**/*.txt")
     val files = FileSystemUtil.expandPathToFiles(Paths.get(location))
-    val reader = FileSystemUtil.mergeFileStreams(files)
+    val reader = new BufferedReader(new InputStreamReader(FileSystemUtil.mergeFileStreams(files)))
     reader.lines.toArray must have size 8
   }
 

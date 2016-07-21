@@ -1,5 +1,8 @@
 package tech.artemisia.task.database
 
+import java.io.{File, OutputStream}
+import java.net.URI
+
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
@@ -20,10 +23,11 @@ import scala.reflect.ClassTag
   * @param connectionProfile Connection Profile settings
   * @param exportSettings Export settings
   */
-abstract class ExportToFile(val name: String, val sql: String, val connectionProfile: DBConnection ,val exportSettings: ExportSetting)
+abstract class ExportToFile(val name: String, val sql: String, val location: URI, val connectionProfile: DBConnection ,val exportSettings: ExportSetting)
   extends Task(name: String) {
 
      val dbInterface: DBInterface
+     val target: Either[OutputStream, URI]
 
      override protected[task] def setup(): Unit = {}
 
@@ -34,7 +38,9 @@ abstract class ExportToFile(val name: String, val sql: String, val connectionPro
        * @return Config object with key rows and values as total number of rows exports
       */
      override protected[task] def work(): Config = {
-       val records = dbInterface.export(sql, exportSettings)
+       AppLogger info s"exporting data to ${location.toString}"
+       val records = dbInterface.exportSQL(sql, target, exportSettings)
+       AppLogger info s"exported $records rows to ${location.toString}"
        wrapAsStats {
          ConfigFactory parseString
            s"""
@@ -50,7 +56,7 @@ abstract class ExportToFile(val name: String, val sql: String, val connectionPro
 
 }
 
-object ExportToFile  {
+  object ExportToFile  {
 
   val taskName = "SQLExport"
 
@@ -62,6 +68,8 @@ object ExportToFile  {
        |The typical task $taskName configuration is as shown below
      """.stripMargin
 
+  val defaultConfig: Config = ConfigFactory.empty().withValue("export",BasicExportSetting.defaultConfig.root())
+
   def paramConfigDoc(defaultPort: Int) = {
     val config = ConfigFactory parseString
     s"""
@@ -69,6 +77,7 @@ object ExportToFile  {
        |   "dsn_[1]" = connection-name
        |   sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
        |   sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
+       |   location = "/var/tmp/file.txt"
        |}
      """.stripMargin
     config
@@ -78,7 +87,8 @@ object ExportToFile  {
 
   val fieldDefinition: Map[String, AnyRef] = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
-    "export" -> BasicExportSetting.fieldDescription
+    "export" -> BasicExportSetting.fieldDescription,
+    "location" -> "path to the target file"
   )
 
   /**
@@ -89,12 +99,13 @@ object ExportToFile  {
   def create[T <: ExportToFile : ClassTag](name: String, config: Config): ExportToFile = {
     val exportSettings = BasicExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
+    val location = new File(config.as[String]("file")).toURI
     val sql =
       if (config.hasPath("sql")) config.as[String]("sql")
       else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
-    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[DBConnection],
-      classOf[BasicExportSetting]).newInstance(name, sql, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
+    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[URI], classOf[DBConnection],
+      classOf[BasicExportSetting]).newInstance(name, sql, location, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
   }
 
 }

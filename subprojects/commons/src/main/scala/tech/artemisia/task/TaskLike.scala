@@ -103,6 +103,9 @@ object TaskLike {
     fieldDefinition map {
       case (field, value: String) => s"${" " * ident}* $field: $value"
       case (field, value: Map[String, AnyRef] @unchecked) => s"${" " * ident}* $field:\n${displayFieldListing(value, ident+3)}"
+      case (field, value:(String, Seq[String]) @unchecked) =>
+        s"""${value._1}
+           |${value._2 map {x => s"\t* $x"} mkString System.lineSeparator() }""".stripMargin
     } mkString System.lineSeparator()
   }
 

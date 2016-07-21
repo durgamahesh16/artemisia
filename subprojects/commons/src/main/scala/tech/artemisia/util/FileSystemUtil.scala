@@ -157,10 +157,9 @@ object FileSystemUtil {
     */
   def mergeFileStreams(files: Seq[File]) = {
     val identityStream: InputStream = new ByteArrayInputStream(Array[Byte]())
-    val inputStream = files.foldLeft(identityStream) {
+    files.foldLeft(identityStream) {
       (x, y) => new SequenceInputStream(x, new FileInputStream(y))
     }
-    new BufferedReader(new InputStreamReader(inputStream))
   }
 
 

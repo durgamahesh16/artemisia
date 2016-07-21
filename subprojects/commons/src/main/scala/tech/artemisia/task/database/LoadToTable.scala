@@ -1,10 +1,14 @@
 package tech.artemisia.task.database
 
+import java.io.{File, InputStream}
+import java.net.URI
+
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection, LoadSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.reflect.ClassTag
 
 /**
@@ -19,11 +23,15 @@ import scala.reflect.ClassTag
  * @param connectionProfile connection details for the database
  * @param loadSettings load setting details
  */
-abstract class LoadToTable(name: String, val tableName: String, val connectionProfile: DBConnection,
-                           val loadSettings: LoadSetting) extends Task(name) {
+abstract class LoadToTable(val name: String, val tableName: String, val location: URI, val connectionProfile: DBConnection,
+                            val loadSettings: LoadSetting) extends Task(name) {
 
   val dbInterface: DBInterface
 
+  /**
+    * inputStream to read data from
+    */
+  val source: Either[InputStream, URI]
 
   override protected[task] def setup() = {
     if (loadSettings.truncate) {
@@ -39,7 +47,7 @@ abstract class LoadToTable(name: String, val tableName: String, val connectionPr
     * @return any output of the work phase be encoded as a HOCON Config object.
    */
   override def work(): Config = {
-    val (totalRows, rejectedCnt) = dbInterface.loadTable(tableName, loadSettings)
+    val (totalRows, rejectedCnt) = dbInterface.loadTable(tableName, source, loadSettings)
     AppLogger info s"${totalRows - rejectedCnt} rows loaded into table $tableName"
     AppLogger info s"$rejectedCnt row were rejected"
     wrapAsStats {
@@ -73,8 +81,9 @@ object LoadToTable {
 
   def paramConfigDoc(defaultPort: Int) = {
    val config = ConfigFactory parseString s"""
-       |  "dsn_[1]" = connection-name
+       | "dsn_[1]" = connection-name
        |  destination-table = "dummy_table @required"
+       |  location = /var/tmp/file.txt
      """.stripMargin
     config
       .withValue("load-setting",BasicLoadSetting.structure.root())
@@ -84,6 +93,7 @@ object LoadToTable {
   val fieldDefinition = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table" -> "destination table to load",
+    "location" -> "path pointing to the source file",
     s"load-setting" -> BasicLoadSetting.fieldDescription
   )
 
@@ -92,9 +102,10 @@ object LoadToTable {
       val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
       val destinationTable = config.as[String]("destination-table")
       val loadSettings = BasicLoadSetting(config.as[Config]("load-setting"))
+      val location = new File(config.as[String]("load-path")).toURI
       implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[LoadToTable]).getConstructor(classOf[String],
-        classOf[String], classOf[DBConnection], classOf[BasicLoadSetting]).newInstance(name, destinationTable,
-        connectionProfile, loadSettings)
+        classOf[String], classOf[URI], classOf[DBConnection], classOf[BasicLoadSetting]).newInstance(name, destinationTable,
+        location ,connectionProfile, loadSettings)
   }
 
 }

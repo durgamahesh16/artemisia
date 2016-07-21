@@ -1,6 +1,5 @@
 package tech.artemisia.task.database.teradata
 
-import java.net.URI
 import com.typesafe.config.{Config, ConfigValueFactory}
 import tech.artemisia.task.settings
 import tech.artemisia.task.settings.BasicLoadSetting
@@ -9,12 +8,12 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 /**
   * Created by chlr on 6/30/16.
   */
-case class TeraLoadSetting(override val location: URI, override val skipRows: Int = 0, override val delimiter: Char = ',',
+case class TeraLoadSetting(override val skipRows: Int = 0, override val delimiter: Char = ',',
                         override val quoting: Boolean = false, override val quotechar: Char = '"', override val escapechar: Char = '\\',
                         override val truncate: Boolean = false,override val mode: String = "default",
                         override val batchSize: Int = 100, override val errorTolerance: Option[Double] = None,
                         recreateTable: Boolean = false, sessions: Int = 1)
-  extends settings.LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode, batchSize, errorTolerance)
+  extends settings.LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode, batchSize, errorTolerance)
 
 object TeraLoadSetting {
 
@@ -34,7 +33,7 @@ object TeraLoadSetting {
 
   def apply(config: Config): TeraLoadSetting = {
     val loadSetting = BasicLoadSetting(config)
-    TeraLoadSetting(loadSetting.location, loadSetting.skipRows, loadSetting.delimiter, loadSetting.quoting
+    TeraLoadSetting(loadSetting.skipRows, loadSetting.delimiter, loadSetting.quoting
       ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.truncate, loadSetting.mode, loadSetting.batchSize
       ,loadSetting.errorTolerance, config.as[Boolean]("recreate-table") ,config.as[Int]("session")
     )

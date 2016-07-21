@@ -1,38 +1,36 @@
 package tech.artemisia.task.database
 
-import java.io.{File, FileWriter, BufferedWriter}
+import java.io.OutputStream
+import java.net.URI
 
-import com.opencsv.CSVWriter
-import tech.artemisia.core.AppLogger
+import tech.artemisia.inventory.io.CSVFileWriter
 import tech.artemisia.task.settings.ExportSetting
 
 /**
  * Created by chlr on 7/10/16.
  */
-trait DefaultDBExporter extends DBDataExporter {
+trait DefaultDBExporter extends DBExporter {
 
 self: DBInterface =>
 
-  override def export(sql: String, exportSetting: ExportSetting): Long = {
+  override def export(sql: String, outputStream: OutputStream, exportSetting: ExportSetting): Long = {
     val resultSet = self.query(sql)
     var recordCounter = 0L
-    AppLogger info s"exporting result-set to file: ${exportSetting.file.getPath}"
-    val buffer = new BufferedWriter(new FileWriter(new File(exportSetting.file)))
-    val csvWriter = new CSVWriter(buffer, exportSetting.delimiter,
-      if (exportSetting.quoting) exportSetting.quotechar else CSVWriter.NO_QUOTE_CHARACTER, exportSetting.escapechar)
+    val csvWriter = new CSVFileWriter(outputStream, exportSetting)
     val columnCount = resultSet.getMetaData.getColumnCount
     if (exportSetting.header) {
       val header = for (i <- 1 to columnCount) yield { resultSet.getMetaData.getColumnLabel(i) }
-      csvWriter.writeNext(header.toArray)
+      csvWriter.writeRow(header.toArray)
     }
     while(resultSet.next()) {
       val record = for ( i <- 1 to columnCount) yield { resultSet.getString(i) }
       recordCounter += 1
-      csvWriter.writeNext(record.toArray)
+      csvWriter.writeRow(record.toArray)
     }
-    buffer.close()
-    AppLogger info s"exported $recordCounter rows to ${exportSetting.file.getPath}"
+    csvWriter.close()
     recordCounter
   }
+
+  override def export(sql: String, location: URI, exportSetting: ExportSetting) = ???
 
 }

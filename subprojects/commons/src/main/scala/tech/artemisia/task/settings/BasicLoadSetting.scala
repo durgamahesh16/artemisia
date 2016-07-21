@@ -1,10 +1,7 @@
 package tech.artemisia.task.settings
 
-import java.net.URI
-
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.util.URIParser
 
 /**
  * Created by chlr on 4/30/16.
@@ -13,11 +10,11 @@ import tech.artemisia.util.URIParser
 /**
  * Load settings definition
  */
-case class BasicLoadSetting(override val location: URI, override val skipRows: Int = 0, override val delimiter: Char = ',',
+case class BasicLoadSetting(override val skipRows: Int = 0, override val delimiter: Char = ',',
                             override val quoting: Boolean = false, override val quotechar: Char = '"', override val escapechar: Char = '\\',
                             override val truncate: Boolean = false, override val mode: String = "default", override val batchSize: Int = 100,
                             override val errorTolerance: Option[Double] = None)
- extends LoadSetting(location, skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, errorTolerance)
+ extends LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, errorTolerance)
 
 object BasicLoadSetting {
 
@@ -68,7 +65,6 @@ object BasicLoadSetting {
 
   def apply(config: Config): BasicLoadSetting = {
     BasicLoadSetting (
-    location = URIParser.parse(config.as[String]("load-path")),
     skipRows = if (config.as[Int]("skip-lines") == 0) if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),
     delimiter = config.as[Char]("delimiter"),
     quoting = config.as[Boolean]("quoting"),

@@ -1,7 +1,5 @@
 package tech.artemisia.task.settings
 
-import java.io.File
-
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
 
@@ -14,7 +12,6 @@ class ExportSettingsSpec extends TestSpec {
       val config = ConfigFactory parseString
         """
           | {
-          | file = export.dat
           |	header = yes
           |	delimiter = "\t"
           |	quoting = no
@@ -27,6 +24,6 @@ class ExportSettingsSpec extends TestSpec {
     setting.header must be (true)
     setting.delimiter must be ('\t')
     setting.quotechar must be ('"')
-    new File(setting.file).getName must be ("export.dat")
+    setting.mode must be ("default")
   }
 }
