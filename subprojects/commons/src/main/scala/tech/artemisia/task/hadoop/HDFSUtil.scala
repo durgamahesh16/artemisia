@@ -41,11 +41,12 @@ object HDFSUtil {
     * @return outputstream for the input URI
     */
 
-  def writeIOStream(uri: URI, overwrite: Boolean = false, replication: Short = 3, blockSize: Long
+  def writeIOStream(uri: URI, overwrite: Boolean = false, replication: Short = 3, blockSize: Long = 67108864
                    ,codec: Option[String] = None) = {
     val path = new Path(uri)
     val fileSystem = FileSystem.get(uri, new Configuration())
-    val stream = fileSystem.create(new Path(uri), new FsPermission(644: Short)
+    val stream = fileSystem.create(new Path(uri)
+      , FsPermission.getDefault
       , overwrite
       , 62914560 // should buffer size be configurable by the user?
       , replication

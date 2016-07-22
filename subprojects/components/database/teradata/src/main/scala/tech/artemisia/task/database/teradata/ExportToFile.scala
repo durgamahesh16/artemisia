@@ -21,11 +21,11 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 
 
 class ExportToFile(override val name: String, override val sql: String, location: URI, override val connectionProfile: DBConnection
-                   ,override val exportSettings: TeraExportSetting)
-  extends database.ExportToFile(name: String, sql: String, location, connectionProfile: DBConnection ,exportSettings) {
+                   ,override val exportSetting: TeraExportSetting)
+  extends database.ExportToFile(name: String, sql: String, location, connectionProfile: DBConnection ,exportSetting) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, mode = exportSettings.mode,
-    exportSettings.session)
+  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, mode = exportSetting.mode,
+    exportSetting.session)
 
   override val target: Either[OutputStream, URI] = Left(new FileOutputStream(new File(location)))
 

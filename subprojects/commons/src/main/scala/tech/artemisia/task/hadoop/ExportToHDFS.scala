@@ -1,11 +1,9 @@
 package tech.artemisia.task.hadoop
 
-import java.net.URI
-
 import com.typesafe.config.Config
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.{DBInterface, ExportToFile}
-import tech.artemisia.task.settings.{BasicExportSetting, DBConnection}
+import tech.artemisia.task.settings.{BasicExportSetting, DBConnection, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.reflect.ClassTag
@@ -19,13 +17,13 @@ import scala.reflect.ClassTag
   * @param exportSettings Export settings
   * @param hdfsWriteSetting HDFS write settings
   */
-abstract class ExportToHDFS(override val taskName: String, override val sql: String, hdfsWriteSetting: HDFSWriteSetting,
-                            override val connectionProfile: DBConnection, override val exportSettings: BasicExportSetting)
-  extends ExportToFile(taskName, sql, hdfsWriteSetting.location ,connectionProfile , exportSettings) {
+abstract class ExportToHDFS(override val taskName: String, override val sql: String, val hdfsWriteSetting: HDFSWriteSetting,
+                            override val connectionProfile: DBConnection, override val exportSetting: ExportSetting)
+  extends ExportToFile(taskName, sql, hdfsWriteSetting.location ,connectionProfile , exportSetting) {
 
   val dbInterface: DBInterface
 
-  override val target = Left(HDFSUtil.writeIOStream(
+  override lazy val target = Left(HDFSUtil.writeIOStream(
     hdfsWriteSetting.location
     ,overwrite = hdfsWriteSetting.overwrite
     ,replication = hdfsWriteSetting.replication
@@ -35,7 +33,7 @@ abstract class ExportToHDFS(override val taskName: String, override val sql: Str
 
 }
 
-object ExportToHDFS  {
+object ExportToHDFS {
 
   val taskName: String = "ExportToHDFS"
 
@@ -60,9 +58,9 @@ object ExportToHDFS  {
       if (config.hasPath("sql")) config.as[String]("sql")
       else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
       else throw new SettingNotFoundException("sql/sqlfile key is missing")
-    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[URI], classOf[DBConnection],
-      classOf[BasicExportSetting], classOf[HDFSWriteSetting])
-      .newInstance(name, sql, connectionProfile, exportSettings, hdfs).asInstanceOf[T]
+    implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[HDFSWriteSetting],
+      classOf[DBConnection], classOf[ExportSetting])
+      .newInstance(name, sql, hdfs, connectionProfile, exportSettings).asInstanceOf[T]
   }
 
 }

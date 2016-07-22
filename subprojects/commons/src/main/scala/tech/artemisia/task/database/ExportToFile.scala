@@ -23,7 +23,7 @@ import scala.reflect.ClassTag
   * @param connectionProfile Connection Profile settings
   * @param exportSettings Export settings
   */
-abstract class ExportToFile(val name: String, val sql: String, val location: URI, val connectionProfile: DBConnection ,val exportSettings: ExportSetting)
+abstract class ExportToFile(val name: String, val sql: String, val location: URI, val connectionProfile: DBConnection ,val exportSetting: ExportSetting)
   extends Task(name: String) {
 
      val dbInterface: DBInterface
@@ -39,7 +39,7 @@ abstract class ExportToFile(val name: String, val sql: String, val location: URI
       */
      override protected[task] def work(): Config = {
        AppLogger info s"exporting data to ${location.toString}"
-       val records = dbInterface.exportSQL(sql, target, exportSettings)
+       val records = dbInterface.exportSQL(sql, target, exportSetting)
        AppLogger info s"exported $records rows to ${location.toString}"
        wrapAsStats {
          ConfigFactory parseString
@@ -52,6 +52,11 @@ abstract class ExportToFile(val name: String, val sql: String, val location: URI
       override protected[task] def teardown() = {
         AppLogger debug s"closing database connection"
         dbInterface.terminate()
+        target match {
+          case Left(stream) => AppLogger debug s"closing OutputStream to ${location.toString}"
+                               stream.close()
+          case Right(_) => ()
+        }
       }
 
 }

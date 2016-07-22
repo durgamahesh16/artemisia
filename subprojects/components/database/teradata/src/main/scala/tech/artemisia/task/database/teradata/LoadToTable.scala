@@ -17,10 +17,10 @@ import scala.collection.mutable
   */
 
 class LoadToTable(override val taskName: String = Util.getUUID, override val tableName: String,
-                  location: URI, override val connectionProfile: DBConnection, override val loadSettings: TeraLoadSetting)
-  extends database.LoadToTable(taskName, tableName, location, connectionProfile, loadSettings) {
+                  location: URI, override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting)
+  extends database.LoadToTable(taskName, tableName, location, connectionProfile, loadSetting) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
+  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
   override val source: Either[InputStream, URI] = Left(new FileInputStream(new File(location)))
 
@@ -28,7 +28,7 @@ class LoadToTable(override val taskName: String = Util.getUUID, override val tab
     * No operations are done in this phase
     */
   override protected[task] def setup(): Unit = {
-    if (loadSettings.recreateTable) {
+    if (loadSetting.recreateTable) {
         val rs = dbInterface.query(s"SHOW TABLE $tableName", printSQL = false)
         val buffer = mutable.ArrayBuffer[String]()
         while(rs.next()) { buffer += rs.getString(1) }

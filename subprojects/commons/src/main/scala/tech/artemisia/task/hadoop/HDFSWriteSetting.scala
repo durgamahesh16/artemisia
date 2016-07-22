@@ -1,7 +1,6 @@
 package tech.artemisia.task.hadoop
 
 import java.net.URI
-
 import com.typesafe.config.{Config, ConfigFactory, ConfigMemorySize}
 import tech.artemisia.task.ConfigurationNode
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -61,8 +60,9 @@ object HDFSWriteSetting extends ConfigurationNode[HDFSWriteSetting] {
   def apply(config: Config): HDFSWriteSetting = {
     new HDFSWriteSetting(
       location = new URI(config.as[String]("location")),
+      overwrite = config.as[Boolean]("overwrite"),
       replication = config.as[Byte]("replication"),
-      blockSize = config.as[ConfigMemorySize]("blockSize").toBytes,
+      blockSize = config.as[ConfigMemorySize]("block-size").toBytes,
       codec = config.getAs[String]("codec")
     )
   }

@@ -24,7 +24,7 @@ import scala.reflect.ClassTag
  * @param loadSettings load setting details
  */
 abstract class LoadToTable(val name: String, val tableName: String, val location: URI, val connectionProfile: DBConnection,
-                            val loadSettings: LoadSetting) extends Task(name) {
+                            val loadSetting: LoadSetting) extends Task(name) {
 
   val dbInterface: DBInterface
 
@@ -34,7 +34,7 @@ abstract class LoadToTable(val name: String, val tableName: String, val location
   val source: Either[InputStream, URI]
 
   override protected[task] def setup() = {
-    if (loadSettings.truncate) {
+    if (loadSetting.truncate) {
       AppLogger info s"truncating table $tableName"
       dbInterface.execute(s"DELETE FROM $tableName",printSQL =  false)
     }
@@ -47,7 +47,7 @@ abstract class LoadToTable(val name: String, val tableName: String, val location
     * @return any output of the work phase be encoded as a HOCON Config object.
    */
   override def work(): Config = {
-    val (totalRows, rejectedCnt) = dbInterface.loadTable(tableName, source, loadSettings)
+    val (totalRows, rejectedCnt) = dbInterface.loadTable(tableName, source, loadSetting)
     AppLogger info s"${totalRows - rejectedCnt} rows loaded into table $tableName"
     AppLogger info s"$rejectedCnt row were rejected"
     wrapAsStats {
@@ -62,9 +62,12 @@ abstract class LoadToTable(val name: String, val tableName: String, val location
    override protected[task] def teardown() = {
     AppLogger debug s"closing database connection"
     dbInterface.terminate()
+     source match {
+       case Left(stream) => AppLogger debug s"closing InputStream from ${location.toString}"
+                            stream.close()
+       case Right(_) => ()
+     }
    }
-
-
 }
 
 object LoadToTable {
