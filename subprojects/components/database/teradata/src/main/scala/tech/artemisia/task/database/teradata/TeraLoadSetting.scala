@@ -1,7 +1,7 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.{Config, ConfigValueFactory}
-import tech.artemisia.task.settings
+import tech.artemisia.task.{ConfigurationNode, settings}
 import tech.artemisia.task.settings.BasicLoadSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -15,7 +15,7 @@ case class TeraLoadSetting(override val skipRows: Int = 0, override val delimite
                         recreateTable: Boolean = false, sessions: Int = 1)
   extends settings.LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode, batchSize, errorTolerance)
 
-object TeraLoadSetting {
+object TeraLoadSetting extends ConfigurationNode[TeraLoadSetting] {
 
   val structure = BasicLoadSetting.structure
             .withValue("session", ConfigValueFactory.fromAnyRef(""""x1 @default(small-load -> 1, fastload -> 10)""""))

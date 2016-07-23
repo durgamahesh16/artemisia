@@ -1,6 +1,7 @@
 package tech.artemisia.task.settings
 
 import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.task.ConfigurationNode
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -21,7 +22,7 @@ case class BasicExportSetting(override val header: Boolean = false, override val
                               override val escapechar: Char = '\\', override val mode: String = "default")
   extends ExportSetting(header, delimiter, quoting, quotechar, escapechar, mode)
 
-object BasicExportSetting {
+object BasicExportSetting extends ConfigurationNode[BasicExportSetting] {
 
   val structure = ConfigFactory parseString
     raw"""|{

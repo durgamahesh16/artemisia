@@ -6,8 +6,6 @@ addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.3.3")
 
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
-resolvers += "cloudera" at "https://repository.cloudera.com/cloudera/cloudera-repos"
-
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "0.8.1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")

@@ -14,7 +14,7 @@ import scala.reflect.ClassTag
   * @param taskName name of the task
   * @param sql query for the export
   * @param connectionProfile Connection Profile settings
-  * @param exportSettings Export settings
+  * @param exportSetting Export settings
   * @param hdfsWriteSetting HDFS write settings
   */
 abstract class ExportToHDFS(override val taskName: String, override val sql: String, val hdfsWriteSetting: HDFSWriteSetting,

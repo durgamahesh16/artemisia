@@ -5,12 +5,14 @@ Postgres
 
 Component for interacting with postgres database
 
-| Task        | Description                                             |
-|-------------|---------------------------------------------------------|
-| SQLExport   | export query results to a file                          |
-| SQLLoad     | load a file into a table                                |
-| SQLExecute  | executes DML statements such as Insert/Update/Delete    |
-| SQLRead     | execute select queries and wraps the results in config  |
+| Task          | Description                                             |
+|---------------|---------------------------------------------------------|
+| SQLExport     | export query results to a file                          |
+| SQLLoad       | load a file into a table                                |
+| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
+| SQLRead       | execute select queries and wraps the results in config  |
+| ExportToHDFS  | Export database resultset to HDFS                       |
+| LoadFromHDFS  | Load Table from HDFS                                    |
 
      
 
@@ -43,13 +45,13 @@ The typical task SQLExport configuration is as shown below
          export =   {
            delimiter = "| @default(,) @type(char)"
            escapechar = "'\\' @default(\\) @type(char)"
-           file = "/var/tmp/file.out @required"
            header = "yes @default(false) @type(boolean)"
            mode = "default @default(default)"
            quotechar = "'\"' @default(\") @type(char)"
            quoting = "yes @default(false) @type(boolean)"
            sql = "select * from table @required"
         }
+         location = "/var/tmp/file.txt"
          sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
          sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
       }
@@ -63,11 +65,11 @@ The typical task SQLExport configuration is as shown below
     * sql: SQL query whose result-set will be exported.
     * quotechar: quotechar to use if quoting is enabled.
     * header: boolean literal to enable/disable header
-    * file: location of the file to which data is to be exported. eg: /var/tmp/output.txt
     * sqlfile: used in place of sql key to pass the file containing the SQL
     * escapechar: escape character use for instance to escape delimiter values in field
     * quoting: boolean literal to enable/disable quoting of fields.
     * delimiter: character to be used for delimiter
+ * location: path to the target file
 
      
 
@@ -113,6 +115,7 @@ the configuration object for this task is as shown below.
            skip-lines = "0 @default(0) @type(int)"
            truncate = "yes @type(boolean)"
         }
+         location = "/var/tmp/file.txt"
       }
      }
 
@@ -121,6 +124,7 @@ the configuration object for this task is as shown below.
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
+ * location: path pointing to the source file
  * load-setting:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
@@ -214,6 +218,151 @@ The configuration object is shown below.
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * sql: select query to be run
  * sqlfile: the file containing the query
+
+     
+
+
+
+
+### ExportToHDFS:
+
+
+#### Description:
+
+ 
+
+#### Configuration Structure:
+
+
+      {
+        Component = "Postgres"
+        Task = "ExportToHDFS"
+        param =  {
+         dsn_[1] = "connection-name"
+         dsn_[2] =   {
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "5432 @default(5432)"
+           username = "username @required"
+        }
+         export =   {
+           delimiter = "| @default(,) @type(char)"
+           escapechar = "'\\' @default(\\) @type(char)"
+           header = "yes @default(false) @type(boolean)"
+           mode = "default @default(default)"
+           quotechar = "'\"' @default(\") @type(char)"
+           quoting = "yes @default(false) @type(boolean)"
+           sql = "select * from table @required"
+        }
+         hdfs =   {
+           block-size = "120M"
+           codec = "gzip"
+           location = "/user/hadoop/test"
+           overwrite = "no"
+           replication = "2 @default(3) @info(allowed values 1 to 5)"
+        }
+         sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
+         sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
+      }
+     }
+
+
+#### Field Description:
+
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * export:
+    * sql: SQL query whose result-set will be exported.
+    * quotechar: quotechar to use if quoting is enabled.
+    * header: boolean literal to enable/disable header
+    * sqlfile: used in place of sql key to pass the file containing the SQL
+    * escapechar: escape character use for instance to escape delimiter values in field
+    * quoting: boolean literal to enable/disable quoting of fields.
+    * delimiter: character to be used for delimiter
+ * hdfs:
+    * location: target HDFS path
+    * replication: replication factor for the file. only values 1 to 5 are allowed
+    * block-size: HDFS block size of the file
+ compression format to use. The allowed codecs are
+ 	* gzip
+ 	* bzip2
+ 	* default
+    * overwrite: overwrite target file it already exists
+
+     
+
+
+
+
+### LoadFromHDFS:
+
+
+#### Description:
+
+ 
+
+#### Configuration Structure:
+
+
+      {
+        Component = "Postgres"
+        Task = "LoadFromHDFS"
+        param =  {
+         destination-table = "dummy_table @required"
+         dsn_[1] = "connection-name"
+         dsn_[2] =   {
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "5432 @default(5432)"
+           username = "username @required"
+        }
+         hdfs =   {
+           block-size = "120M"
+           codec = "gzip"
+           location = "/user/hadoop/test"
+           overwrite = "no"
+           replication = "2 @default(3) @info(allowed values 1 to 5)"
+        }
+         load-setting =   {
+           batch-size = "200 @default(100)"
+           delimiter = "'|' @default(',') @type(char)"
+           error-tolerence = "0.57 @default(2) @type(double,0,1)"
+           escapechar = "\" @default(\\) @type(char)"
+           header = "no @default(false) @type(boolean)"
+           load-path = "/var/tmp/file.txt @required"
+           mode = "default @default(default) @type(string)"
+           quotechar = "\" @default('\"') @type(char)"
+           quoting = "no @default(false) @type(boolean)"
+           skip-lines = "0 @default(0) @type(int)"
+           truncate = "yes @type(boolean)"
+        }
+      }
+     }
+
+
+#### Field Description:
+
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * destination-table: destination table to load
+ * load-setting:
+    * skip-lines: number of lines to skip in he table
+    * quotechar: character to be used for quoting
+    * truncate: truncate the target table before loading data
+    * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
+    * load-path: path to load from (eg: /var/tmp/input.txt)
+    * mode: mode of loading the table
+    * header: boolean field to enable/disable headers
+    * escapechar: escape character used in the file
+    * batch-size: loads into table will be grouped into batches of this size.
+    * quoting: boolean field to indicate if the file is quoted.
+    * delimiter: delimiter of the file
+ * hdfs:
+    * location: target HDFS path
+ compression format to use. The allowed codecs are
+ 	* gzip
+ 	* bzip2
+ 	* default
 
      
 

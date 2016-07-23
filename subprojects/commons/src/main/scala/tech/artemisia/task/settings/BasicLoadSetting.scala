@@ -1,6 +1,7 @@
 package tech.artemisia.task.settings
 
 import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.task.ConfigurationNode
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -16,7 +17,7 @@ case class BasicLoadSetting(override val skipRows: Int = 0, override val delimit
                             override val errorTolerance: Option[Double] = None)
  extends LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, errorTolerance)
 
-object BasicLoadSetting {
+object BasicLoadSetting extends ConfigurationNode[BasicLoadSetting] {
 
   val structure = ConfigFactory parseString
  raw"""|{

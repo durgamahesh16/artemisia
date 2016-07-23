@@ -1,7 +1,7 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.{Config, ConfigValueFactory}
-import tech.artemisia.task.settings
+import tech.artemisia.task.{ConfigurationNode, settings}
 import tech.artemisia.task.settings.BasicExportSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -13,7 +13,7 @@ case class TeraExportSetting(override val header: Boolean = false, override val 
                              override val escapechar: Char = '\\', override val mode: String = "default", session: Int = 1)
   extends settings.ExportSetting(header, delimiter, quoting, quotechar, escapechar, mode)
 
-object TeraExportSetting {
+object TeraExportSetting extends ConfigurationNode[TeraExportSetting]{
 
   val structure = BasicExportSetting.structure.withValue("session", ConfigValueFactory.fromAnyRef("1"))
 

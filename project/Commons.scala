@@ -7,7 +7,7 @@ object Commons {
      "com.opencsv" % "opencsv" % "3.7",
      "com.h2database" % "h2" % "1.4.191" % "test",
      "commons-io" % "commons-io" % "2.5",
-    "org.apache.hadoop" % "hadoop-client" % "2.0.0-mr1-cdh4.0.1",
+    "org.apache.hadoop" % "hadoop-client" % "2.7.1" % "provided",
     "org.apache.hadoop" % "hadoop-test" % "1.2.1" % "test"
   )
 

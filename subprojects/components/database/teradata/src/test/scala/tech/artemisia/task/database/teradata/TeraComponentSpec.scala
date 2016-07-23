@@ -9,7 +9,7 @@ class TeraComponentSpec extends  TestSpec {
 
   "TeraComponent" must "assign right defaults" in {
     val component = new TeraComponent("Teradata")
-    component.tasks must have length 4
+    component.tasks must have length 6
     component.defaultConfig.getInt("dsn.port") must be (1025)
   }
 

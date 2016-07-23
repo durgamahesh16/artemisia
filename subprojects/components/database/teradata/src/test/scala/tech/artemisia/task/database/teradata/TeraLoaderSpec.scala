@@ -22,7 +22,7 @@ class TeraLoaderSpec extends TestSpec {
 
           val loader = new LoadToTable(taskName = "td_load_test",tableName = tableName,location = file.toURI,
             connectionProfile = DBConnection("", "", "", "", -1),
-            loadSettings = TeraLoadSetting()) {
+            loadSetting = TeraLoadSetting()) {
             override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
           }
        val result = loader.execute()
@@ -36,7 +36,7 @@ class TeraLoaderSpec extends TestSpec {
       file =>
         val export = new ExportToFile(name = tableName, sql = s"SELECT * FROM $tableName", file.toURI
           , connectionProfile = DBConnection("", "", "", "", -1),
-          exportSettings = TeraExportSetting()) {
+          exportSetting = TeraExportSetting()) {
           override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
         }
         val result = export.execute()

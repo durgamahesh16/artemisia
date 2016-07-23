@@ -1,7 +1,6 @@
 package tech.artemisia.task.hadoop
 
 import java.io.{BufferedReader, InputStreamReader}
-import java.net.URI
 
 import org.scalatest.DoNotDiscover
 import tech.artemisia.TestSpec
@@ -19,7 +18,7 @@ trait HDFSTaskSpec extends TestSpec {
   "ExportToHDFS" must "export data to HDFS" in {
 
     val tableName = "ExportToHDFSSpec_1"
-    val location = new URI(s"hdfs://localhost:${BaseHDFSSpec.dfs.getNameNodePort}/test/dir2/file100.txt")
+    val location =  BaseHDFSSpec.cluster.pathToURI("/test/dir2/file100.txt")
      val task = new ExportToHDFS(
         "hdfs-task"
         ,s"SELECT * FROM $tableName"
@@ -36,7 +35,7 @@ trait HDFSTaskSpec extends TestSpec {
 
   "LoadFromHDFS" must "load data from HDFS" in {
     val tableName = "LoadFromHDFSSpec_2"
-    val location = new URI(s"hdfs://localhost:${BaseHDFSSpec.dfs.getNameNodePort}/test/dir*/*.txt")
+    val location =  BaseHDFSSpec.cluster.pathToURI("/test/dir*/*.txt")
     val task = new LoadFromHDFS(
        "hdfs-task"
       ,tableName

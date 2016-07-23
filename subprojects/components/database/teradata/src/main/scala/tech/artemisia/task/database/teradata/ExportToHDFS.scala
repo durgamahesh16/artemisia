@@ -36,8 +36,10 @@ object ExportToHDFS extends TaskLike {
   }
 
   override val paramConfigDoc: Config = hadoop.ExportToHDFS.paramConfigDoc(1025)
+                                              .withValue("export", TeraExportSetting.structure.root())
 
   override val defaultConfig: Config = hadoop.ExportToHDFS.defaultConfig
+                                .withValue("export", TeraExportSetting.defaultConfig.root())
 
   override val fieldDefinition: Map[String, AnyRef] = hadoop.ExportToHDFS.fieldDefinition
 
