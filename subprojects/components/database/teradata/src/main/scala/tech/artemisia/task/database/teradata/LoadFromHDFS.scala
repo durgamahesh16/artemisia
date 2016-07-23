@@ -5,6 +5,7 @@ import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.hadoop.HDFSReadSetting
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskLike, hadoop}
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
   * Created by chlr on 7/22/16.
@@ -22,7 +23,11 @@ object LoadFromHDFS extends TaskLike {
   override val taskName: String = hadoop.LoadFromHDFS.taskName
 
   override def apply(name: String, config: Config): Task = {
-    hadoop.LoadFromHDFS.create[LoadFromHDFS](name, config)
+    val loadSetting = TeraLoadSetting(config.as[Config]("load-setting"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
+    val tableName = config.as[String]("destination-table")
+    val hdfsReadSetting = HDFSReadSetting(config.as[Config]("hdfs"))
+    new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting )
   }
 
   override val paramConfigDoc: Config = hadoop.LoadFromHDFS.paramConfigDoc(1025)

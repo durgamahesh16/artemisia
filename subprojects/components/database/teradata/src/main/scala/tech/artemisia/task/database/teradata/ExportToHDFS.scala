@@ -1,10 +1,12 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.Config
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.hadoop.HDFSWriteSetting
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskLike, hadoop}
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
   * Created by chlr on 7/22/16.
@@ -23,7 +25,14 @@ object ExportToHDFS extends TaskLike {
   override val taskName: String = hadoop.ExportToHDFS.taskName
 
   override def apply(name: String, config: Config): Task = {
-    hadoop.ExportToHDFS.create[ExportToHDFS](name, config)
+    val exportSetting = TeraExportSetting(config.as[Config]("export"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
+    val hdfs = HDFSWriteSetting(config.as[Config]("hdfs"))
+    val sql: String =
+      if (config.hasPath("sql")) config.as[String]("sql")
+      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
+      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    new ExportToHDFS(taskName, sql, hdfs, connectionProfile, exportSetting)
   }
 
   override val paramConfigDoc: Config = hadoop.ExportToHDFS.paramConfigDoc(1025)
