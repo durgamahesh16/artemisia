@@ -22,6 +22,7 @@ object TeraLoadSetting extends ConfigurationNode[TeraLoadSetting] {
             .withValue("recreate-table", ConfigValueFactory.fromAnyRef("no @default(false)"))
 
   val fieldDescription = BasicLoadSetting.fieldDescription ++: Map(
+    "mode" -> ("mode of loading the table. The allowed modes are" -> Seq("fastload", "default")),
     "recreate-table" -> "drop and recreate the target table. This may be required for Fastload for restartablity",
     "session" -> "no of sessions used for the load"
   )

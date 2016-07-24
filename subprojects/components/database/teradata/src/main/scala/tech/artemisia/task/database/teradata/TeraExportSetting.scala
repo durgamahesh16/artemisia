@@ -17,7 +17,10 @@ object TeraExportSetting extends ConfigurationNode[TeraExportSetting]{
 
   val structure = BasicExportSetting.structure.withValue("session", ConfigValueFactory.fromAnyRef("1"))
 
-  val fieldDescription = BasicExportSetting.fieldDescription + ("session" -> "number of sessions to use.")
+  val fieldDescription = BasicExportSetting.fieldDescription ++
+    Seq("session" -> "number of sessions to use.",
+        "mode" -> ("export mode to be used" -> Seq("default", "fastexport"))
+    )
 
   val defaultConfig = BasicExportSetting.defaultConfig.withValue("session" , ConfigValueFactory.fromAnyRef(1))
 

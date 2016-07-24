@@ -155,7 +155,9 @@ the configuration object for this task is as shown below.
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * session: no of sessions used for the load
     * load-path: path to load from (eg: /var/tmp/input.txt)
-    * mode: mode of loading the table
+    * mode: mode of loading the table. The allowed modes are
+        * fastload
+        * default
     * header: boolean field to enable/disable headers
     * escapechar: escape character used in the file
     * batch-size: loads into table will be grouped into batches of this size.
@@ -200,6 +202,7 @@ The typical task SQLExport configuration is as shown below
            mode = "default @default(default)"
            quotechar = "'\"' @default(\") @type(char)"
            quoting = "yes @default(false) @type(boolean)"
+           session = "1"
            sql = "select * from table @required"
         }
          location = "/var/tmp/file.txt"
@@ -215,6 +218,10 @@ The typical task SQLExport configuration is as shown below
  * export:
     * sql: SQL query whose result-set will be exported.
     * quotechar: quotechar to use if quoting is enabled.
+    * session: number of sessions to use.
+    * mode: export mode to be used
+        * default
+        * fastexport
     * header: boolean literal to enable/disable header
     * sqlfile: used in place of sql key to pass the file containing the SQL
     * escapechar: escape character use for instance to escape delimiter values in field
@@ -278,6 +285,10 @@ The typical task SQLExport configuration is as shown below
  * export:
     * sql: SQL query whose result-set will be exported.
     * quotechar: quotechar to use if quoting is enabled.
+    * session: number of sessions to use.
+    * mode: export mode to be used
+        * default
+        * fastexport
     * header: boolean literal to enable/disable header
     * sqlfile: used in place of sql key to pass the file containing the SQL
     * escapechar: escape character use for instance to escape delimiter values in field
@@ -287,10 +298,10 @@ The typical task SQLExport configuration is as shown below
     * location: target HDFS path
     * replication: replication factor for the file. only values 1 to 5 are allowed
     * block-size: HDFS block size of the file
- compression format to use. The allowed codecs are
- 	* gzip
- 	* bzip2
- 	* default
+    * codec: compression format to use. The allowed codecs are
+        * gzip
+        * bzip2
+        * default
     * overwrite: overwrite target file it already exists
 
      
@@ -322,11 +333,8 @@ The typical task SQLExport configuration is as shown below
            username = "username @required"
         }
          hdfs =   {
-           block-size = "120M"
            codec = "gzip"
-           location = "/user/hadoop/test"
-           overwrite = "no"
-           replication = "2 @default(3) @info(allowed values 1 to 5)"
+           location = "/var/tmp/input.txt"
         }
          load-setting =   {
            batch-size = "200 @default(100)"
@@ -338,6 +346,8 @@ The typical task SQLExport configuration is as shown below
            mode = "default @default(default) @type(string)"
            quotechar = "\" @default('\"') @type(char)"
            quoting = "no @default(false) @type(boolean)"
+           recreate-table = "no @default(false)"
+           session = "\"x1 @default(small-load -> 1, fastload -> 10)\""
            skip-lines = "0 @default(0) @type(int)"
            truncate = "yes @type(boolean)"
         }
@@ -354,19 +364,23 @@ The typical task SQLExport configuration is as shown below
     * quotechar: character to be used for quoting
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
+    * session: no of sessions used for the load
     * load-path: path to load from (eg: /var/tmp/input.txt)
-    * mode: mode of loading the table
+    * mode: mode of loading the table. The allowed modes are
+        * fastload
+        * default
     * header: boolean field to enable/disable headers
     * escapechar: escape character used in the file
     * batch-size: loads into table will be grouped into batches of this size.
     * quoting: boolean field to indicate if the file is quoted.
     * delimiter: delimiter of the file
+    * recreate-table: drop and recreate the target table. This may be required for Fastload for restartablity
  * hdfs:
     * location: target HDFS path
- compression format to use. The allowed codecs are
- 	* gzip
- 	* bzip2
- 	* default
+    * codec: compression format to use. The allowed codecs are
+        * gzip
+        * bzip2
+        * default
 
      
 

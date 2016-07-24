@@ -24,7 +24,7 @@ case class BasicExportSetting(override val header: Boolean = false, override val
 
 object BasicExportSetting extends ConfigurationNode[BasicExportSetting] {
 
-  val structure = ConfigFactory parseString
+  override val structure = ConfigFactory parseString
     raw"""|{
           |  header =  "yes @default(false) @type(boolean)"
           |  delimiter = "| @default(,) @type(char)"
@@ -35,18 +35,19 @@ object BasicExportSetting extends ConfigurationNode[BasicExportSetting] {
           |  mode = "default @default(default)"
           |}""".stripMargin
 
-  val fieldDescription = Map[String, String](
+  override val fieldDescription = Map[String, Any](
     "header" -> "boolean literal to enable/disable header",
     "delimiter" -> "character to be used for delimiter",
     "quoting" -> "boolean literal to enable/disable quoting of fields.",
     "quotechar" -> "quotechar to use if quoting is enabled.",
     "escapechar" -> "escape character use for instance to escape delimiter values in field",
+    "mode" -> ("modes of export. supported modes are" -> Seq("default", "bulk")),
     "sql" -> "SQL query whose result-set will be exported.",
     "sqlfile" -> "used in place of sql key to pass the file containing the SQL"
   )
 
 
-  val defaultConfig = ConfigFactory parseString
+  override val defaultConfig = ConfigFactory parseString
     """
       | {
       |	  header = false

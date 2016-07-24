@@ -55,9 +55,9 @@ object ExportToFile extends TaskLike {
 
   override val desc: String = database.ExportToFile.desc
 
-  override val paramConfigDoc = database.ExportToFile.paramConfigDoc(1025)
+  override val paramConfigDoc = database.ExportToFile.paramConfigDoc(1025) withValue ("export",TeraExportSetting.structure.root())
 
-  override val fieldDefinition = database.ExportToFile.fieldDefinition
+  override val fieldDefinition = database.ExportToFile.fieldDefinition + ("export" -> TeraExportSetting.fieldDescription)
 
 }
 

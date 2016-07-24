@@ -26,7 +26,7 @@ object LoadFromHDFS {
   val taskName: String = "LoadFromHDFS"
 
   def paramConfigDoc(port: Int) = LoadToTable.paramConfigDoc(port)
-                        .withValue("hdfs",HDFSWriteSetting.structure.root())
+                        .withValue("hdfs",HDFSReadSetting.structure.root())
                         .withoutPath("location")
 
   val defaultConfig: Config =  ConfigFactory.empty()

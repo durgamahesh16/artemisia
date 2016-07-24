@@ -102,10 +102,10 @@ object TaskLike {
   def displayFieldListing(fieldDefinition: Map[String, AnyRef], ident: Int = 0): String  = {
     fieldDefinition map {
       case (field, value: String) => s"${" " * ident}* $field: $value"
-      case (field, value: Map[String, AnyRef] @unchecked) => s"${" " * ident}* $field:\n${displayFieldListing(value, ident+3)}"
       case (field, value:(String, Seq[String]) @unchecked) =>
-        s"""${value._1}
-           |${value._2 map {x => s"\t* $x"} mkString System.lineSeparator() }""".stripMargin
+        s"""${" " * ident}* $field: ${value._1}
+           |${value._2 map {x => s"${" " * (ident + 4)}* $x"} mkString "\n" }""".stripMargin
+      case (field, value: Map[String, AnyRef] @unchecked) => s"${" " * ident}* $field:\n${displayFieldListing(value, ident+3)}"
     } mkString System.lineSeparator()
   }
 

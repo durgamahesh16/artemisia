@@ -31,11 +31,13 @@ object LoadFromHDFS extends TaskLike {
   }
 
   override val paramConfigDoc: Config = hadoop.LoadFromHDFS.paramConfigDoc(1025)
+                                            .withValue("load-setting", TeraLoadSetting.structure.root())
 
   override val defaultConfig: Config = hadoop.LoadFromHDFS.defaultConfig
                                     .withValue("load-setting", TeraLoadSetting.defaultConfig.root())
 
-  override val fieldDefinition: Map[String, AnyRef] = hadoop.LoadFromHDFS.fieldDefinition
+  override val fieldDefinition: Map[String, AnyRef] = hadoop.LoadFromHDFS.fieldDefinition +
+                            ("load-setting" -> TeraLoadSetting.fieldDescription)
 
   override val info: String = hadoop.LoadFromHDFS.info
 
