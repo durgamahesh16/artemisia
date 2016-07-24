@@ -1,7 +1,8 @@
-package tech.artemisia.task.settings
+package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.ConfigurationNode
+import tech.artemisia.task.settings.LoadSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**

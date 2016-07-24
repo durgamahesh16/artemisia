@@ -1,8 +1,8 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.{Config, ConfigValueFactory}
+import tech.artemisia.task.database.BasicLoadSetting
 import tech.artemisia.task.{ConfigurationNode, settings}
-import tech.artemisia.task.settings.BasicLoadSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**

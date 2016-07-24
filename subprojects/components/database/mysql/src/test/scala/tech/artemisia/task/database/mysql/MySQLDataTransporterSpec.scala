@@ -4,10 +4,9 @@ import java.nio.file.Paths
 import java.sql.Connection
 
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{BasicExportSetting, BasicLoadSetting}
+import tech.artemisia.task.database.{BasicExportSetting, BasicLoadSetting, DBInterface}
 
-/**
+  /**
  * Created by chlr on 6/14/16.
  */
 class MySQLDataTransporterSpec extends TestSpec {

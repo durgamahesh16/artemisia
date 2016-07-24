@@ -6,7 +6,7 @@ import java.net.URI
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.task.Task
-import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection, LoadSetting}
+import tech.artemisia.task.settings.{DBConnection, LoadSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.reflect.ClassTag

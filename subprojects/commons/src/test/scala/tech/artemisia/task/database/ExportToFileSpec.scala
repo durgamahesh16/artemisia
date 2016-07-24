@@ -4,7 +4,7 @@ import java.io.{File, FileOutputStream}
 
 import tech.artemisia.TestSpec
 import tech.artemisia.core.Keywords
-import tech.artemisia.task.settings.{BasicExportSetting, DBConnection}
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**

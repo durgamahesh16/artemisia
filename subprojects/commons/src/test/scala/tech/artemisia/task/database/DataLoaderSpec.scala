@@ -5,7 +5,6 @@ import java.nio.file.Paths
 
 import tech.artemisia.TestSpec
 import tech.artemisia.task.TaskContext
-import tech.artemisia.task.settings.BasicLoadSetting
 import tech.artemisia.util.FileSystemUtil
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler

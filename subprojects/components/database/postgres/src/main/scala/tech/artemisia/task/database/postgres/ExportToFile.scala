@@ -5,8 +5,8 @@ import java.net.URI
 
 import com.typesafe.config.Config
 import tech.artemisia.task.{TaskLike, database}
-import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{BasicExportSetting, DBConnection}
+import tech.artemisia.task.database.{BasicExportSetting, DBInterface}
+import tech.artemisia.task.settings.DBConnection
 
 /**
   * Created by chlr on 6/10/16.

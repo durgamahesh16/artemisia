@@ -7,7 +7,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.AppLogger
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.Task
-import tech.artemisia.task.settings.{BasicExportSetting, DBConnection, ExportSetting}
+import tech.artemisia.task.settings.{DBConnection, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.reflect.ClassTag

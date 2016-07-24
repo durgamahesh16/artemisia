@@ -5,7 +5,7 @@ import java.sql.Types
 
 import tech.artemisia.inventory.io.CSVFileWriter
 import tech.artemisia.task.TaskContext
-import tech.artemisia.task.settings.{BasicExportSetting, LoadSetting}
+import tech.artemisia.task.settings.LoadSetting
 
 /**
   * Created by chlr on 6/26/16.

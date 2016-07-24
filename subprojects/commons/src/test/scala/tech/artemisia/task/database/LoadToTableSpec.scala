@@ -5,7 +5,7 @@ import java.net.URI
 
 import com.typesafe.config.ConfigRenderOptions
 import tech.artemisia.TestSpec
-import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection}
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.HoconConfigUtil.Handler
 

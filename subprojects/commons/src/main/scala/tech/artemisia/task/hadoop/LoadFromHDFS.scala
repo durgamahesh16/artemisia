@@ -1,8 +1,8 @@
 package tech.artemisia.task.hadoop
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.task.database.LoadToTable
-import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection, LoadSetting}
+import tech.artemisia.task.database.{BasicLoadSetting, LoadToTable}
+import tech.artemisia.task.settings.{DBConnection, LoadSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.reflect.ClassTag

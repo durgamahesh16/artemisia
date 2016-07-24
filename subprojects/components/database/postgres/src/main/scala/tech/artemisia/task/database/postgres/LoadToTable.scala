@@ -4,8 +4,8 @@ import java.io.{File, FileInputStream, InputStream}
 import java.net.URI
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.settings.{BasicLoadSetting, DBConnection}
+import tech.artemisia.task.database.{BasicLoadSetting, DBInterface}
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.Util
 

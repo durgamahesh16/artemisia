@@ -4,9 +4,9 @@ import java.io.File
 
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.TestDBInterFactory
+import tech.artemisia.task.database.{BasicExportSetting, BasicLoadSetting, TestDBInterFactory}
 import tech.artemisia.task.hadoop.{HDFSReadSetting, HDFSWriteSetting, TestHDFSCluster}
-import tech.artemisia.task.settings.{BasicExportSetting, BasicLoadSetting, DBConnection}
+import tech.artemisia.task.settings.DBConnection
 
 /**
   * Created by chlr on 7/23/16.

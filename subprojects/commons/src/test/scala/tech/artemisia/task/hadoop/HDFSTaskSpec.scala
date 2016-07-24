@@ -4,8 +4,8 @@ import java.io.{BufferedReader, InputStreamReader}
 
 import org.scalatest.DoNotDiscover
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.{DBInterface, TestDBInterFactory}
-import tech.artemisia.task.settings.{BasicExportSetting, BasicLoadSetting, DBConnection}
+import tech.artemisia.task.database.{BasicExportSetting, BasicLoadSetting, DBInterface, TestDBInterFactory}
+import tech.artemisia.task.settings.DBConnection
 
 /**
   * Created by chlr on 7/20/16.

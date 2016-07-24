@@ -1,8 +1,8 @@
 package tech.artemisia.task.database.mysql
 
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.TestDBInterFactory
-import tech.artemisia.task.settings.{DBConnection, BasicExportSetting}
+import tech.artemisia.task.database.{BasicExportSetting, TestDBInterFactory}
+import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.FileSystemUtil
 
 import scala.io.Source

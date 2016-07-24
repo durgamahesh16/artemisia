@@ -2,6 +2,7 @@ package tech.artemisia.task.settings
 
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
+import tech.artemisia.task.database.BasicLoadSetting
 
 /**
  * Created by chlr on 4/30/16.
