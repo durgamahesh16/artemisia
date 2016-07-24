@@ -1,5 +1,5 @@
 import java.nio.file.FileSystems
-
+import sys.process._
 import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
@@ -23,7 +23,7 @@ javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/com
 testOptions in (ThisBuild, Test) += Tests.Setup( () => {
     if(FileSystems.getDefault.supportedFileAttributeViews().contains("posix")) {
       streams.value.log.info("setting umask to 022")
-      "umask 022".! // refer http://stackoverflow.com/questions/17625938/hbase-minidfscluster-java-fails-in-certain-environments
+      Seq("sh", "-c", "umask", "022") ! // refer http://stackoverflow.com/questions/17625938/hbase-minidfscluster-java-fails-in-certain-environments
     }
   }
 )
