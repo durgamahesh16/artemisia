@@ -1,10 +1,8 @@
-import java.nio.file.FileSystems
-import sys.process._
+import Modules._
 import com.typesafe.sbt.SbtGit.GitKeys._
+import sbt.Attributed.data
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
-import Modules._
-import sbt.Attributed.data
 
 assemblySettings
 
@@ -14,19 +12,11 @@ lazy val docgen = taskKey[Unit]("Generate Components documentation")
 
 lazy val refgen = taskKey[Unit]("Generate settings conf file")
 
-fork := true
+fork := true // This is required so that setting.file system property is properly set by javaOptions
 
 javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
 
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
-
-testOptions in (ThisBuild, Test) += Tests.Setup( () => {
-    if(FileSystems.getDefault.supportedFileAttributeViews().contains("posix")) {
-      streams.value.log.info("setting umask to 022")
-      Seq("sh", "-c", "umask", "022") ! // refer http://stackoverflow.com/questions/17625938/hbase-minidfscluster-java-fails-in-certain-environments
-    }
-  }
-)
 
 
 docgen := {

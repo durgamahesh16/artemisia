@@ -25,7 +25,14 @@ class TestHDFSCluster(baseDir: File) {
     conf.set("dfs.namenode.logging.level","block")
     conf.setInt("dfs.block.size", 512)
     conf.setBoolean("dfs.support.broken.append", true)
-    dfs = new MiniDFSCluster(conf, 1, true, null)
+    try {
+      dfs = new MiniDFSCluster(conf, 1, true, null)
+    } catch {
+      case e: NullPointerException => {
+        System.err.println("Mini HDFS cluster setup failed. Did you set umask 022 before running the test?")
+        throw e
+      }
+    }
     dfs.waitActive()
   }
 
