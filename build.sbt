@@ -1,3 +1,5 @@
+import java.nio.file.FileSystems
+
 import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
@@ -17,6 +19,15 @@ fork := true
 javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
 
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
+
+testOptions in (ThisBuild, Test) += Tests.Setup( () => {
+    if(FileSystems.getDefault.supportedFileAttributeViews().contains("posix")) {
+      streams.value.log.info("setting umask to 022")
+      "umask 022".! // refer http://stackoverflow.com/questions/17625938/hbase-minidfscluster-java-fails-in-certain-environments
+    }
+  }
+)
+
 
 docgen := {
     val r = (runner in Compile).value
