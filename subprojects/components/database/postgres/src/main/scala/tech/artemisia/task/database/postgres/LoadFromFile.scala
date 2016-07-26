@@ -3,10 +3,11 @@ package tech.artemisia.task.database.postgres
 import java.io.InputStream
 import java.net.URI
 import java.nio.file.Paths
-import com.typesafe.config.Config
-import tech.artemisia.task.database
-import tech.artemisia.task.database.{BasicLoadSetting, DBInterface, LoadTaskHelper}
+
+import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.task.database.{BasicLoadSetting, DBInterface}
 import tech.artemisia.task.settings.DBConnection
+import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.Util
 
@@ -20,7 +21,7 @@ class LoadFromFile(name: String = Util.getUUID, tableName: String, location: URI
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
 
-  override protected val supportedModes = LoadFromFile.supportedModes
+  override protected val supportedModes = "default" :: "bulk" :: Nil
 
   override val source: Either[InputStream, URI] = loadSettings.mode match {
     case "default" => Left(prepPathForLoad(Paths.get(location.getPath))._1)
@@ -33,12 +34,21 @@ class LoadFromFile(name: String = Util.getUUID, tableName: String, location: URI
 
 }
 
-object LoadFromFile extends LoadTaskHelper {
+object LoadFromFile extends TaskLike {
 
-  override def apply(name: String, config: Config) = LoadTaskHelper.create[LoadFromFile](name, config)
+  override val info = database.LoadFromFile.info
 
-  override def defaultPort = 3306
+  override val defaultConfig: Config = ConfigFactory.empty()
+            .withValue("load-setting", BasicLoadSetting.defaultConfig.root())
 
-  override val supportedModes: Seq[String] = "default" :: "bulk" :: Nil
+  override val taskName = database.LoadFromFile.taskName
+
+  override def apply(name: String, config: Config) = database.LoadFromFile.create[LoadFromFile](name, config)
+
+  override val desc: String = database.LoadFromFile.desc
+
+  override val paramConfigDoc = database.LoadFromFile.paramConfigDoc(5432)
+
+  override val fieldDefinition = database.LoadFromFile.fieldDefinition
 
 }
