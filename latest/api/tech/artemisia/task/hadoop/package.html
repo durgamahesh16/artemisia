@@ -1,0 +1,259 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>hadoop - tech.artemisia.task.hadoop</title>
+          <meta name="description" content="hadoop - tech.artemisia.task.hadoop" />
+          <meta name="keywords" content="hadoop tech.artemisia.task.hadoop" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'tech.artemisia.task.hadoop.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="tech">tech</a>.<a href="../../package.html" class="extype" name="tech.artemisia">artemisia</a>.<a href="../package.html" class="extype" name="tech.artemisia.task">task</a></p>
+        <h1>hadoop</h1><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hadoop</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="tech.artemisia.task.hadoop.ExportToHDFS" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ExportToHDFSextendsExportToFile"></a>
+      <a id="ExportToHDFS:ExportToHDFS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ExportToHDFS.html"><span class="name">ExportToHDFS</span></a><span class="result"> extends <a href="../database/ExportToFile.html" class="extype" name="tech.artemisia.task.database.ExportToFile">ExportToFile</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@ExportToHDFSextendsExportToFile" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p>
+    </li><li name="tech.artemisia.task.hadoop.HDFSReadSetting" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="HDFSReadSettingextendsProductwithSerializable"></a>
+      <a id="HDFSReadSetting:HDFSReadSetting"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="HDFSReadSetting.html"><span class="name">HDFSReadSetting</span></a><span class="params">(<span name="location">location: <span class="extype" name="java.net.URI">URI</span></span>, <span name="codec">codec: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@HDFSReadSettingextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">location</dt><dd class="cmt"><p>HDFS path</p></dd><dt class="param">codec</dt><dd class="cmt"><p>compression algorithm</p></dd></dl></div>
+    </li><li name="tech.artemisia.task.hadoop.HDFSWriteSetting" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="HDFSWriteSettingextendsProductwithSerializable"></a>
+      <a id="HDFSWriteSetting:HDFSWriteSetting"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="HDFSWriteSetting.html"><span class="name">HDFSWriteSetting</span></a><span class="params">(<span name="location">location: <span class="extype" name="java.net.URI">URI</span></span>, <span name="overwrite">overwrite: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="replication">replication: <span class="extype" name="scala.Byte">Byte</span> = <span class="symbol">3</span></span>, <span name="blockSize">blockSize: <span class="extype" name="scala.Long">Long</span> = <span class="symbol">67108864</span></span>, <span name="codec">codec: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@HDFSWriteSettingextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">location</dt><dd class="cmt"><p>hdfs path to write the data</p></dd><dt class="param">replication</dt><dd class="cmt"><p>replication factor for the file being writtten</p></dd><dt class="param">blockSize</dt><dd class="cmt"><p>HDFS block size of the target file</p></dd><dt class="param">codec</dt><dd class="cmt"><p>compression codec to use if any</p></dd></dl></div>
+    </li><li name="tech.artemisia.task.hadoop.LoadFromHDFS" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LoadFromHDFSextendsLoadToTable"></a>
+      <a id="LoadFromHDFS:LoadFromHDFS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LoadFromHDFS.html"><span class="name">LoadFromHDFS</span></a><span class="result"> extends <a href="../database/LoadToTable.html" class="extype" name="tech.artemisia.task.database.LoadToTable">LoadToTable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@LoadFromHDFSextendsLoadToTable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Created by chlr on 7/19/16.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="tech.artemisia.task.hadoop.ExportToHDFS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExportToHDFS"></a>
+      <a id="ExportToHDFS:ExportToHDFS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExportToHDFS$.html"><span class="name">ExportToHDFS</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@ExportToHDFS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="tech.artemisia.task.hadoop.HDFSReadSetting" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HDFSReadSetting"></a>
+      <a id="HDFSReadSetting:HDFSReadSetting"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HDFSReadSetting$.html"><span class="name">HDFSReadSetting</span></a><span class="result"> extends <a href="../ConfigurationNode.html" class="extype" name="tech.artemisia.task.ConfigurationNode">ConfigurationNode</a>[<a href="HDFSReadSetting.html" class="extype" name="tech.artemisia.task.hadoop.HDFSReadSetting">HDFSReadSetting</a>] with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@HDFSReadSetting" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="tech.artemisia.task.hadoop.HDFSUtil" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="HDFSUtil"></a>
+      <a id="HDFSUtil:HDFSUtil"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HDFSUtil$.html"><span class="name">HDFSUtil</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@HDFSUtil" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This Object houses assortments of HDFS based utility functions.</p><div class="fullcomment"><div class="comment cmt"><p>This Object houses assortments of HDFS based utility functions.
+The following compression formats are supported both for reading and writing.</p><ul><li>default</li><li>bzip2</li><li>gzip
+</li></ul></div></div>
+    </li><li name="tech.artemisia.task.hadoop.HDFSWriteSetting" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HDFSWriteSetting"></a>
+      <a id="HDFSWriteSetting:HDFSWriteSetting"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HDFSWriteSetting$.html"><span class="name">HDFSWriteSetting</span></a><span class="result"> extends <a href="../ConfigurationNode.html" class="extype" name="tech.artemisia.task.ConfigurationNode">ConfigurationNode</a>[<a href="HDFSWriteSetting.html" class="extype" name="tech.artemisia.task.hadoop.HDFSWriteSetting">HDFSWriteSetting</a>] with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@HDFSWriteSetting" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="tech.artemisia.task.hadoop.LoadFromHDFS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LoadFromHDFS"></a>
+      <a id="LoadFromHDFS:LoadFromHDFS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="LoadFromHDFS$.html"><span class="name">LoadFromHDFS</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#tech.artemisia.task.hadoop.package@LoadFromHDFS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
