@@ -81,5 +81,7 @@ object LoadFromFile extends LoadTaskHelper {
 
   override val fieldDefinition = super.fieldDefinition ++ Map("load-setting" -> TeraLoadSetting.fieldDescription )
 
+  override def supportedModes: Seq[String] = "fastload" :: "default" :: Nil
+
 }
 

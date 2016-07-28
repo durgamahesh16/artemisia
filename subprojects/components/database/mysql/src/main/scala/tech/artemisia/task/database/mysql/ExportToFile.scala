@@ -4,9 +4,9 @@ import java.io.{File, FileOutputStream}
 import java.net.URI
 
 import com.typesafe.config.Config
-import tech.artemisia.task.database.{BasicExportSetting, DBInterface}
+import tech.artemisia.task.database
+import tech.artemisia.task.database.{BasicExportSetting, DBInterface, ExportTaskHelper}
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.task.{TaskLike, database}
 
 /**
  * Created by chlr on 4/22/16.
@@ -17,8 +17,10 @@ class ExportToFile(name: String, sql: String, location: URI ,connectionProfile: 
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, mode=exportSettings.mode)
 
+  override val supportedModes: Seq[String] = ExportToFile.supportedModes
+
   override protected[task] def setup(): Unit = {
-    assert(location.getScheme == "file", "LocalFileSystem is the only supported destination")
+    require(location.getScheme == "file", "LocalFileSystem is the only supported destination")
   }
 
   override val target = exportSettings.mode match {
@@ -28,21 +30,13 @@ class ExportToFile(name: String, sql: String, location: URI ,connectionProfile: 
 
 }
 
-object ExportToFile extends TaskLike {
+object ExportToFile extends ExportTaskHelper {
 
-  override val taskName = database.ExportToFile.taskName
+  override def apply(name: String,config: Config) = ExportTaskHelper.create[ExportToFile](name, config)
 
-  override val defaultConfig: Config = database.ExportToFile.defaultConfig
+  override val defaultPort: Int = 3306
 
-  override def apply(name: String,config: Config) = database.ExportToFile.create[ExportToFile](name, config)
-
-  override val info: String = database.ExportToFile.info
-
-  override val desc: String = database.ExportToFile.desc
-
-  override val paramConfigDoc = database.ExportToFile.paramConfigDoc(3306)
-
-  override val fieldDefinition = database.ExportToFile.fieldDefinition
+  override def supportedModes: Seq[String] = "default" :: "bulk" :: Nil
 
 }
 

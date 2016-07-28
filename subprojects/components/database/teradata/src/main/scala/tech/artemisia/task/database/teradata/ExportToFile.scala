@@ -9,9 +9,9 @@ import java.net.URI
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
-import tech.artemisia.task.database.DBInterface
+import tech.artemisia.task.database
+import tech.artemisia.task.database.{DBInterface, ExportTaskHelper}
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.FileSystemUtil
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -33,11 +33,10 @@ class ExportToFile(override val name: String, override val sql: String, location
     assert(location.getScheme == "file", "LocalFileSystem is the only supported destination")
   }
 
+  override val supportedModes: Seq[String] = ExportToFile.supportedModes
 }
 
-object ExportToFile extends TaskLike {
-
-  override val taskName = database.ExportToFile.taskName
+object ExportToFile extends ExportTaskHelper {
 
   override val defaultConfig = ConfigFactory.empty().withValue("export",TeraExportSetting.defaultConfig.root())
 
@@ -51,13 +50,13 @@ object ExportToFile extends TaskLike {
     new ExportToFile(name, sql, FileSystemUtil.makeURI(config.as[String]("location")), connectionProfile, exportSettings)
   }
 
-  override val info: String = database.ExportToFile.info
+  override def paramConfigDoc = super.paramConfigDoc withValue ("export",TeraExportSetting.structure.root())
 
-  override val desc: String = database.ExportToFile.desc
+  override def fieldDefinition = super.fieldDefinition + ("export" -> TeraExportSetting.fieldDescription)
 
-  override val paramConfigDoc = database.ExportToFile.paramConfigDoc(1025) withValue ("export",TeraExportSetting.structure.root())
+  override def supportedModes: Seq[String] = "default" :: "bulk" :: Nil
 
-  override val fieldDefinition = database.ExportToFile.fieldDefinition + ("export" -> TeraExportSetting.fieldDescription)
+  override val defaultPort: Int = 1025
 
 }
 

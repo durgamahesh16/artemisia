@@ -3,9 +3,9 @@ package tech.artemisia.task.database.teradata
 import com.typesafe.config.Config
 import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.hadoop.HDFSWriteSetting
+import tech.artemisia.task.hadoop.{ExportToHDFSHelper, HDFSWriteSetting}
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.task.{Task, TaskLike, hadoop}
+import tech.artemisia.task.{Task, hadoop}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -18,11 +18,10 @@ class ExportToHDFS(override val taskName: String, override val sql: String, over
 
    override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, exportSetting.mode)
 
+   override val supportedModes: Seq[String] = ExportToHDFS.supportedModes
 }
 
-object ExportToHDFS extends TaskLike {
-
-  override val taskName: String = hadoop.ExportToHDFS.taskName
+object ExportToHDFS extends ExportToHDFSHelper {
 
   override def apply(name: String, config: Config): Task = {
     val exportSetting = TeraExportSetting(config.as[Config]("export"))
@@ -35,17 +34,17 @@ object ExportToHDFS extends TaskLike {
     new ExportToHDFS(taskName, sql, hdfs, connectionProfile, exportSetting)
   }
 
-  override val paramConfigDoc: Config = hadoop.ExportToHDFS.paramConfigDoc(1025)
-                                              .withValue("export", TeraExportSetting.structure.root())
+  override val paramConfigDoc: Config = paramConfigDoc
+                                        .withValue("export", TeraExportSetting.structure.root())
 
-  override val defaultConfig: Config = hadoop.ExportToHDFS.defaultConfig
-                                .withValue("export", TeraExportSetting.defaultConfig.root())
+  override val defaultConfig: Config = defaultConfig
+                                        .withValue("export", TeraExportSetting.defaultConfig.root())
 
-  override val fieldDefinition: Map[String, AnyRef] = hadoop.ExportToHDFS.fieldDefinition +
-                                          ("export" -> TeraExportSetting.fieldDescription)
+  override val fieldDefinition: Map[String, AnyRef] = fieldDefinition +
+                                                    ("export" -> TeraExportSetting.fieldDescription)
 
-  override val info: String = hadoop.ExportToHDFS.info
+  override def supportedModes: Seq[String] = "default" :: "fastexport" :: Nil
 
-  override val desc: String = hadoop.ExportToHDFS.desc
+  override val defaultPort: Int = 1025
 
 }
