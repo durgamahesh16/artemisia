@@ -61,25 +61,26 @@ class LoadFromFile(override val taskName: String = Util.getUUID, override val ta
 object LoadFromFile extends LoadTaskHelper {
 
 
-  override val defaultConfig = ConfigFactory.empty().withValue("load-setting", TeraLoadSetting.defaultConfig.root())
+  override val defaultConfig = ConfigFactory.empty().withValue("load", TeraLoadSetting.defaultConfig.root())
 
   override def apply(name: String, config: Config) = {
-    val mutatedConfig = config withFallback ConfigFactory.empty().withValue("load-setting.batch-size", ConfigValueFactory fromAnyRef {
-      config.getString("load-setting.mode").toLowerCase match {
+    val mutatedConfig = config withFallback ConfigFactory.empty().withValue("load.batch-size", ConfigValueFactory fromAnyRef {
+      config.getString("load.mode").toLowerCase match {
         case "fastload" => 80000
         case "default" => 100
       }
     })
     val connectionProfile = DBConnection.parseConnectionProfile(mutatedConfig.getValue("dsn"))
     val destinationTable = mutatedConfig.as[String]("destination-table")
-    val loadSettings = TeraLoadSetting(mutatedConfig.as[Config]("load-setting"))
+    val loadSettings = TeraLoadSetting(mutatedConfig.as[Config]("load"))
     new LoadFromFile(name, destinationTable, new URI(config.as[String]("location")) ,connectionProfile, loadSettings)
   }
 
+  override def defaultPort = 1025
 
-  override val paramConfigDoc =  super.paramConfigDoc.withValue("load-setting",TeraLoadSetting.structure.root())
+  override val paramConfigDoc =  super.paramConfigDoc.withValue("load",TeraLoadSetting.structure.root())
 
-  override val fieldDefinition = super.fieldDefinition ++ Map("load-setting" -> TeraLoadSetting.fieldDescription )
+  override val fieldDefinition = super.fieldDefinition ++ Map("load" -> TeraLoadSetting.fieldDescription )
 
   override def supportedModes: Seq[String] = "fastload" :: "default" :: Nil
 

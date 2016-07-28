@@ -5,14 +5,14 @@ Teradata
 
 This Component supports exporting loading and executing queries against Teradata database
 
-| Task          | Description                                             |
-|---------------|---------------------------------------------------------|
-| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
-| SQLRead       | execute select queries and wraps the results in config  |
-| SQLLoad       | load a file into a table                                |
-| SQLExport     | export query results to a file                          |
-| ExportToHDFS  | Export database resultset to HDFS                       |
-| LoadFromHDFS  | Load Table from HDFS                                    |
+| Task                | Description                                             |
+|---------------------|---------------------------------------------------------|
+| SQLExecute          | executes DML statements such as Insert/Update/Delete    |
+| SQLRead             | execute select queries and wraps the results in config  |
+| SQLLoad             | load a file into a table                                |
+| SQLExport           | export query results to a file                          |
+| ExportToHDFS        | Export database resultset to HDFS                       |
+| LoadFromHDFSHelper  | Load Table from HDFS                                    |
 
      
 
@@ -123,8 +123,9 @@ the configuration object for this task is as shown below.
            port = "1025 @default(1025)"
            username = "username @required"
         }
-         load-setting =   {
+         load =   {
            batch-size = "200 @default(100)"
+           bulk-threshold = "100M @info()"
            delimiter = "'|' @default(',') @type(char)"
            error-tolerence = "0.57 @default(2) @type(double,0,1)"
            escapechar = "\" @default(\\) @type(char)"
@@ -148,16 +149,18 @@ the configuration object for this task is as shown below.
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
  * location: path pointing to the source file
- * load-setting:
+ * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * bulk-threshold: size of the source file(s) above which fastload mode will be selected if auto mode is enabled
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * session: no of sessions used for the load
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table. The allowed modes are
         * fastload
-        * default
+        * small
+        * auto
     * header: boolean field to enable/disable headers
     * escapechar: escape character used in the file
     * batch-size: loads into table will be grouped into batches of this size.
@@ -309,7 +312,7 @@ The typical task SQLExport configuration is as shown below
 
 
 
-### LoadFromHDFS:
+### LoadFromHDFSHelper:
 
 
 #### Description:
@@ -321,7 +324,7 @@ The typical task SQLExport configuration is as shown below
 
       {
         Component = "Teradata"
-        Task = "LoadFromHDFS"
+        Task = "LoadFromHDFSHelper"
         param =  {
          destination-table = "dummy_table @required"
          dsn_[1] = "connection-name"
@@ -336,8 +339,9 @@ The typical task SQLExport configuration is as shown below
            codec = "gzip"
            location = "/var/tmp/input.txt"
         }
-         load-setting =   {
+         load =   {
            batch-size = "200 @default(100)"
+           bulk-threshold = "100M @info()"
            delimiter = "'|' @default(',') @type(char)"
            error-tolerence = "0.57 @default(2) @type(double,0,1)"
            escapechar = "\" @default(\\) @type(char)"
@@ -351,6 +355,7 @@ The typical task SQLExport configuration is as shown below
            skip-lines = "0 @default(0) @type(int)"
            truncate = "yes @type(boolean)"
         }
+         location = "/var/tmp/file.txt"
       }
      }
 
@@ -359,16 +364,18 @@ The typical task SQLExport configuration is as shown below
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
- * load-setting:
+ * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * bulk-threshold: size of the source file(s) above which fastload mode will be selected if auto mode is enabled
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * session: no of sessions used for the load
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table. The allowed modes are
         * fastload
-        * default
+        * small
+        * auto
     * header: boolean field to enable/disable headers
     * escapechar: escape character used in the file
     * batch-size: loads into table will be grouped into batches of this size.

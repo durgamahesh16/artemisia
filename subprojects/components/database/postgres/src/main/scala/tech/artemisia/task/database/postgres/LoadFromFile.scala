@@ -39,7 +39,7 @@ object LoadFromFile extends TaskLike {
   override val info = database.LoadFromFile.info
 
   override val defaultConfig: Config = ConfigFactory.empty()
-            .withValue("load-setting", BasicLoadSetting.defaultConfig.root())
+            .withValue("load", BasicLoadSetting.defaultConfig.root())
 
   override val taskName = database.LoadFromFile.taskName
 

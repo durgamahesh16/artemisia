@@ -26,6 +26,7 @@ trait HDFSTaskSpec extends TestSpec {
         ,DBConnection("hostname", "username", "password", "database", -1)
         ,BasicExportSetting()
       ) {
+        override val supportedModes = "default" :: "bulk" :: Nil
         override val dbInterface: DBInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
       }
     task.execute()
@@ -43,6 +44,7 @@ trait HDFSTaskSpec extends TestSpec {
       ,DBConnection("hostname", "username", "password", "db", -1)
       ,BasicLoadSetting(delimiter=',')
     ) {
+      override val supportedModes = "default" :: "bulk" :: Nil
       override val dbInterface: DBInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
     }
     val result = task.execute()

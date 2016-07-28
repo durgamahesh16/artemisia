@@ -57,7 +57,7 @@ class MySQLComponentSpec extends TestSpec {
          |{
          |  ${MySQLComponentSpec.getDSN()}
          |  destination-table = test_table
-         |       load-setting = {
+         |       load = {
          |         header =  yes
          |         delimiter = "\\u0001"
          |         quoting = no,

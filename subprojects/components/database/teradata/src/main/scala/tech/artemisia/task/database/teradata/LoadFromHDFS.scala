@@ -21,6 +21,8 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
 
 object LoadFromHDFS extends LoadFromHDFSHelper {
 
+  override def defaultPort: Int = 1025
+
   override def apply(name: String, config: Config): Task = {
     val loadSetting = TeraLoadSetting(config.as[Config]("load"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))

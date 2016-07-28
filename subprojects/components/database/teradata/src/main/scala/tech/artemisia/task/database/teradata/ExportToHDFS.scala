@@ -34,13 +34,13 @@ object ExportToHDFS extends ExportToHDFSHelper {
     new ExportToHDFS(taskName, sql, hdfs, connectionProfile, exportSetting)
   }
 
-  override val paramConfigDoc: Config = paramConfigDoc
+  override def paramConfigDoc: Config = super.paramConfigDoc
                                         .withValue("export", TeraExportSetting.structure.root())
 
-  override val defaultConfig: Config = defaultConfig
+  override def defaultConfig: Config = super.defaultConfig
                                         .withValue("export", TeraExportSetting.defaultConfig.root())
 
-  override val fieldDefinition: Map[String, AnyRef] = fieldDefinition +
+  override def fieldDefinition: Map[String, AnyRef] = super.fieldDefinition +
                                                     ("export" -> TeraExportSetting.fieldDescription)
 
   override def supportedModes: Seq[String] = "default" :: "fastexport" :: Nil

@@ -2,7 +2,7 @@ package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.{DBInterface, ExportTaskHelper}
-import tech.artemisia.task.hadoop.HDFSWriteSetting
+import tech.artemisia.task.hadoop.{ExportToHDFSHelper, HDFSWriteSetting}
 import tech.artemisia.task.settings.{DBConnection, ExportSetting}
 import tech.artemisia.task.{Task, hadoop}
 
@@ -20,7 +20,7 @@ class ExportToHDFS(override val taskName: String, override val sql: String, hdfs
       override val supportedModes: Seq[String] = ExportToHDFS.supportedModes
 }
 
-object ExportToHDFS extends ExportTaskHelper {
+object ExportToHDFS extends ExportToHDFSHelper {
 
   override def apply(name: String, config: Config): Task = ExportTaskHelper.create[ExportToHDFS](name, config)
 

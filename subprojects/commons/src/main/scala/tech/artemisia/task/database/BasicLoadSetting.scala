@@ -1,6 +1,6 @@
 package tech.artemisia.task.database
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
 import tech.artemisia.task.ConfigurationNode
 import tech.artemisia.task.settings.LoadSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -66,6 +66,7 @@ object BasicLoadSetting extends ConfigurationNode[BasicLoadSetting] {
     """.stripMargin
 
   def apply(config: Config): BasicLoadSetting = {
+    System.err.println(config.root().render(ConfigRenderOptions.concise()))
     BasicLoadSetting (
     skipRows = if (config.as[Int]("skip-lines") == 0) if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),
     delimiter = config.as[Char]("delimiter"),

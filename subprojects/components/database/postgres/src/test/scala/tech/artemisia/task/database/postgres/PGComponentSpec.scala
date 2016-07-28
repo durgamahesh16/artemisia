@@ -36,7 +36,6 @@ class PGComponentSpec extends TestSpec {
   }
 
   it must "dispatch SQLExecute when request" in {
-
     val config = ConfigFactory parseString
       s"""
          |{
@@ -59,7 +58,7 @@ class PGComponentSpec extends TestSpec {
          |{
          |  ${PGComponentSpec.getDSN()}
          |  destination-table = test_table
-         |       load-setting = {
+         |       load = {
          |         header =  yes
          |         delimiter = "\\u0001"
          |         quoting = no,

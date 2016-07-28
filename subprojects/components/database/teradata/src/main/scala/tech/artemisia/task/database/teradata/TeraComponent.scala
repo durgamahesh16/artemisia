@@ -15,7 +15,7 @@ class TeraComponent(name: String) extends Component(name: String) {
     """
       | {
       | dsn = { port: 1025 }
-      | load-setting.mode = default
+      | load.mode = default
       | }
     """.stripMargin
 

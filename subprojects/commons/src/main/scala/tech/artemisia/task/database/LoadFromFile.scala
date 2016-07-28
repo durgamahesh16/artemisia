@@ -103,7 +103,7 @@ object LoadFromFile {
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table" -> "destination table to load",
     "location" -> "path pointing to the source file",
-    s"load-setting" -> BasicLoadSetting.fieldDescription
+    s"load" -> BasicLoadSetting.fieldDescription
   )
 
 

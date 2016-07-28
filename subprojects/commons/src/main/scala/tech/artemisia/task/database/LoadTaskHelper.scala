@@ -36,7 +36,7 @@ trait LoadTaskHelper extends TaskLike {
   /**
     * undefined default port
     */
-  def defaultPort: Int = ???
+  def defaultPort: Int
 
   def supportedModes: Seq[String]
 
@@ -44,11 +44,11 @@ trait LoadTaskHelper extends TaskLike {
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table" -> "destination table to load",
     "location" -> "path pointing to the source file",
-    s"load-setting" -> BasicLoadSetting.fieldDescription
+    s"load" -> BasicLoadSetting.fieldDescription
   )
 
   override def defaultConfig: Config = ConfigFactory.empty()
-                                  .withValue("load-setting", BasicLoadSetting.defaultConfig.root())
+                                  .withValue("load", BasicLoadSetting.defaultConfig.root())
 
   override def apply(name: String, config: Config): Task = ???
 
@@ -60,7 +60,7 @@ trait LoadTaskHelper extends TaskLike {
          |  location = /var/tmp/file.txt
      """.stripMargin
     config
-      .withValue("load-setting",BasicLoadSetting.structure.root())
+      .withValue("load",BasicLoadSetting.structure.root())
       .withValue(""""dsn_[2]"""",DBConnection.structure(defaultPort).root())
   }
 }
@@ -78,7 +78,7 @@ object LoadTaskHelper {
   def create[T <: LoadFromFile : ClassTag](name: String, config: Config): LoadFromFile = {
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val destinationTable = config.as[String]("destination-table")
-    val loadSettings = BasicLoadSetting(config.as[Config]("load-setting"))
+    val loadSettings = BasicLoadSetting(config.as[Config]("load"))
     val location = new File(config.as[String]("load-path")).toURI
     implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[LoadFromFile]).getConstructor(classOf[String],
       classOf[String], classOf[URI], classOf[DBConnection], classOf[BasicLoadSetting]).newInstance(name, destinationTable,

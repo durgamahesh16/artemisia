@@ -40,7 +40,7 @@ object TeraLoadSetting extends ConfigurationNode[TeraLoadSetting] {
     TeraLoadSetting(loadSetting.skipRows, loadSetting.delimiter, loadSetting.quoting
       ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.truncate, loadSetting.mode, loadSetting.batchSize
       ,loadSetting.errorTolerance, config.as[Boolean]("recreate-table") ,config.as[Int]("session")
-      ,config.as[ConfigMemorySize]("bulk-load-threshold").toBytes
+      ,config.as[ConfigMemorySize]("bulk-threshold").toBytes
     )
   }
 

@@ -5,14 +5,14 @@ MySQL
 
 This components provides tasks to interact with a mysql database
 
-| Task          | Description                                             |
-|---------------|---------------------------------------------------------|
-| SQLExport     | export query results to a file                          |
-| SQLLoad       | load a file into a table                                |
-| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
-| SQLRead       | execute select queries and wraps the results in config  |
-| ExportToHDFS  | Export database resultset to HDFS                       |
-| LoadFromHDFS  | Load Table from HDFS                                    |
+| Task                | Description                                             |
+|---------------------|---------------------------------------------------------|
+| SQLExport           | export query results to a file                          |
+| SQLLoad             | load a file into a table                                |
+| SQLExecute          | executes DML statements such as Insert/Update/Delete    |
+| SQLRead             | execute select queries and wraps the results in config  |
+| ExportToHDFS        | Export database resultset to HDFS                       |
+| LoadFromHDFSHelper  | Load Table from HDFS                                    |
 
      
 
@@ -105,7 +105,7 @@ the configuration object for this task is as shown below.
            port = "3306 @default(3306)"
            username = "username @required"
         }
-         load-setting =   {
+         load =   {
            batch-size = "200 @default(100)"
            delimiter = "'|' @default(',') @type(char)"
            error-tolerence = "0.57 @default(2) @type(double,0,1)"
@@ -128,7 +128,7 @@ the configuration object for this task is as shown below.
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
  * location: path pointing to the source file
- * load-setting:
+ * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
     * truncate: truncate the target table before loading data
@@ -300,7 +300,7 @@ The configuration object is shown below.
 
 
 
-### LoadFromHDFS:
+### LoadFromHDFSHelper:
 
 
 #### Description:
@@ -312,7 +312,7 @@ The configuration object is shown below.
 
       {
         Component = "MySQL"
-        Task = "LoadFromHDFS"
+        Task = "LoadFromHDFSHelper"
         param =  {
          destination-table = "dummy_table @required"
          dsn_[1] = "connection-name"
@@ -327,7 +327,7 @@ The configuration object is shown below.
            codec = "gzip"
            location = "/var/tmp/input.txt"
         }
-         load-setting =   {
+         load =   {
            batch-size = "200 @default(100)"
            delimiter = "'|' @default(',') @type(char)"
            error-tolerence = "0.57 @default(2) @type(double,0,1)"
@@ -340,6 +340,7 @@ The configuration object is shown below.
            skip-lines = "0 @default(0) @type(int)"
            truncate = "yes @type(boolean)"
         }
+         location = "/var/tmp/file.txt"
       }
      }
 
@@ -348,7 +349,7 @@ The configuration object is shown below.
 
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * destination-table: destination table to load
- * load-setting:
+ * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
     * truncate: truncate the target table before loading data

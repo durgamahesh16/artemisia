@@ -25,6 +25,7 @@ class ExportToFileSpec extends TestSpec {
     connectionProfile,
     exportSettings
     ) {
+      override val supportedModes = "default" :: "bulk" :: Nil
       override val dbInterface: DBInterface = testDbInterface
       override val target = Left(new FileOutputStream(new File(location)))
     }

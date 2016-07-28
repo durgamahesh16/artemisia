@@ -43,6 +43,7 @@ object LoadToTableSpec {
   def loader(name: String, tableName: String, location: URI ,connectionProfile: DBConnection, loadSettings: BasicLoadSetting) =
 
     new LoadFromFile("test_task",tableName, location ,connectionProfile, loadSettings) {
+    override val supportedModes = "default" :: "bulk" :: Nil
     override val dbInterface: DBInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
     override val source = Left(new FileInputStream(new File(location)))
     override protected[task] def setup(): Unit = {}
