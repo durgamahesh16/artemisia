@@ -18,7 +18,7 @@ trait TaskLike {
   /**
     *
     */
-  val defaultConfig: Config
+  def defaultConfig: Config
 
   /**
     * one line info about the task
@@ -33,7 +33,7 @@ trait TaskLike {
   /**
     * Sequence of config keys and their associated values
     */
-  val paramConfigDoc: Config
+  def paramConfigDoc: Config
 
   /**
     *
@@ -54,7 +54,7 @@ trait TaskLike {
   /**
     * definition of the fields in task param config
     */
-  val fieldDefinition: Map[String, AnyRef]
+  def fieldDefinition: Map[String, AnyRef]
 
 
   /**

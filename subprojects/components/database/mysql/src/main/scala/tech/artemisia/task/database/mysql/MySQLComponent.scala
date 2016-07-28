@@ -16,7 +16,7 @@ class MySQLComponent(componentName: String) extends Component(componentName) {
       | }
     """.stripMargin
 
-  override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadToTable, SQLExecute, SQLRead, ExportToHDFS, LoadFromHDFS)
+  override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadFromFile, SQLExecute, SQLRead, ExportToHDFS, LoadFromHDFS)
 
   override val info: String = "This components provides tasks to interact with a mysql database"
 

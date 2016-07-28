@@ -2,9 +2,9 @@ package tech.artemisia.task.database.mysql
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.hadoop.HDFSReadSetting
+import tech.artemisia.task.hadoop.{HDFSReadSetting, LoadFromHDFSHelper}
 import tech.artemisia.task.settings.{DBConnection, LoadSetting}
-import tech.artemisia.task.{Task, TaskLike, hadoop}
+import tech.artemisia.task.{Task, hadoop}
 
 /**
   * Created by chlr on 7/21/16.
@@ -15,24 +15,17 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
+  override protected val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+
 }
 
-object LoadFromHDFS extends TaskLike {
+object LoadFromHDFS extends LoadFromHDFSHelper {
 
-  override val taskName: String = "LoadFromHDFS"
 
-  override def apply(name: String, config: Config): Task = {
-    hadoop.LoadFromHDFS.create[LoadFromHDFS](name, config)
-  }
+  override def apply(name: String, config: Config): Task = LoadFromHDFSHelper.create[LoadFromHDFS](name, config)
 
-  override val paramConfigDoc: Config = hadoop.LoadFromHDFS.paramConfigDoc(3306)
+  override def defaultPort = 3306
 
-  override val defaultConfig: Config = hadoop.LoadFromHDFS.defaultConfig
-
-  override val fieldDefinition: Map[String, AnyRef] = hadoop.LoadFromHDFS.fieldDefinition
-
-  override val info: String = hadoop.LoadFromHDFS.info
-
-  override val desc: String = hadoop.LoadFromHDFS.desc
+  override val supportedModes = "default" :: "bulk" :: Nil
 
 }

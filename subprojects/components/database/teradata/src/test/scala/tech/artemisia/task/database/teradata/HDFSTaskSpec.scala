@@ -30,7 +30,7 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
     result.getInt("mysqlExportHDFS.__stats__.rows") must be (2)
   }
 
-  "LoadFromHDFS" must "load data from HDFS" in {
+  "LoadFromHDFSHelper" must "load data from HDFS" in {
     val tableName = "mysqlLoadFromHDFS"
     val task = new LoadFromHDFS(tableName, tableName, HDFSReadSetting(cluster.pathToURI("/test/file.txt"))
       , DBConnection("","","","",-1), TeraLoadSetting()) {

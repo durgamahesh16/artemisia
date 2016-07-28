@@ -26,6 +26,7 @@ trait DBInterface {
 
   self: DBImporter with DBExporter =>
 
+
   /**
    *  JDBC connection object
    */

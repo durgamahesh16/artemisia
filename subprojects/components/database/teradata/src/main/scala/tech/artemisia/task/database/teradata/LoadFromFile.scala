@@ -1,12 +1,14 @@
 package tech.artemisia.task.database.teradata
 
-import java.io.{File, FileInputStream, InputStream}
+import java.io.InputStream
 import java.net.URI
+import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import tech.artemisia.task.database.DBInterface
+import tech.artemisia.task.database
+import tech.artemisia.task.database.{DBInterface, LoadTaskHelper}
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.task.{TaskLike, database}
+import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
 
@@ -16,19 +18,28 @@ import scala.collection.mutable
   * Created by chlr on 6/26/16.
   */
 
-class LoadToTable(override val taskName: String = Util.getUUID, override val tableName: String,
-                  location: URI, override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting)
-  extends database.LoadToTable(taskName, tableName, location, connectionProfile, loadSetting) {
+class LoadFromFile(override val taskName: String = Util.getUUID, override val tableName: String,
+                   location: URI, override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting)
+  extends database.LoadFromFile(taskName, tableName, location, connectionProfile, loadSetting) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
+  override val supportedModes = "fastload" :: "default" :: "auto" :: Nil
 
-  override val source: Either[InputStream, URI] = Left(new FileInputStream(new File(location)))
+  val (inputStream, loadSize) =  prepPathForLoad(Paths.get(location.getPath))
+
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode match  {
+      case "auto" => if (loadSize  > loadSetting.bulkLoadThreshold) "fastload" else "default"
+      case x => x
+    }
+  )
+
+  override val source: Either[InputStream, URI] = Left(inputStream)
 
   /**
     * No operations are done in this phase
     */
   override protected[task] def setup(): Unit = {
     if (loadSetting.recreateTable) {
+        require(supportedModes contains loadSetting.mode, s"load mode ${loadSetting.mode} is not supported")
         val rs = dbInterface.query(s"SHOW TABLE $tableName", printSQL = false)
         val buffer = mutable.ArrayBuffer[String]()
         while(rs.next()) { buffer += rs.getString(1) }
@@ -47,13 +58,10 @@ class LoadToTable(override val taskName: String = Util.getUUID, override val tab
 
 }
 
-object LoadToTable extends TaskLike {
+object LoadFromFile extends LoadTaskHelper {
 
-  override val info = database.LoadToTable.info
 
   override val defaultConfig = ConfigFactory.empty().withValue("load-setting", TeraLoadSetting.defaultConfig.root())
-
-  override val taskName = database.LoadToTable.taskName
 
   override def apply(name: String, config: Config) = {
     val mutatedConfig = config withFallback ConfigFactory.empty().withValue("load-setting.batch-size", ConfigValueFactory fromAnyRef {
@@ -65,15 +73,13 @@ object LoadToTable extends TaskLike {
     val connectionProfile = DBConnection.parseConnectionProfile(mutatedConfig.getValue("dsn"))
     val destinationTable = mutatedConfig.as[String]("destination-table")
     val loadSettings = TeraLoadSetting(mutatedConfig.as[Config]("load-setting"))
-    new LoadToTable(name, destinationTable, new URI(config.as[String]("location")) ,connectionProfile, loadSettings)
+    new LoadFromFile(name, destinationTable, new URI(config.as[String]("location")) ,connectionProfile, loadSettings)
   }
 
-  override val desc: String = database.LoadToTable.desc
 
-  override val paramConfigDoc =  database.LoadToTable.paramConfigDoc(1025).withValue("load-setting",
-    TeraLoadSetting.structure.root())
+  override val paramConfigDoc =  super.paramConfigDoc.withValue("load-setting",TeraLoadSetting.structure.root())
 
-  override val fieldDefinition = database.LoadToTable.fieldDefinition ++ Map("load-setting" -> TeraLoadSetting.fieldDescription )
+  override val fieldDefinition = super.fieldDefinition ++ Map("load-setting" -> TeraLoadSetting.fieldDescription )
 
 }
 

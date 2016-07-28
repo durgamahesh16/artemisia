@@ -104,7 +104,7 @@ object FileSystemUtil {
    * @param directoryName name of the directory
    * @param body block of code to be executed
    */
-  def withTempDirectory(directoryName: String)(body: File => Unit): Unit = {
+  def withTempDirectory(directoryName: String)(body: File => Unit) = {
     val dir = Files.createTempDirectory(directoryName).toFile
     try
       body(dir)
@@ -128,6 +128,7 @@ object FileSystemUtil {
         override def visitFile(currentPath: Path, attribs: BasicFileAttributes) = {
           if (matcher.matches(currentPath) && (!filesOnly || currentPath.toFile.isFile)) {
             fileList += currentPath.toFile
+            currentPath.toFile
           }
           FileVisitResult.CONTINUE
         }
@@ -160,6 +161,17 @@ object FileSystemUtil {
     files.foldLeft(identityStream) {
       (x, y) => new SequenceInputStream(x, new FileInputStream(y))
     }
+  }
+
+  /**
+    * resolve a path to a sequence of files (multiple files if globs are used.)
+    * gather info on the summation of size of the file.
+    * @param path
+    * @return
+    */
+  def prepPathForLoad(path: Path) = {
+    val files= expandPathToFiles(path)
+    mergeFileStreams(files) -> files.map(_.length).sum
   }
 
 

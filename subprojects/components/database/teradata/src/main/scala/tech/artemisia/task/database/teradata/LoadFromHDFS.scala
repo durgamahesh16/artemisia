@@ -2,9 +2,9 @@ package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.hadoop.HDFSReadSetting
+import tech.artemisia.task.hadoop.{HDFSReadSetting, LoadFromHDFSHelper}
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.task.{Task, TaskLike, hadoop}
+import tech.artemisia.task.{Task, hadoop}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -14,33 +14,30 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
                    override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting) extends
   hadoop.LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
+  override protected def supportedModes: Seq[String] = LoadFromHDFS.supportedModes
 }
 
-object LoadFromHDFS extends TaskLike {
-
-  override val taskName: String = hadoop.LoadFromHDFS.taskName
+object LoadFromHDFS extends LoadFromHDFSHelper {
 
   override def apply(name: String, config: Config): Task = {
-    val loadSetting = TeraLoadSetting(config.as[Config]("load-setting"))
+    val loadSetting = TeraLoadSetting(config.as[Config]("load"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val tableName = config.as[String]("destination-table")
     val hdfsReadSetting = HDFSReadSetting(config.as[Config]("hdfs"))
     new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting )
   }
 
-  override val paramConfigDoc: Config = hadoop.LoadFromHDFS.paramConfigDoc(1025)
-                                            .withValue("load-setting", TeraLoadSetting.structure.root())
+  override def paramConfigDoc: Config = super.paramConfigDoc
+                                    .withValue("load", TeraLoadSetting.structure.root())
 
-  override val defaultConfig: Config = hadoop.LoadFromHDFS.defaultConfig
-                                    .withValue("load-setting", TeraLoadSetting.defaultConfig.root())
+  override val defaultConfig: Config = super.defaultConfig
+                                    .withValue("load", TeraLoadSetting.defaultConfig.root())
 
-  override val fieldDefinition: Map[String, AnyRef] = hadoop.LoadFromHDFS.fieldDefinition +
-                            ("load-setting" -> TeraLoadSetting.fieldDescription)
+  override val fieldDefinition: Map[String, AnyRef] = super.fieldDefinition +
+                                    ("load" -> TeraLoadSetting.fieldDescription)
 
-  override val info: String = hadoop.LoadFromHDFS.info
-
-  override val desc: String = hadoop.LoadFromHDFS.desc
+  override val supportedModes = "default" :: "fastload" :: Nil
 
 }

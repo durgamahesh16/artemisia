@@ -19,6 +19,7 @@ javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
 
 
+
 docgen := {
     val r = (runner in Compile).value
     val input = baseDirectory.value

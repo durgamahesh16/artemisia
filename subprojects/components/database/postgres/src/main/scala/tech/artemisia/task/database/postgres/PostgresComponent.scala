@@ -15,7 +15,7 @@ class PostgresComponent(name: String) extends Component(name) {
       | }
     """.stripMargin
 
-  override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadToTable, SQLExecute, SQLRead, ExportToHDFS, LoadFromHDFS)
+  override val tasks: Seq[TaskLike] = Seq(ExportToFile, LoadFromFile, SQLExecute, SQLRead, ExportToHDFS, LoadFromHDFS)
 
   override val info: String = "Component for interacting with postgres database"
 

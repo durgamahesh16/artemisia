@@ -66,7 +66,7 @@ class MySQLComponentSpec extends TestSpec {
          |}
       """.stripMargin
 
-    val task = component.dispatchTask("SQLLoad", "sql_read", config).asInstanceOf[LoadToTable]
+    val task = component.dispatchTask("SQLLoad", "sql_read", config).asInstanceOf[LoadFromFile]
     task.tableName must be ("test_table")
     task.loadSetting.delimiter must be ('\u0001')
     Paths.get(task.location.toString).getFileName.toString must be ("dummy_load_file.txt")

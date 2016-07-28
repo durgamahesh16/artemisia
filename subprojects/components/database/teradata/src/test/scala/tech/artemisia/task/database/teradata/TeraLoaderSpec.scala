@@ -20,7 +20,7 @@ class TeraLoaderSpec extends TestSpec {
               |103,blimey,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00
               |104,victor,true,100,10000000,87.3,12:30:00,1945-05-09,1945-05-09 12:30:00 """.stripMargin
 
-          val loader = new LoadToTable(taskName = "td_load_test",tableName = tableName,location = file.toURI,
+          val loader = new LoadFromFile(taskName = "td_load_test",tableName = tableName,location = file.toURI,
             connectionProfile = DBConnection("", "", "", "", -1),
             loadSetting = TeraLoadSetting()) {
             override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)

@@ -33,7 +33,7 @@ trait HDFSTaskSpec extends TestSpec {
     stream.lines().toArray.head.toString must be ("1,foo,TRUE,100,10000000,87.30,12:30:00,1945-05-09,1945-05-09 12:30:00.0")
   }
 
-  "LoadFromHDFS" must "load data from HDFS" in {
+  "LoadFromHDFSHelper" must "load data from HDFS" in {
     val tableName = "LoadFromHDFSSpec_2"
     val location =  BaseHDFSSpec.cluster.pathToURI("/test/dir*/*.txt")
     val task = new LoadFromHDFS(

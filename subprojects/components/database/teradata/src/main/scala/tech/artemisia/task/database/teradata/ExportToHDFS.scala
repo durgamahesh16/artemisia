@@ -16,7 +16,7 @@ class ExportToHDFS(override val taskName: String, override val sql: String, over
                    override val connectionProfile: DBConnection, override val exportSetting: TeraExportSetting)
     extends hadoop.ExportToHDFS(taskName, sql, hdfsWriteSetting, connectionProfile, exportSetting) {
 
-   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, exportSetting.mode)
+   override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, exportSetting.mode)
 
 }
 

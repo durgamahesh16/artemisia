@@ -14,7 +14,7 @@ import tech.artemisia.util.Util
 class SQLRead(name: String = Util.getUUID, sql: String, connectionProfile: DBConnection)
   extends database.SQLRead(name, sql, connectionProfile) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile)
 
 }
 

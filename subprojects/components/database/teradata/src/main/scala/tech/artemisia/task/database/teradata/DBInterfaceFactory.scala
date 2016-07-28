@@ -8,12 +8,12 @@ import tech.artemisia.task.settings.DBConnection
 /**
   * Factory object for constructing Dbinterface object
   */
-object DbInterfaceFactory {
+object DBInterfaceFactory {
 
   /**
     *
     * @param connectionProfile ConnectionProfile object
-    * @param mode              mode can be either `default` or `native` to choose loader method
+    * @param mode mode can be either `default` or `native` to choose loader method
     * @return DbInterface
     */
   def getInstance(connectionProfile: DBConnection, mode: String = "default", session: Int = 1) = {

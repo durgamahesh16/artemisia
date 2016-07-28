@@ -12,7 +12,7 @@ import tech.artemisia.task.settings.DBConnection
 class SQLExecute(name: String, sql: String, connectionProfile: DBConnection) extends
   database.SQLExecute(name, sql, connectionProfile) {
 
-  override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile)
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile)
 
   /**
     * No work is done in this phase
