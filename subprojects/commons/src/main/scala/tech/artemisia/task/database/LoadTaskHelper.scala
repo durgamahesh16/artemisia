@@ -38,7 +38,7 @@ trait LoadTaskHelper extends TaskLike {
     */
   def defaultPort: Int = ???
 
-  val supportedModes: Seq[String] = "default" :: "bulk" :: Nil
+  def supportedModes: Seq[String] = "default" :: "bulk" :: Nil
 
   override def fieldDefinition = Map(
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",

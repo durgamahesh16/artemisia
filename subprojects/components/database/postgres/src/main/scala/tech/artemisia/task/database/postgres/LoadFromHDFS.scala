@@ -25,6 +25,6 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
 
   override def defaultPort = 3306
 
-  override val supportedModes = "default" :: "bulk" :: Nil
+  override def supportedModes = "default" :: "bulk" :: Nil
 
 }

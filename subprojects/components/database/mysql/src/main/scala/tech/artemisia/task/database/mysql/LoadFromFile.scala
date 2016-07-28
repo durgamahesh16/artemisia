@@ -18,7 +18,7 @@ class LoadFromFile(name: String = Util.getUUID, tableName: String, location: URI
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
 
-  def supportedModes = LoadFromFile.supportedModes
+  override val supportedModes = LoadFromFile.supportedModes
 
   override val source = loadSettings.mode match {
     case "default" => Left(prepPathForLoad(Paths.get(location.getPath))._1)
@@ -38,6 +38,6 @@ object LoadFromFile extends LoadTaskHelper {
 
   override def defaultPort = 3306
 
-  override val supportedModes: Seq[String] = "default" :: "bulk" :: Nil
+  override def supportedModes: Seq[String] = "default" :: "bulk" :: Nil
 
 }

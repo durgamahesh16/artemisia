@@ -16,7 +16,7 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
 
   override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
-  override protected def supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+  override protected val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
 }
 
 object LoadFromHDFS extends LoadFromHDFSHelper {
@@ -38,6 +38,6 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
   override val fieldDefinition: Map[String, AnyRef] = super.fieldDefinition +
                                     ("load" -> TeraLoadSetting.fieldDescription)
 
-  override val supportedModes = "default" :: "fastload" :: Nil
+  override def supportedModes = "default" :: "fastload" :: Nil
 
 }
