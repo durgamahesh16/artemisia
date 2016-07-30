@@ -25,6 +25,7 @@ class TeraLoaderSpec extends TestSpec {
             loadSetting = TeraLoadSetting()) {
             override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
           }
+        loader.supportedModes must be === "fastload" :: "default" :: "auto" :: Nil
        val result = loader.execute()
         result.getInt("td_load_test.__stats__.loaded") must be (5)
     }
@@ -39,10 +40,12 @@ class TeraLoaderSpec extends TestSpec {
           exportSetting = TeraExportSetting()) {
           override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
         }
+        export.supportedModes must be === "default" :: "fastexport"  :: Nil
         val result = export.execute()
         result.getInt("td_export_test.__stats__.rows") must be (2)
     }
   }
+
 
   it must "execute DML statement" in {
     val tableName = "td_execute"

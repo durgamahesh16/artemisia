@@ -24,15 +24,15 @@ class LoadFromFile(override val taskName: String = Util.getUUID, override val ta
 
   override val supportedModes = "fastload" :: "default" :: "auto" :: Nil
 
-  val (inputStream, loadSize) =  prepPathForLoad(Paths.get(location.getPath))
+  val (inputStream, loadSize) =  getPathForLoad(Paths.get(location.getPath))
 
-  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode match  {
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode match {
       case "auto" => if (loadSize  > loadSetting.bulkLoadThreshold) "fastload" else "default"
       case x => x
     }
   )
 
-  override val source: Either[InputStream, URI] = Left(inputStream)
+  override lazy val source: Either[InputStream, URI] = Left(inputStream)
 
   /**
     * No operations are done in this phase

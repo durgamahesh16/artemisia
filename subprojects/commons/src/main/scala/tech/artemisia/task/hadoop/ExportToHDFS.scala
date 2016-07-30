@@ -1,12 +1,7 @@
 package tech.artemisia.task.hadoop
 
-import com.typesafe.config.Config
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
-import tech.artemisia.task.database.{BasicExportSetting, DBInterface, ExportToFile}
+import tech.artemisia.task.database.{DBInterface, ExportToFile}
 import tech.artemisia.task.settings.{DBConnection, ExportSetting}
-import tech.artemisia.util.HoconConfigUtil.Handler
-
-import scala.reflect.ClassTag
 
 
 /**

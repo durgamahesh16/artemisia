@@ -2,7 +2,7 @@ package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.hadoop.{HDFSReadSetting, LoadFromHDFSHelper}
+import tech.artemisia.task.hadoop.{HDFSReadSetting, HDFSUtil, LoadFromHDFSHelper}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, hadoop}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -14,9 +14,19 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
                    override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting) extends
   hadoop.LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
 
-  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
+  lazy val (inputStream, loadSize) = HDFSUtil.getPathForLoad(hdfsReadSetting.location, hdfsReadSetting.codec)
 
-  override protected val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+  override lazy val source = Left(inputStream)
+
+  def getEffectiveMode = loadSetting.mode match {
+    case "auto" => if (loadSize > loadSetting.bulkLoadThreshold) "fastload" else "default"
+    case x => x
+  }
+
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, getEffectiveMode)
+
+  override val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+
 }
 
 object LoadFromHDFS extends LoadFromHDFSHelper {
@@ -28,7 +38,7 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val tableName = config.as[String]("destination-table")
     val hdfsReadSetting = HDFSReadSetting(config.as[Config]("hdfs"))
-    new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting )
+    new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting)
   }
 
   override def paramConfigDoc: Config = super.paramConfigDoc
@@ -40,6 +50,6 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
   override val fieldDefinition: Map[String, AnyRef] = super.fieldDefinition +
                                     ("load" -> TeraLoadSetting.fieldDescription)
 
-  override def supportedModes = "default" :: "fastload" :: Nil
+  override def supportedModes = "default" :: "fastload" :: "auto" :: Nil
 
 }

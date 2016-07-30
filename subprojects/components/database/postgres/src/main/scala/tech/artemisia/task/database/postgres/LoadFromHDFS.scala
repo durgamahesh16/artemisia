@@ -15,7 +15,7 @@ class LoadFromHDFS(taskName: String, tableName: String, hdfsReadSetting: HDFSRea
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
-  override protected val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+  override val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
 
 }
 

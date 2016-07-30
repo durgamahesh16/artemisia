@@ -24,8 +24,7 @@ class ExportToFile(override val name: String, override val sql: String, location
                    ,override val exportSetting: TeraExportSetting)
   extends database.ExportToFile(name: String, sql: String, location, connectionProfile: DBConnection ,exportSetting) {
 
-  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, mode = exportSetting.mode,
-    exportSetting.session)
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, mode = exportSetting.mode, exportSetting.session)
 
   override val target: Either[OutputStream, URI] = Left(new FileOutputStream(new File(location)))
 
@@ -54,7 +53,7 @@ object ExportToFile extends ExportTaskHelper {
 
   override def fieldDefinition = super.fieldDefinition + ("export" -> TeraExportSetting.fieldDescription)
 
-  override def supportedModes: Seq[String] = "default" :: "bulk" :: Nil
+  override def supportedModes: Seq[String] = "default" :: "fastexport" :: Nil
 
   override val defaultPort: Int = 1025
 

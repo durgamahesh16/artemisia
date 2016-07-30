@@ -26,6 +26,7 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
       TeraExportSetting()) {
       override val dbInterface =  TestDBInterFactory.withDefaultDataLoader(tableName)
     }
+    task.supportedModes must be === "default" :: "fastexport" :: Nil
     val result = task.execute()
     result.getInt("mysqlExportHDFS.__stats__.rows") must be (2)
   }
@@ -36,6 +37,7 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
       , DBConnection("","","","",-1), TeraLoadSetting()) {
       override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
     }
+    task.supportedModes must be === "default" :: "fastload" :: "auto" :: Nil
     val result = task.execute()
     result.getInt(s"$tableName.__stats__.loaded") must be (2)
     result.getInt(s"$tableName.__stats__.rejected") must be (0)

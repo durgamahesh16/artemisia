@@ -169,7 +169,7 @@ object FileSystemUtil {
     * @param path
     * @return
     */
-  def prepPathForLoad(path: Path) = {
+  def getPathForLoad(path: Path) = {
     val files= expandPathToFiles(path)
     mergeFileStreams(files) -> files.map(_.length).sum
   }

@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
 
 trait LoadFromHDFSHelper extends LoadTaskHelper {
 
-  override val taskName: String = "LoadFromHDFSHelper"
+  override val taskName: String = "LoadFromHDFS"
 
   def defaultPort: Int
 

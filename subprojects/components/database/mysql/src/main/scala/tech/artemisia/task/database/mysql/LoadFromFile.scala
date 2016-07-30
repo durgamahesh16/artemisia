@@ -20,8 +20,8 @@ class LoadFromFile(name: String = Util.getUUID, tableName: String, location: URI
 
   override val supportedModes = LoadFromFile.supportedModes
 
-  override val source = loadSettings.mode match {
-    case "default" => Left(prepPathForLoad(Paths.get(location.getPath))._1)
+  override lazy val source = loadSettings.mode match {
+    case "default" => Left(getPathForLoad(Paths.get(location.getPath))._1)
     case "bulk" => Right(location)
   }
 

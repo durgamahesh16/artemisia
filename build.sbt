@@ -18,7 +18,7 @@ javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal
 
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
 
-
+scalacOptions in ThisBuild += "-Ylog-classpath"
 
 docgen := {
     val r = (runner in Compile).value

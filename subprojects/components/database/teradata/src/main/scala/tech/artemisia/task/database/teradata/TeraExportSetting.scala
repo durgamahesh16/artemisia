@@ -15,14 +15,14 @@ case class TeraExportSetting(override val header: Boolean = false, override val 
 
 object TeraExportSetting extends ConfigurationNode[TeraExportSetting]{
 
-  val structure = BasicExportSetting.structure.withValue("session", ConfigValueFactory.fromAnyRef("1"))
 
   val fieldDescription = BasicExportSetting.fieldDescription ++
-    Seq("session" -> "number of sessions to use.",
-        "mode" -> ("export mode to be used" -> Seq("default", "fastexport"))
+    Seq("session" -> "number of sessions to use. this is applicable only for fastexport mode",
+        "mode" -> ("export mode to be used" -> "default" :: "fastexport" :: Nil)
     )
 
-  val defaultConfig = BasicExportSetting.defaultConfig.withValue("session" , ConfigValueFactory.fromAnyRef(1))
+  val defaultConfig = BasicExportSetting.defaultConfig
+                                        .withValue("session" , ConfigValueFactory.fromAnyRef(1))
 
 
   def apply(config: Config): TeraExportSetting = {
@@ -31,4 +31,7 @@ object TeraExportSetting extends ConfigurationNode[TeraExportSetting]{
       ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.mode,config.as[Int]("session"))
   }
 
+  override val structure: Config = BasicExportSetting.defaultConfig
+                                      .withValue("session" , ConfigValueFactory.fromAnyRef(1))
+                                      .withValue("bulk-threshold" , ConfigValueFactory.fromAnyRef(1000000))
 }

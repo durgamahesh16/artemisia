@@ -67,12 +67,35 @@ class PGComponentSpec extends TestSpec {
          |}
       """.stripMargin
 
-    val task = component.dispatchTask("SQLLoad", "sql_read", config).asInstanceOf[LoadFromFile]
+    val task = component.dispatchTask("SQLLoad", "task", config).asInstanceOf[LoadFromFile]
     task.tableName must be ("test_table")
+    task.supportedModes must be === "default" :: "bulk" :: Nil
     task.loadSetting.delimiter must be ('\u0001')
     Paths.get(task.location).getFileName.toString must be ("load.txt")
   }
 
+  it must "dispatch SQLLoadFromHDFS when requested" in {
+
+    val config = ConfigFactory parseString
+      s"""
+         |{
+         |  ${PGComponentSpec.getDSN()}
+         |  destination-table = test_table
+         |       load = {
+         |         header =  yes
+         |         delimiter = "\\u0001"
+         |         quoting = no,
+         |       }
+         |       hdfs.location = ${this.getClass.getResource("/load.txt").getFile}
+         |}
+      """.stripMargin
+
+    val task = component.dispatchTask("LoadFromHDFS", "task", config).asInstanceOf[LoadFromHDFS]
+    task.tableName must be ("test_table")
+    task.supportedModes must be === "default" :: "bulk" :: Nil
+    task.loadSetting.delimiter must be ('\u0001')
+
+  }
 
   it must "dispatch ExportToFile when request" in {
     val config = ConfigFactory parseString
@@ -88,9 +111,33 @@ class PGComponentSpec extends TestSpec {
          |  }
       """.stripMargin
     val task = component.dispatchTask("SQLExport", "sql_read", config).asInstanceOf[ExportToFile]
+    task.supportedModes must be === "default" :: "bulk" :: Nil
     task.sql must be ("select * from dual")
     task.exportSetting.delimiter must be ('\t')
     task.exportSetting.header must be (true)
+  }
+
+
+  it must "dispatch ExportToHDFS when requested" in {
+
+    val config = ConfigFactory parseString
+      s"""
+         | {
+         |   ${PGComponentSpec.getDSN()}
+         |    export = {
+         |      delimiter = "\\t"
+         |      header = yes
+         |    }
+         |    hdfs.location = output.txt
+         |    sql = "select * from dual"
+         |  }
+      """.stripMargin
+    val task = component.dispatchTask("ExportToHDFS", "sql_read", config).asInstanceOf[ExportToHDFS]
+    task.supportedModes must be === "default" :: "bulk" :: Nil
+    task.sql must be ("select * from dual")
+    task.exportSetting.delimiter must be ('\t')
+    task.exportSetting.header must be (true)
+
   }
 
 
@@ -112,7 +159,6 @@ class PGComponentSpec extends TestSpec {
      component.dispatchTask("SQLExport", "sql_read", config).asInstanceOf[ExportToFile]
     }
     ex.getTargetException.getMessage must be  ("mode 'unknown' is not supported")
-
   }
 
 

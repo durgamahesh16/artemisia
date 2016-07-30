@@ -4,10 +4,10 @@ import java.io.InputStream
 import java.net.URI
 import java.nio.file.Paths
 
-import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.task.database.{BasicLoadSetting, DBInterface}
+import com.typesafe.config.Config
+import tech.artemisia.task.database
+import tech.artemisia.task.database.{BasicLoadSetting, DBInterface, LoadTaskHelper}
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.Util
 
@@ -21,10 +21,10 @@ class LoadFromFile(name: String = Util.getUUID, tableName: String, location: URI
 
   override val dbInterface: DBInterface = DbInterfaceFactory.getInstance(connectionProfile, loadSettings.mode)
 
-  override protected val supportedModes = "default" :: "bulk" :: Nil
+  override val supportedModes = LoadFromFile.supportedModes
 
-  override val source: Either[InputStream, URI] = loadSettings.mode match {
-    case "default" => Left(prepPathForLoad(Paths.get(location.getPath))._1)
+  override lazy val source: Either[InputStream, URI] = loadSettings.mode match {
+    case "default" => Left(getPathForLoad(Paths.get(location.getPath))._1)
     case "bulk" => Right(location)
   }
 
@@ -34,21 +34,12 @@ class LoadFromFile(name: String = Util.getUUID, tableName: String, location: URI
 
 }
 
-object LoadFromFile extends TaskLike {
+object LoadFromFile extends LoadTaskHelper {
 
-  override val info = database.LoadFromFile.info
+  override def apply(name: String, config: Config) = LoadTaskHelper.create[LoadFromFile](name, config)
 
-  override val defaultConfig: Config = ConfigFactory.empty()
-            .withValue("load", BasicLoadSetting.defaultConfig.root())
+  override val defaultPort = 5432
 
-  override val taskName = database.LoadFromFile.taskName
-
-  override def apply(name: String, config: Config) = database.LoadFromFile.create[LoadFromFile](name, config)
-
-  override val desc: String = database.LoadFromFile.desc
-
-  override val paramConfigDoc = database.LoadFromFile.paramConfigDoc(5432)
-
-  override val fieldDefinition = database.LoadFromFile.fieldDefinition
+  override def supportedModes: Seq[String] = "default" :: "bulk" :: Nil
 
 }

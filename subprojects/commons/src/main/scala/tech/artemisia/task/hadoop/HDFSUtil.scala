@@ -2,6 +2,7 @@ package tech.artemisia.task.hadoop
 
 import java.io._
 import java.net.URI
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -75,6 +76,7 @@ object HDFSUtil {
     }
   }
 
+
   /**
     * returns the option of compression codec to be used.
     * Its takes an Option of compression codec explicitly specified by the user (read explicitCodec)
@@ -101,6 +103,16 @@ object HDFSUtil {
       (carry: InputStream, input: Path) =>
           new SequenceInputStream(carry, HDFSUtil.readIOStream(input.toUri,codec))
     }
+  }
+
+
+  /**
+    *
+    * @param uri input URI
+    */
+  def getPathForLoad(uri: URI, codec: Option[String]) = {
+    val list = expandPath(uri, filesOnly = true)
+    mergeFileIOStreams(list, codec) -> 0
   }
 
 
