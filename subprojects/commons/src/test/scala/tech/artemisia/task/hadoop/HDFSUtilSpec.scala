@@ -15,13 +15,13 @@ trait HDFSUtilSpec extends TestSpec with BeforeAndAfterAll {
 
   "HDFSUtil" must "it must expand uri to file list" in {
    val uri = BaseHDFSSpec.cluster.pathToURI("/test/dir*/*.txt")
-   val list = HDFSUtil.expandPath(uri, filesOnly = false)
+   val list = HDFSUtil.expandPath(uri)
     list must have length 4
   }
 
   it must "merge multiple files paths into a single stream" in {
     val uri = BaseHDFSSpec.cluster.pathToURI("/test/dir*/*.txt")
-    val list = HDFSUtil.expandPath(uri, filesOnly = false)
+    val list = HDFSUtil.expandPath(uri)
     val stream = HDFSUtil.mergeFileIOStreams(list)
     val buffered = new BufferedReader(new InputStreamReader(stream))
     buffered.lines().toArray must have length 8

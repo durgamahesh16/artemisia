@@ -12,8 +12,16 @@ abstract class LoadFromHDFS(override val taskName: String, override val tableNam
   extends LoadFromFile(taskName, tableName, hdfsReadSetting.location, connectionProfile ,loadSetting) {
 
 
-  override lazy val source = Left(HDFSUtil.mergeFileIOStreams(HDFSUtil.expandPath(hdfsReadSetting.location, filesOnly = false)
+  override lazy val source = Left(HDFSUtil.mergeFileIOStreams(HDFSUtil.expandPath(hdfsReadSetting.location)
     ,hdfsReadSetting.codec))
+
+}
+
+object LoadFromHDFS {
+
+  def getPathForLoad(hdfsReadSetting: HDFSReadSetting) = {
+      HDFSUtil.getPathForLoad(hdfsReadSetting.location, hdfsReadSetting.codec)
+  }
 
 }
 

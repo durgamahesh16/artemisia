@@ -106,7 +106,7 @@ class PGComponentSpec extends TestSpec {
          |      delimiter = "\\t"
          |      header = yes
          |    }
-         |    file = output.txt
+         |    file = target/output.txt
          |    sql = "select * from dual"
          |  }
       """.stripMargin
@@ -128,7 +128,7 @@ class PGComponentSpec extends TestSpec {
          |      delimiter = "\\t"
          |      header = yes
          |    }
-         |    hdfs.location = output.txt
+         |    hdfs.location = target/output.txt
          |    sql = "select * from dual"
          |  }
       """.stripMargin

@@ -5,7 +5,7 @@ import java.net.URI
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.permission.FsPermission
-import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.hadoop.fs.{FileStatus, FileSystem, Path}
 import org.apache.hadoop.io.compress.CompressionCodecFactory
 import org.apache.hadoop.util.Progressable
 
@@ -60,17 +60,16 @@ object HDFSUtil {
   }
 
   /**
-    * resolve a path with glob patterns to a list of files
-    *
+    * resolve a path with glob patterns to a list of files.
+    * this ignores files starting with _ (_SUCCESS) and . (.crc)
     * @param uri uri of the path to be resolved
-    * @param filesOnly allow only files in the result and filter any directories
     * @return list of files/directories resolved from URI.
     */
-  def expandPath(uri: URI, filesOnly: Boolean = true) = {
+  def expandPath(uri: URI) = {
     val fileSystem = FileSystem.get(uri, new Configuration())
-    val paths = fileSystem.globStatus(new Path(uri))
+    val paths: Array[FileStatus] = fileSystem.globStatus(new Path(uri))
     paths filter {
-      !filesOnly ||  _.isFile
+      x => !x.getPath.getName.startsWith("_") &&  !x.getPath.getName.startsWith(".")
     } map {
       _.getPath
     }
@@ -111,7 +110,7 @@ object HDFSUtil {
     * @param uri input URI
     */
   def getPathForLoad(uri: URI, codec: Option[String]) = {
-    val list = expandPath(uri, filesOnly = true)
+    val list = expandPath(uri)
     mergeFileIOStreams(list, codec) -> 0
   }
 

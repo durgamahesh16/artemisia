@@ -18,7 +18,10 @@ javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal
 
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
 
-scalacOptions in ThisBuild += "-Ylog-classpath"
+//resolvers in ThisBuild ++= Seq(
+//    "Hadoop Releases" at "https://repository.cloudera.com/content/repositories/releases/"
+//    ,"cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
+//)
 
 docgen := {
     val r = (runner in Compile).value

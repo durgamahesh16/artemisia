@@ -2,7 +2,7 @@ package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
-import tech.artemisia.task.hadoop.{HDFSReadSetting, HDFSUtil, LoadFromHDFSHelper}
+import tech.artemisia.task.hadoop.{HDFSReadSetting, LoadFromHDFSHelper}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, hadoop}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -14,7 +14,7 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
                    override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting) extends
   hadoop.LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
 
-  lazy val (inputStream, loadSize) = HDFSUtil.getPathForLoad(hdfsReadSetting.location, hdfsReadSetting.codec)
+  lazy val (inputStream, loadSize) = hadoop.LoadFromHDFS.getPathForLoad(hdfsReadSetting)
 
   override lazy val source = Left(inputStream)
 
