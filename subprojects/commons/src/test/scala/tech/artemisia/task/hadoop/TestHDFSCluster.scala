@@ -19,6 +19,7 @@ class TestHDFSCluster(baseDir: File) {
 
   private def setup() = {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
+    System.setProperty("test.build.data",Files.createTempDirectory("hdfstest").toAbsolutePath.toString)
     val conf = new Configuration()
     conf.set("dfs.datanode.data.dir", baseDir.toString)
     conf.set("dfs.namenode.name.dir",Files.createTempDirectory("hdfstest").toAbsolutePath.toString)
