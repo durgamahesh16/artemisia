@@ -4,15 +4,14 @@ import java.io.InputStream
 import java.net.URI
 import java.nio.file.Paths
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.database
 import tech.artemisia.task.database.{DBInterface, LoadTaskHelper}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
-
-import scala.collection.mutable
 
 /**
   * Created by chlr on 6/26/16.
@@ -26,7 +25,7 @@ class LoadFromFile(override val taskName: String = Util.getUUID, override val ta
 
   val (inputStream, loadSize) =  getPathForLoad(Paths.get(location.getPath))
 
-  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode match {
+  override implicit val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode match {
       case "auto" => if (loadSize  > loadSetting.bulkLoadThreshold) "fastload" else "default"
       case x => x
     }
@@ -39,13 +38,9 @@ class LoadFromFile(override val taskName: String = Util.getUUID, override val ta
     */
   override protected[task] def setup(): Unit = {
     if (loadSetting.recreateTable) {
-        require(supportedModes contains loadSetting.mode, s"load mode ${loadSetting.mode} is not supported")
-        val rs = dbInterface.query(s"SHOW TABLE $tableName", printSQL = false)
-        val buffer = mutable.ArrayBuffer[String]()
-        while(rs.next()) { buffer += rs.getString(1) }
-        dbInterface.query(s"DROP TABLE $tableName", printSQL = true)
-        dbInterface.query(buffer.mkString("\n"))
+       TeraUtils.dropRecreateTable(tableName)
     } else {
+        info("not dropping and recreating the table")
         super.setup()
     }
   }
@@ -64,15 +59,9 @@ object LoadFromFile extends LoadTaskHelper {
   override val defaultConfig = ConfigFactory.empty().withValue("load", TeraLoadSetting.defaultConfig.root())
 
   override def apply(name: String, config: Config) = {
-    val mutatedConfig = config withFallback ConfigFactory.empty().withValue("load.batch-size", ConfigValueFactory fromAnyRef {
-      config.getString("load.mode").toLowerCase match {
-        case "fastload" => 80000
-        case "default" => 100
-      }
-    })
-    val connectionProfile = DBConnection.parseConnectionProfile(mutatedConfig.getValue("dsn"))
-    val destinationTable = mutatedConfig.as[String]("destination-table")
-    val loadSettings = TeraLoadSetting(mutatedConfig.as[Config]("load"))
+    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
+    val destinationTable = config.as[String]("destination-table")
+    val loadSettings = TeraLoadSetting(config.as[Config]("load"))
     new LoadFromFile(name, destinationTable, new URI(config.as[String]("location")) ,connectionProfile, loadSettings)
   }
 

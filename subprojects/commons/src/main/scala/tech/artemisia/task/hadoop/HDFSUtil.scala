@@ -110,8 +110,9 @@ object HDFSUtil {
     * @param uri input URI
     */
   def getPathForLoad(uri: URI, codec: Option[String]) = {
+    val fileSystem = FileSystem.get(uri, new Configuration())
     val list = expandPath(uri)
-    mergeFileIOStreams(list, codec) -> 0
+    mergeFileIOStreams(list, codec) -> list.map(fileSystem.getFileStatus(_).getLen).sum
   }
 
 

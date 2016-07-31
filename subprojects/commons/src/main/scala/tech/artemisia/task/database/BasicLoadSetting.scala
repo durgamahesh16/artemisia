@@ -16,7 +16,13 @@ case class BasicLoadSetting(override val skipRows: Int = 0, override val delimit
                             override val quoting: Boolean = false, override val quotechar: Char = '"', override val escapechar: Char = '\\',
                             override val truncate: Boolean = false, override val mode: String = "default", override val batchSize: Int = 100,
                             override val errorTolerance: Option[Double] = None)
- extends LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, errorTolerance)
+ extends LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar,truncate ,mode, batchSize, errorTolerance) {
+
+  override def setting: String = s"skip-rows: $skipRows, delimiter: $delimiter, quoting: $quoting, quotechar: $quotechar," +
+    s" escapechar: $escapechar, truncate: $truncate, mode: $mode," +
+    s" batch-size: $batchSize ${errorTolerance.map(x => s"error-tolerance: $x").getOrElse("")}"
+
+}
 
 object BasicLoadSetting extends ConfigurationNode[BasicLoadSetting] {
 

@@ -14,18 +14,20 @@ class LoadFromHDFS(override val taskName: String, override val tableName: String
                    override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting) extends
   hadoop.LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
 
-  lazy val (inputStream, loadSize) = hadoop.LoadFromHDFS.getPathForLoad(hdfsReadSetting)
-
-  override lazy val source = Left(inputStream)
-
-  def getEffectiveMode = loadSetting.mode match {
-    case "auto" => if (loadSize > loadSetting.bulkLoadThreshold) "fastload" else "default"
-    case x => x
-  }
-
-  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, getEffectiveMode)
+  override implicit val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
   override val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+
+  /**
+    * No operations are done in this phase
+    */
+  override protected[task] def setup(): Unit = {
+    if (loadSetting.recreateTable) {
+      TeraUtils.dropRecreateTable(tableName)
+    } else {
+      super.setup()
+    }
+  }
 
 }
 
@@ -34,11 +36,15 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
   override def defaultPort: Int = 1025
 
   override def apply(name: String, config: Config): Task = {
-    val loadSetting = TeraLoadSetting(config.as[Config]("load"))
+    var loadSetting = TeraLoadSetting(config.as[Config]("load"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val tableName = config.as[String]("destination-table")
     val hdfsReadSetting = HDFSReadSetting(config.as[Config]("hdfs"))
-    new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting)
+    lazy val (hdfsStream, loadSize) = hadoop.LoadFromHDFS.getPathForLoad(hdfsReadSetting)
+    loadSetting = TeraUtils.overrideLoadSettings(loadSize, loadSetting)
+    new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
+      override lazy val source = Left(hdfsStream)
+    }
   }
 
   override def paramConfigDoc: Config = super.paramConfigDoc

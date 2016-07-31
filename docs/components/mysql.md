@@ -5,14 +5,14 @@ MySQL
 
 This components provides tasks to interact with a mysql database
 
-| Task                | Description                                             |
-|---------------------|---------------------------------------------------------|
-| SQLExport           | export query results to a file                          |
-| SQLLoad             | load a file into a table                                |
-| SQLExecute          | executes DML statements such as Insert/Update/Delete    |
-| SQLRead             | execute select queries and wraps the results in config  |
-| ExportToHDFS        | Export database resultset to HDFS                       |
-| LoadFromHDFSHelper  | Load Table from HDFS                                    |
+| Task          | Description                                             |
+|---------------|---------------------------------------------------------|
+| SQLExport     | export query results to a file                          |
+| SQLLoad       | load a file into a table                                |
+| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
+| SQLRead       | execute select queries and wraps the results in config  |
+| ExportToHDFS  | Export database resultset to HDFS                       |
+| LoadFromHDFS  | Load Table from HDFS                                    |
 
      
 
@@ -300,7 +300,7 @@ The configuration object is shown below.
 
 
 
-### LoadFromHDFSHelper:
+### LoadFromHDFS:
 
 
 #### Description:
@@ -312,7 +312,7 @@ The configuration object is shown below.
 
       {
         Component = "MySQL"
-        Task = "LoadFromHDFSHelper"
+        Task = "LoadFromHDFS"
         param =  {
          destination-table = "dummy_table @required"
          dsn_[1] = "connection-name"

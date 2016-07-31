@@ -5,7 +5,7 @@ import java.io.{InputStream, OutputStream}
 import java.net.URI
 import java.sql.{Connection, ResultSet}
 import com.typesafe.config.Config
-import tech.artemisia.core.AppLogger
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 import tech.artemisia.util.Util
 
@@ -46,7 +46,7 @@ trait DBInterface {
    */
   def query(sql: String, printSQL: Boolean = true): ResultSet = {
     if(printSQL)
-        AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
+        info(Util.prettyPrintAsciiBanner(sql,"query"))
     val stmt = connection.prepareStatement(sql)
     stmt.executeQuery()
   }
@@ -58,8 +58,8 @@ trait DBInterface {
    */
   def execute(sql: String, printSQL: Boolean = true): Long = {
     if (printSQL) {
-      AppLogger info "executing query"
-      AppLogger info Util.prettyPrintAsciiBanner(sql, "query")
+      info("executing query")
+      info(Util.prettyPrintAsciiBanner(sql, "query"))
     }
     val stmt = connection.prepareStatement(sql)
     val recordCnt = stmt.executeUpdate()
@@ -73,8 +73,8 @@ trait DBInterface {
    * @return Hocon Config object of the first record
    */
   def queryOne(sql: String): Config = {
-    AppLogger info "executing query"
-    AppLogger info Util.prettyPrintAsciiBanner(sql,"query")
+    info("executing query")
+    info(Util.prettyPrintAsciiBanner(sql,"query"))
     val stmt = connection.prepareStatement(sql)
     val rs = stmt.executeQuery()
     val result = DBUtil.resultSetToConfig(rs)
@@ -84,7 +84,7 @@ trait DBInterface {
     }
     catch {
       case e: Throwable => {
-        AppLogger warn e.getMessage
+        warn(e.getMessage)
       }
     }
     result
@@ -112,7 +112,9 @@ trait DBInterface {
    * @return tuple of total records in source and number of records rejected
    */
   def loadTable(tableName: String, source: Either[InputStream,URI] , loadSettings: LoadSetting) = {
-      val (total,rejected) = source match {
+      info(s"running table load with below setting")
+      info(loadSettings.setting)
+      val (total, rejected) = source match {
         case Left(inputStream) => self.load(tableName, inputStream, loadSettings)
         case Right(location) => self.load(tableName, location, loadSettings)
       }

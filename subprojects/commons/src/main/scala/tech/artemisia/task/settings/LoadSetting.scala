@@ -7,4 +7,8 @@ package tech.artemisia.task.settings
 abstract class LoadSetting(val skipRows: Int = 0, override val delimiter: Char = ',', override val quoting: Boolean = false,
                            override val quotechar: Char = '"', override val escapechar: Char = '\\', val truncate: Boolean = false, val mode: String = "default",
                            val batchSize: Int = 100, val errorTolerance: Option[Double] = None)
-                extends CSVSettings(delimiter, quoting, quotechar, escapechar)
+                extends CSVSettings(delimiter, quoting, quotechar, escapechar) {
+
+  def setting: String
+
+}
