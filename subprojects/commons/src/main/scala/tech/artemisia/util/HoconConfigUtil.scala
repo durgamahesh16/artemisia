@@ -1,12 +1,10 @@
 package tech.artemisia.util
 
 import java.io.File
-
 import com.typesafe.config._
 import org.apache.commons.lang3.StringEscapeUtils
-
 import scala.collection.JavaConverters._
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.FiniteDuration
 
 /**
  * Created by chlr on 3/18/16.
@@ -75,13 +73,14 @@ object HoconConfigUtil {
 
   implicit val durationReader = new ConfigReader[FiniteDuration] {
     override def read(config: Config, path: String): FiniteDuration = {
-      Duration.fromNanos(config.getDuration(path).toNanos)
+      DurationParser(config.getString(path)).getFiniteDuration
     }
   }
 
+
   implicit val durationListReader = new ConfigReader[List[FiniteDuration]] {
     override def read(config: Config, path: String): List[FiniteDuration] = {
-      config.getDurationList(path).asScala.toList map { x => Duration.fromNanos(x.toNanos) }
+     config.getStringList(path).asScala.map(x => DurationParser(x).getFiniteDuration).toList
     }
   }
 
@@ -109,15 +108,15 @@ object HoconConfigUtil {
     }
   }
 
-  implicit val memoryReader = new ConfigReader[ConfigMemorySize] {
-    override def read(config: Config, path: String): ConfigMemorySize = {
-      config.getMemorySize(path)
+  implicit val memoryReader = new ConfigReader[MemorySize] {
+    override def read(config: Config, path: String): MemorySize = {
+      new MemorySize(config.getString(path))
     }
   }
 
-  implicit val memoryListReader = new ConfigReader[List[ConfigMemorySize]] {
-    override def read(config: Config, path: String): List[ConfigMemorySize] = {
-      config.getMemorySizeList(path).asScala.toList
+  implicit val memoryListReader = new ConfigReader[List[MemorySize]] {
+    override def read(config: Config, path: String): List[MemorySize] = {
+      config.getStringList(path).asScala.map(new MemorySize(_)).toList
     }
   }
 

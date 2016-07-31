@@ -1,9 +1,10 @@
 package tech.artemisia.task.database.teradata
 
-import com.typesafe.config.{Config, ConfigMemorySize, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigValueFactory}
 import tech.artemisia.task.database.BasicLoadSetting
 import tech.artemisia.task.{ConfigurationNode, settings}
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.MemorySize
 
 /**
   * Created by chlr on 6/30/16.
@@ -40,7 +41,7 @@ object TeraLoadSetting extends ConfigurationNode[TeraLoadSetting] {
     TeraLoadSetting(loadSetting.skipRows, loadSetting.delimiter, loadSetting.quoting
       ,loadSetting.quotechar, loadSetting.escapechar, loadSetting.truncate, loadSetting.mode, loadSetting.batchSize
       ,loadSetting.errorTolerance, config.as[Boolean]("recreate-table") ,config.as[Int]("session")
-      ,config.as[ConfigMemorySize]("bulk-threshold").toBytes
+      ,config.as[MemorySize]("bulk-threshold").getBytes
     )
   }
 

@@ -15,7 +15,7 @@ object General {
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
     "org.pegdown" % "pegdown" % "1.0.2" % "test",
     "joda-time" % "joda-time" % "2.0",
-    "com.typesafe" % "config" % "1.3.0"
+    "com.typesafe" % "config" % "1.2.1"
   )
   val crossVersions =  Seq(mainScalaVersion)
 

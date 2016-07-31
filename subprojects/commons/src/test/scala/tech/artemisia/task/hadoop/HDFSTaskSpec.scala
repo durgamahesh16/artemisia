@@ -1,7 +1,6 @@
 package tech.artemisia.task.hadoop
 
 import java.io.{BufferedReader, InputStreamReader}
-
 import org.scalatest.DoNotDiscover
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.{BasicExportSetting, BasicLoadSetting, DBInterface, TestDBInterFactory}
@@ -31,7 +30,8 @@ trait HDFSTaskSpec extends TestSpec {
       }
     task.execute()
     val stream = new BufferedReader(new InputStreamReader(HDFSUtil.readIOStream(location)))
-    stream.lines().toArray.head.toString must be ("1,foo,TRUE,100,10000000,87.30,12:30:00,1945-05-09,1945-05-09 12:30:00.0")
+    stream.readLine() must be ("1,foo,TRUE,100,10000000,87.30,12:30:00,1945-05-09,1945-05-09 12:30:00.0")
+    stream.close()
   }
 
   "LoadFromHDFSHelper" must "load data from HDFS" in {

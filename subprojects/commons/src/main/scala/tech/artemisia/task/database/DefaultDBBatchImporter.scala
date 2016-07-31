@@ -31,13 +31,13 @@ object DefaultDBBatchImporter {
 
       try {
         for (row <- validRows) {
-          try { composeStmt(row); stmt.addBatch() } catch { case th: Throwable =>  errorWriter.writeRow(row) }
+          try { composeStmt(row); stmt.addBatch() } catch { case th: Throwable => errorWriter.writeRow(row) }
         }
         stmt.executeBatch()
       }
       catch {
         case e: BatchUpdateException => {
-          val results = e.getLargeUpdateCounts
+          val results = e.getUpdateCounts
           println(results.mkString(","))
           val retryRecords = results zip validRows filter { x => x._1 < 0 } map { _._2 }
           stmt.clearBatch()

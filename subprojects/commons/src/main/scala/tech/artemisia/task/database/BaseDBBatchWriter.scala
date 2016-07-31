@@ -104,9 +104,9 @@ abstract class BaseDBBatchWriter(tableName: String, loadSettings: LoadSetting, d
           case "" => stmt.setNull(i,Types.TIME)
           case _ => stmt.setTime(i, java.sql.Time.valueOf(row(i-1)))
         }
-        case Types.TIME_WITH_TIMEZONE => row(i-1) match {
-          case "" => stmt.setNull(i,Types.TIME_WITH_TIMEZONE)
-          case _ => stmt.setTime(i, java.sql.Time.valueOf(row(i-1)))
+        case Types.TIMESTAMP => row(i-1) match {
+          case "" => stmt.setNull(i,Types.TIMESTAMP)
+          case _ => stmt.setTimestamp(i, java.sql.Timestamp.valueOf(row(i-1)))
         }
         case Types.TINYINT => row(i-1) match {
           case "" => stmt.setNull(i,Types.TINYINT)

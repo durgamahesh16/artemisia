@@ -24,7 +24,7 @@ trait HDFSUtilSpec extends TestSpec with BeforeAndAfterAll {
     val list = HDFSUtil.expandPath(uri)
     val stream = HDFSUtil.mergeFileIOStreams(list)
     val buffered = new BufferedReader(new InputStreamReader(stream))
-    buffered.lines().toArray must have length 8
+    Stream.continually(buffered.readLine()).takeWhile( _ != null).toArray must have length 8
     buffered.close()
   }
 
