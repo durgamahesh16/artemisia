@@ -1,13 +1,14 @@
 package tech.artemisia.dag
 
 import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.routing.BalancingPool
+import akka.routing.RoundRobinPool
 import akka.testkit.TestProbe
 import tech.artemisia.ActorTestSpec
 import tech.artemisia.core.{AppContext, AppSetting}
 import tech.artemisia.dag.Message.{Messageable, TaskStats, _}
 import tech.artemisia.task.{TaskHandler, TestAdderTask, TestFailTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.concurrent.duration._
 
 /**
@@ -24,7 +25,7 @@ class DagPlayerSpec extends ActorTestSpec {
   var app_context: AppContext = _
 
   override def beforeEach() = {
-    workers = system.actorOf(BalancingPool(1).props(Props[Worker]))
+    workers = system.actorOf(RoundRobinPool(1).props(Props[Worker]))
     probe = DagPlayerSpec.getTestProbe(system)
   }
 

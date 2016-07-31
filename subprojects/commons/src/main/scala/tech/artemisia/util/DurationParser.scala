@@ -17,7 +17,7 @@ class DurationParser(duration: String) {
   private val dy = "d" :: "day" :: "days" :: Nil
 
 
-  def getFiniteDuration: FiniteDuration = {
+  def toFiniteDuration: FiniteDuration = {
     val patterns = ns ++ us ++ ms ++ se ++ mi ++ hr ++ dy
     patterns map { x => s"^([0-9]+)\\s*($x)$$".r } map {
       _.findFirstMatchIn(duration)

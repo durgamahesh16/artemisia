@@ -64,7 +64,7 @@ object HDFSWriteSetting extends ConfigurationNode[HDFSWriteSetting] {
       location = new URI(config.as[String]("location")),
       overwrite = config.as[Boolean]("overwrite"),
       replication = config.as[Byte]("replication"),
-      blockSize = config.as[MemorySize]("block-size").getBytes,
+      blockSize = config.as[MemorySize]("block-size").toBytes,
       codec = config.getAs[String]("codec")
     )
   }

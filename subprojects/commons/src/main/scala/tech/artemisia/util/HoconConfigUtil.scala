@@ -73,14 +73,14 @@ object HoconConfigUtil {
 
   implicit val durationReader = new ConfigReader[FiniteDuration] {
     override def read(config: Config, path: String): FiniteDuration = {
-      DurationParser(config.getString(path)).getFiniteDuration
+      DurationParser(config.getString(path)).toFiniteDuration
     }
   }
 
 
   implicit val durationListReader = new ConfigReader[List[FiniteDuration]] {
     override def read(config: Config, path: String): List[FiniteDuration] = {
-     config.getStringList(path).asScala.map(x => DurationParser(x).getFiniteDuration).toList
+     config.getStringList(path).asScala.map(x => DurationParser(x).toFiniteDuration).toList
     }
   }
 

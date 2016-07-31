@@ -7,27 +7,27 @@ package tech.artemisia.util
 /**
   * An utility class for parsing memory literal to long
   * {{{
-  *  scala> val mem = new MemorySize("100 mB").getBytes
-  *  mem: Long = 104857600
+  *  scala> MemorySize("10MB").getBytes
+  *  res5: Long = 10485760
   * }}}
   *
   * @param memory string literal of memory eg (75 kilobytes)
   */
 class MemorySize(memory: String) {
 
-  private val by = "byte" :: "bytes" :: Nil
-  private val kb = "K" :: "kB" :: "kilobyte" :: "kilobytes" :: Nil
-  private val mb = "M" :: "mB" :: "megabyte" :: "megabytes" :: Nil
-  private val gb = "G" :: "gB" :: "gigabyte" :: "gigabytes" :: Nil
-  private val tb = "T" :: "tB" :: "terabyte" :: "terabytes" :: Nil
+  private val by = "b" :: "B" :: "byte" :: "bytes" :: Nil
+  private val kb = "K" :: "k" :: "Ki" :: "KiB" :: "kB" :: "kilobyte" :: "kilobytes" :: Nil
+  private val mb = "M" :: "m" :: "Mi" :: "MiB" :: "MB" :: "megabyte" :: "megabytes" :: Nil
+  private val gb = "G" :: "g" :: "Gi" :: "GiB" :: "GB" :: "gigabyte" :: "gigabytes" :: Nil
+  private val tb = "T" :: "t" :: "Ti" :: "TiB" :: "TB" :: "terabyte" :: "terabytes" :: Nil
 
 
   /**
     * get number of bytes in long
     * @return number of bytes in long
     */
-  def getBytes: Long = {
-    val rgx = (by ++ kb ++ mb ++ gb ++ tb) map { x => s"([0-9]+)\\s*($x)".r }
+  def toBytes: Long = {
+    val rgx = (by ++ kb ++ mb ++ gb ++ tb) map { x => s"^([0-9]+)\\s*($x)$$".r }
     val matched = rgx map { _.findFirstMatchIn(memory) } collect {
       case Some(x) => x.group(1) -> x.group(2)
     }
@@ -43,5 +43,11 @@ class MemorySize(memory: String) {
       case _ => throw new RuntimeException(s"$memory cannot be parsed. only bytes, kilobytes, megabytes, gigabytes, terabytes are supported")
     }
   }
+
+}
+
+object MemorySize {
+
+  def apply(memory: String): MemorySize = new MemorySize(memory)
 
 }
