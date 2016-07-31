@@ -9,7 +9,7 @@ import tech.artemisia.TestSpec
 
 class TeraLoadSettingSpec extends TestSpec {
 
-  "TeraLoadSetting" must "" in {
+  "TeraLoadSetting" must "contruct itself from config" in {
     val config = ConfigFactory parseString
     """
       |{
