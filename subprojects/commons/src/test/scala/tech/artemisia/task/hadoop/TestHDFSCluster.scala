@@ -2,6 +2,7 @@ package tech.artemisia.task.hadoop
 
 import java.io.File
 import java.net.URI
+import java.nio.file.Files
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileUtil, Path}
@@ -18,7 +19,7 @@ class TestHDFSCluster(baseDir: File) {
 
   private def setup() = {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    System.setProperty("test.build.data",baseDir.toString)
+    System.setProperty("test.build.data",Files.createTempDirectory("hdfstest").toAbsolutePath.toString)
     FileUtil.fullyDelete(baseDir)
     val conf = new Configuration()
     conf.set("dfs.datanode.data.dir", baseDir.toString)
