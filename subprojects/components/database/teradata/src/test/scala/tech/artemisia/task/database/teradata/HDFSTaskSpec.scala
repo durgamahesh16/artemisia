@@ -1,6 +1,6 @@
 package tech.artemisia.task.database.teradata
 
-import java.io.File
+import java.io.{File, FileInputStream}
 
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
@@ -36,6 +36,7 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
     val task = new LoadFromHDFS(tableName, tableName, HDFSReadSetting(cluster.pathToURI("/test/file.txt"))
       , DBConnection("","","","",-1), TeraLoadSetting()) {
       override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
+      override lazy val source = Left(new FileInputStream(this.getClass.getResource("/samplefiles/file.txt").getFile))
     }
     task.supportedModes must be === "default" :: "fastload" :: "auto" :: Nil
     val result = task.execute()

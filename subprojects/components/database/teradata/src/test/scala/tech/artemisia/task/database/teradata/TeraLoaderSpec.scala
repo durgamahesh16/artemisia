@@ -1,5 +1,8 @@
 package tech.artemisia.task.database.teradata
 
+import java.io.{BufferedInputStream, FileInputStream, InputStream}
+import java.net.URI
+
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.TestDBInterFactory
 import tech.artemisia.task.settings.DBConnection
@@ -24,6 +27,7 @@ class TeraLoaderSpec extends TestSpec {
             connectionProfile = DBConnection("", "", "", "", -1),
             loadSetting = TeraLoadSetting()) {
             override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
+            override val source: Either[InputStream, URI] = Left(new BufferedInputStream(new FileInputStream(file)))
           }
         loader.supportedModes must be === "fastload" :: "default" :: "auto" :: Nil
        val result = loader.execute()

@@ -1,5 +1,8 @@
 package tech.artemisia.task.database.teradata
 
+import java.io.InputStream
+import java.net.URI
+
 import com.typesafe.config.Config
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.hadoop.{HDFSReadSetting, LoadFromHDFSHelper}
@@ -7,16 +10,26 @@ import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, hadoop}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
+
 /**
-  * Created by chlr on 7/22/16.
+  * Task to load a teradata table from hdfs. This is abstract class which cannot be directly constructed.
+  * use the apply method to construct the task.
+  *
+  * @param taskName task name
+  * @param tableName target table
+  * @param hdfsReadSetting HDFS read setting
+  * @param connectionProfile database connection profile
+  * @param loadSetting load setting
   */
-class LoadFromHDFS(override val taskName: String, override val tableName: String, override val hdfsReadSetting: HDFSReadSetting,
+abstract class LoadFromHDFS(override val taskName: String, override val tableName: String, override val hdfsReadSetting: HDFSReadSetting,
                    override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting) extends
   hadoop.LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
 
   override implicit val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
   override val supportedModes: Seq[String] = LoadFromHDFS.supportedModes
+
+  override val source: Either[InputStream, URI]
 
   /**
     * No operations are done in this phase
@@ -36,13 +49,18 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
   override def defaultPort: Int = 1025
 
   override def apply(name: String, config: Config): Task = {
-    var loadSetting = TeraLoadSetting(config.as[Config]("load"))
+    val loadSetting = TeraLoadSetting(config.as[Config]("load"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val tableName = config.as[String]("destination-table")
     val hdfsReadSetting = HDFSReadSetting(config.as[Config]("hdfs"))
+    LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting)
+  }
+
+  def apply(taskName: String, tableName: String, hdfsReadSetting: HDFSReadSetting,connectionProfile: DBConnection,
+  loadSetting: TeraLoadSetting) = {
     lazy val (hdfsStream, loadSize) = hadoop.LoadFromHDFS.getPathForLoad(hdfsReadSetting)
-    loadSetting = TeraUtils.overrideLoadSettings(loadSize, loadSetting)
-    new LoadFromHDFS(name, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
+   val normalizedLoadSetting = TeraUtils.overrideLoadSettings(loadSize, loadSetting)
+    new LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, normalizedLoadSetting) {
       override lazy val source = Left(hdfsStream)
     }
   }
