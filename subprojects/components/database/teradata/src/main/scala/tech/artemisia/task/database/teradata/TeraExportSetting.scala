@@ -18,7 +18,7 @@ object TeraExportSetting extends ConfigurationNode[TeraExportSetting]{
 
   val fieldDescription = BasicExportSetting.fieldDescription ++
     Seq("session" -> "number of sessions to use. this is applicable only for fastexport mode",
-        "mode" -> ("export mode to be used" -> "default" :: "fastexport" :: Nil)
+        "mode" -> ("export mode to be used" -> Seq("default","fastexport"))
     )
 
   val defaultConfig = BasicExportSetting.defaultConfig
