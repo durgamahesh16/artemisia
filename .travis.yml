@@ -1,12 +1,12 @@
 language: scala
 jdk:
-- oraclejdk8
+- oraclejdk7
 scala:
 - 2.11.8
 branches:
   only:
   - master
-script: umask 022 && sbt fulltest
+script: umask 022 && sbt test
 after_success:
 - sbt coveralls
 - sbt publish
