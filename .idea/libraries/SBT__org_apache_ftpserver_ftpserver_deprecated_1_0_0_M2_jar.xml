@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: org.apache.ftpserver:ftpserver-deprecated:1.0.0-M2:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.ftpserver/ftpserver-deprecated/jars/ftpserver-deprecated-1.0.0-M2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.ftpserver/ftpserver-deprecated/srcs/ftpserver-deprecated-1.0.0-M2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
