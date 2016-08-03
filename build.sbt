@@ -18,10 +18,10 @@ javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal
 
 javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
 
-//resolvers in ThisBuild ++= Seq(
-//    "Hadoop Releases" at "https://repository.cloudera.com/content/repositories/releases/"
-//    ,"cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
-//)
+resolvers in ThisBuild ++= Seq(
+    "Hadoop Releases" at "https://repository.cloudera.com/content/repositories/releases/"
+    ,"cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
+)
 
 docgen := {
     val r = (runner in Compile).value
@@ -42,7 +42,7 @@ lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
     bashScriptExtraDefines += """addJava "-Dsetting.file=${app_home}/../conf/settings.conf"""")
   .settings(libraryDependencies ++= Artemisia.dependencies,
           mainClass in Compile := Some("tech.artemisia.core.Main"))
-  .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata)
+  .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata, hive)
 
 
 lazy val localhost = (project in General.componentBase / "localhost").enablePlugins(JavaAppPackaging)
@@ -71,8 +71,13 @@ lazy val teradata = (project in General.componentBase / "database" / "teradata")
   .settings(General.settings("teradata"))
   .dependsOn(commons  % "compile->compile;test->test")
 
+lazy val hive = (project in General.componentBase / "hadoop" / "hive").enablePlugins(JavaAppPackaging)
+  .settings(General.settings("hive"))
+  .settings(Hive.settings)
+  .dependsOn(commons  % "compile->compile;test->test")
 
-lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql, postgres, teradata)
+
+lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql, postgres, teradata, hive)
   .enablePlugins(JavaAppPackaging)
   .settings(General.settings("all", publishable = false))
   .settings(

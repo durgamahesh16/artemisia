@@ -19,6 +19,8 @@
             <option value="$PROJECT_DIR$/subprojects/components/database/postgres/project" />
             <option value="$PROJECT_DIR$/subprojects/components/database/teradata" />
             <option value="$PROJECT_DIR$/subprojects/components/database/teradata/project" />
+            <option value="$PROJECT_DIR$/subprojects/components/hadoop/hive" />
+            <option value="$PROJECT_DIR$/subprojects/components/hadoop/hive/project" />
             <option value="$PROJECT_DIR$/subprojects/components/localhost" />
             <option value="$PROJECT_DIR$/subprojects/components/localhost/project" />
           </set>

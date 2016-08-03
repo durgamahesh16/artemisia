@@ -8,7 +8,10 @@ import tech.artemisia.util.HoconConfigUtil.Handler
  * Created by chlr on 4/13/16.
  */
 
+sealed abstract class Connection
+
 case class DBConnection(hostname: String, username: String, password: String, default_database: String, port: Int)
+    extends Connection
 
 object DBConnection extends ConnectionHelper {
 
@@ -35,4 +38,11 @@ object DBConnection extends ConnectionHelper {
     )
   }
 
+  /**
+    * A dummy stand in DBConnection object that has all its properties/fields set to null.
+    * @return
+    */
+  def getDummyConnection = {
+    DBConnection(null, null, null, null, -1)
+  }
 }

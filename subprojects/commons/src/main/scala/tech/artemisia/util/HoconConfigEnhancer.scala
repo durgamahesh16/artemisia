@@ -69,8 +69,13 @@ object HoconConfigEnhancer {
     rgx.replaceAllIn(str, replace _)
   }
 
-  def stripLeadingWhitespaces(str: String) = {
-    val minWhiteSpace = (str.split("\n") filter { _.trim.length > 0 }  map { """^[\s]+""".r.findFirstIn(_).getOrElse("").length  }).min
+  def stripLeadingWhitespaces(str: String): String = {
+    val minWhiteSpace = str.split("\n") filter {
+      _.trim.length > 0
+    } map { """^[\s]+""".r.findFirstIn(_).getOrElse("").length} match {
+      case Array() => 0
+      case x => x.min
+    }
     val result = str.split("\n") filter { _.trim.length > 0 } map { ("""^[\s]{"""+minWhiteSpace+"""}""").r.replaceFirstIn(_,"") }
     result.mkString("\n")
   }

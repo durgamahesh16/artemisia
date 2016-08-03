@@ -16,8 +16,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mysql-build.iml" filepath="$PROJECT_DIR$/.idea/modules/mysql-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/postgres.iml" filepath="$PROJECT_DIR$/.idea/modules/postgres.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/postgres-build.iml" filepath="$PROJECT_DIR$/.idea/modules/postgres-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/subprojects/components/hadoop/hive/project/.idea/modules/project.iml" filepath="$PROJECT_DIR$/subprojects/components/hadoop/hive/project/.idea/modules/project.iml" />
-      <module fileurl="file://$PROJECT_DIR$/subprojects/components/hadoop/hive/project/.idea/modules/project-build.iml" filepath="$PROJECT_DIR$/subprojects/components/hadoop/hive/project/.idea/modules/project-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/teradata.iml" filepath="$PROJECT_DIR$/.idea/modules/teradata.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/teradata-build.iml" filepath="$PROJECT_DIR$/.idea/modules/teradata-build.iml" />
     </modules>
