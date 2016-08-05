@@ -8,13 +8,11 @@ import tech.artemisia.task.settings.DBConnection
 
 object DBInterfaceFactory {
 
-
-  def getDBInterface(connectionProfile: DBConnection) = {
+  def getDBInterface(connectionProfile: Option[DBConnection]) = {
     connectionProfile match {
-      case DBConnection(null, null, null, null, -1) => new HiveCLIDBInterface
-      case profile => new HiveServerDBInterface(profile)
+      case None => new HiveCLIDBInterface
+      case Some(profile) => new HiveServerDBInterface(profile)
     }
   }
-
 
 }

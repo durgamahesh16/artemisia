@@ -9,8 +9,8 @@ import tech.artemisia.task.{TaskLike, database}
   * Created by chlr on 8/1/16.
   */
 
-class HQLExecute(override val taskName: String, override val sql: String, connectionProfile: DBConnection)
-    extends database.SQLExecute(taskName, sql, connectionProfile) {
+class HQLExecute(override val taskName: String, override val sql: String, connectionProfile: Option[DBConnection])
+    extends database.SQLExecute(taskName, sql, connectionProfile.getOrElse(DBConnection.getDummyConnection)) {
 
   override val dbInterface: DBInterface = DBInterfaceFactory.getDBInterface(connectionProfile)
 
