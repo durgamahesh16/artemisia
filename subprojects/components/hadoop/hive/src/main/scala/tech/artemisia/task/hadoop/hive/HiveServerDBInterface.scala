@@ -12,7 +12,6 @@ import tech.artemisia.task.settings.{DBConnection, LoadSetting}
 
 class HiveServerDBInterface(connectionProfile: DBConnection) extends DBInterface with DBImporter with DefaultDBExporter {
 
-
   override def getNewConnection: Connection = {
     Class.forName("org.apache.hive.jdbc.HiveDriver")
     DriverManager.getConnection(s"jdbc:hive2://${connectionProfile.hostname}:${connectionProfile.port}/${connectionProfile.default_database}"
