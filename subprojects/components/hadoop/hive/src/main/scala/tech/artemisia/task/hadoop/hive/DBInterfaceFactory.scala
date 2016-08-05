@@ -10,7 +10,7 @@ object DBInterfaceFactory {
 
   def getDBInterface(connectionProfile: Option[DBConnection]) = {
     connectionProfile match {
-      case None => new HiveCLIDBInterface
+      case None => new HiveCLIInterface
       case Some(profile) => new HiveServerDBInterface(profile)
     }
   }

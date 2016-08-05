@@ -23,7 +23,7 @@ class HiveCLIInterface extends DBInterface with DBImporter with DBExporter {
   // we trade compile time safety with
 
 
-  def execute(sql: String): Long = {
+  override def execute(sql: String, printSQL: Boolean = true): Long = {
     val cmd = makeHiveCommand(sql)
     val retCode = executeCmd(cmd)
     assert(retCode == 0, s"query execution failed with ret code $retCode")
