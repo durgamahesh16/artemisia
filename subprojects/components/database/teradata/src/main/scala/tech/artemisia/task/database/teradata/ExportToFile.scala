@@ -8,7 +8,6 @@ import java.io.{File, FileOutputStream, OutputStream}
 import java.net.URI
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database
 import tech.artemisia.task.database.{DBInterface, ExportTaskHelper}
 import tech.artemisia.task.settings.DBConnection
@@ -42,10 +41,7 @@ object ExportToFile extends ExportTaskHelper {
   override def apply(name: String,config: Config) = {
     val exportSettings = TeraExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
-    val sql =
-      if (config.hasPath("sql")) config.as[String]("sql")
-      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
-      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    val sql = config.asInlineOrFile("sql")
     new ExportToFile(name, sql, FileSystemUtil.makeURI(config.as[String]("location")), connectionProfile, exportSettings)
   }
 

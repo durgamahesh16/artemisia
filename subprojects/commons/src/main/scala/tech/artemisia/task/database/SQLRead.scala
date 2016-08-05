@@ -2,7 +2,6 @@ package tech.artemisia.task.database
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
 import tech.artemisia.core.AppLogger
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.Task
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -79,10 +78,7 @@ object SQLRead {
 
   def create[T <: SQLRead: ClassTag](name: String, config: Config) = {
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
-    val sql =
-      if (config.hasPath("sql")) config.as[String]("sql")
-      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
-      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    val sql = config.asInlineOrFile("sql")
     implicitly[ClassTag[T]].runtimeClass.asSubclass(classOf[SQLRead]).getConstructor(classOf[String], classOf[String]
     , classOf[DBConnection]).newInstance(name, sql, connectionProfile)
   }

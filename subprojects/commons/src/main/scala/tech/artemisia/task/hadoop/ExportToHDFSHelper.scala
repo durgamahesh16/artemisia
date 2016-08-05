@@ -1,10 +1,10 @@
 package tech.artemisia.task.hadoop
 
 import com.typesafe.config.Config
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.{BasicExportSetting, ExportTaskHelper}
 import tech.artemisia.task.settings.{DBConnection, ExportSetting}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.reflect.ClassTag
 
 /**
@@ -37,10 +37,7 @@ object ExportToHDFSHelper {
     val exportSettings = BasicExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val hdfs = HDFSWriteSetting(config.as[Config]("hdfs"))
-    val sql: String =
-      if (config.hasPath("sql")) config.as[String]("sql")
-      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
-      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    val sql: String = config.asInlineOrFile("key")
     implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[HDFSWriteSetting],
       classOf[DBConnection], classOf[ExportSetting])
       .newInstance(name, sql, hdfs, connectionProfile, exportSettings).asInstanceOf[T]

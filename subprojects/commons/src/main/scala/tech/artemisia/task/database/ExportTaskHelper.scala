@@ -2,11 +2,11 @@ package tech.artemisia.task.database
 
 import java.io.File
 import java.net.URI
-import tech.artemisia.util.HoconConfigUtil.Handler
+
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.TaskLike
 import tech.artemisia.task.settings.DBConnection
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.reflect.ClassTag
 
@@ -68,10 +68,7 @@ object ExportTaskHelper {
     val exportSettings = BasicExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val location = new File(config.as[String]("file")).toURI
-    val sql =
-      if (config.hasPath("sql")) config.as[String]("sql")
-      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
-      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    val sql = config.asInlineOrFile("key")
     implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[URI], classOf[DBConnection],
       classOf[BasicExportSetting]).newInstance(name, sql, location, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
   }

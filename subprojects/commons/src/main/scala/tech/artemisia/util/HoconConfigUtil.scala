@@ -1,8 +1,11 @@
 package tech.artemisia.util
 
 import java.io.File
+
 import com.typesafe.config._
 import org.apache.commons.lang3.StringEscapeUtils
+import tech.artemisia.inventory.exceptions.SettingNotFoundException
+
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 
@@ -192,9 +195,15 @@ object HoconConfigUtil {
       implicitly[ConfigReader[T]].read(config, key)
     }
 
-    def asFile(key: String): String = {
-      HoconConfigEnhancer.readFileContent(new File(config.getString(key)))
+    def asInlineOrFile(key: String): String = {
+      if (config.hasPath(key))
+        config.getString(key)
+      else if (config.hasPath(s"$key-file"))
+        HoconConfigEnhancer.readFileContent(new File(config.getString(key)))
+      else
+        throw new SettingNotFoundException(s"key $key/$key-file was not found")
     }
+
 
   }
 

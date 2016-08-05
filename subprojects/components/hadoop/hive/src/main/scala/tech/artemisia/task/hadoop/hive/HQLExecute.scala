@@ -4,6 +4,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
   * Created by chlr on 8/1/16.
@@ -28,7 +29,14 @@ object HQLExecute extends TaskLike {
 
   override def fieldDefinition: Map[String, AnyRef] = database.SQLExecute.fieldDefinition
 
-  override def apply(name: String, config:  Config) = database.SQLExecute.create[HQLExecute](name, config)
+  override def apply(name: String, config:  Config) = {
+    val sql = config.asInlineOrFile("hql")
+    val connection = config.hasPath("dsn") match {
+      case true => Some(DBConnection.parseConnectionProfile(config.getValue("dsn")))
+      case false => None
+    }
+    new HQLExecute(name, sql, connection)
+  }
 
   override val info: String = "Execute Hive HQL queries"
 

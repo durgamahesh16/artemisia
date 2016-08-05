@@ -1,7 +1,6 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.Config
-import tech.artemisia.inventory.exceptions.SettingNotFoundException
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.hadoop.{ExportToHDFSHelper, HDFSWriteSetting}
 import tech.artemisia.task.settings.DBConnection
@@ -27,10 +26,7 @@ object ExportToHDFS extends ExportToHDFSHelper {
     val exportSetting = TeraExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val hdfs = HDFSWriteSetting(config.as[Config]("hdfs"))
-    val sql: String =
-      if (config.hasPath("sql")) config.as[String]("sql")
-      else if (config.hasPath("sqlfile")) config.asFile("sqlfile")
-      else throw new SettingNotFoundException("sql/sqlfile key is missing")
+    val sql: String = config.asInlineOrFile("sql")
     new ExportToHDFS(taskName, sql, hdfs, connectionProfile, exportSetting)
   }
 
