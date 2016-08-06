@@ -3,11 +3,14 @@ package tech.artemisia.task.hadoop.hive
 import java.io.{InputStream, OutputStream}
 import java.net.URI
 import java.sql.Connection
+
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.task.TaskContext
 import tech.artemisia.task.database.{DBExporter, DBImporter, DBInterface}
 import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 import tech.artemisia.util.CommandUtil._
+import tech.artemisia.util.Util
 
 /**
   * Created by chlr on 8/3/16.
@@ -24,6 +27,8 @@ class HiveCLIInterface extends DBInterface with DBImporter with DBExporter {
 
 
   override def execute(sql: String, printSQL: Boolean = true): Long = {
+    if (printSQL)
+      info(Util.prettyPrintAsciiBanner(sql,"query"))
     val cmd = makeHiveCommand(sql)
     val retCode = executeCmd(cmd)
     assert(retCode == 0, s"query execution failed with ret code $retCode")

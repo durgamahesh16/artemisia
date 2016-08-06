@@ -70,7 +70,6 @@ abstract class Component(val name: String) {
     * A brief overview of the components and the tasks it supports.
     */
   final def doc = {
-
     val taskTable: Seq[Array[String]] =  Array("Task", "Description") +: tasks.map(x => Array(x.taskName, x.info))
 
     s"""/

@@ -196,8 +196,12 @@ object HoconConfigUtil {
     }
 
     def asInlineOrFile(key: String): String = {
-      if (config.hasPath(key))
-        config.getString(key)
+      if (config.hasPath(key)) {
+        // dont make it config.as[String] and if you do
+        // module dependency of project artemisia with all the components
+        // break for some reason... this needs investigation
+        HoconConfigEnhancer.stripLeadingWhitespaces(config.getString(key))
+      }
       else if (config.hasPath(s"$key-file"))
         HoconConfigEnhancer.readFileContent(new File(config.getString(key)))
       else
