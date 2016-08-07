@@ -1,6 +1,7 @@
 package tech.artemisia.task.hadoop.hive
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
+import tech.artemisia.core.AppLogger
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -25,8 +26,10 @@ class HQLExecute(override val taskName: String, override val sql: String, connec
       case None => {
         val dbInterface = new HiveCLIInterface()
         wrapAsStats {
-          ConfigFactory.empty()
+          val config = ConfigFactory.empty()
                   .withValue("loaded", dbInterface.execute(sql, taskName).root())
+         AppLogger debug config.root().render(ConfigRenderOptions.concise())
+          config
         }
       }
     }
