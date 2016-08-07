@@ -24,9 +24,4 @@ class HQLExecuteParser(writer: PrintWriter) extends LogOutputStream {
     writer.println(line)
   }
 
-  override def close() = {
-    super.close()
-    writer.close()
-  }
-
 }

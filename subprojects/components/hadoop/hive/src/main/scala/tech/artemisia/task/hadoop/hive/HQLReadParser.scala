@@ -30,9 +30,4 @@ class HQLReadParser(writer: PrintWriter) extends LogOutputStream {
     }
   }
 
-  override def close() = {
-    super.close()
-    writer.close()
-  }
-
 }
