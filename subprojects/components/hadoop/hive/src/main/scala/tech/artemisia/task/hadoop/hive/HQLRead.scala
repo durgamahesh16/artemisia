@@ -22,10 +22,7 @@ class HQLRead(taskName: String, sql: String, connectionProfile: Option[DBConnect
       case Some(profile) => super.work()
       case None => {
         val dbInterface = new HiveCLIInterface()
-        wrapAsStats {
-          ConfigFactory.empty()
-            .withValue("loaded", dbInterface.queryOne(sql, taskName).root())
-        }
+        dbInterface.queryOne(sql, taskName)
       }
     }
   }
