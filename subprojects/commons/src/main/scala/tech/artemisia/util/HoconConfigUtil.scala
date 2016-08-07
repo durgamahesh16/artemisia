@@ -208,7 +208,6 @@ object HoconConfigUtil {
         throw new SettingNotFoundException(s"key $key/$key-file was not found")
     }
 
-
   }
 
 }

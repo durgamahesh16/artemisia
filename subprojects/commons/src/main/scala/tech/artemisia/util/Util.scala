@@ -2,7 +2,8 @@ package tech.artemisia.util
 
 import java.io._
 import java.nio.file.{Files, Paths}
-import com.typesafe.config.{Config, ConfigFactory}
+
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import tech.artemisia.core.{AppLogger, Keywords}
@@ -123,8 +124,20 @@ object Util {
       }
       case Nil => throw new RuntimeException("content cannot be empty")
     }
-
   }
+
+
+  /**
+    * convert a map (key of String and value of AnyRef) to Hocon config
+    * @param map input map
+    * @return Hocon config object
+    */
+  def mapToConfig(map: Map[String,Any]) = {
+    map.foldLeft(ConfigFactory.empty()){
+      (carry, input) => carry withValue (input._1, ConfigValueFactory.fromAnyRef(input._2))
+    }
+  }
+
 
 
 }

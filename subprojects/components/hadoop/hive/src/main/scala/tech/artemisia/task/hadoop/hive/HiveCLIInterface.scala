@@ -1,38 +1,58 @@
 package tech.artemisia.task.hadoop.hive
 
-import java.io.{InputStream, OutputStream}
-import java.net.URI
-import java.sql.Connection
-
 import tech.artemisia.core.AppLogger._
-import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.task.TaskContext
-import tech.artemisia.task.database.{DBExporter, DBImporter, DBInterface}
-import tech.artemisia.task.settings.{ExportSetting, LoadSetting}
 import tech.artemisia.util.CommandUtil._
+import tech.artemisia.util.FileSystemUtil._
 import tech.artemisia.util.Util
 
 /**
   * Created by chlr on 8/3/16.
   */
-class HiveCLIInterface extends DBInterface with DBImporter with DBExporter {
+
+/**
+  * A DBInterface like class that supports functionality like queryOne and execute
+  * but doesnt extends DBInterace. The Local Hive CLI installation is used to
+  * submit queries. This interface can be used in the absence of a hiveserver service
+  * not being available.
+  */
+class HiveCLIInterface {
+
 
   /**
-    * This method is unimplemented and will raise an scala.NotImplementedError if accesssed.
     *
-    * @return JDBC connection object
+    * @param hql SELECT query to be executed.
+    * @param taskName map reduce job name to be set for the HQL query.
+    * @return resultset of the query with header and first row as Hocon config object
     */
-  def getNewConnection: Connection = ???
-  // we trade compile time safety with
+  def queryOne(hql: String, taskName: String) = {
+    info(Util.prettyPrintAsciiBanner(hql,"query"))
+    val effectiveHQL =
+      s"""set mapred.job.name = $taskName;
+         |set hive.cli.print.header=true;
+         |$hql
+       """.stripMargin
+    val cmd = makeHiveCommand(effectiveHQL)
+    val parser = new HQLReadParser
+    executeCmd(cmd, stdout = parser)
+    parser.getData
+  }
 
 
-  override def execute(sql: String, printSQL: Boolean = true): Long = {
-    if (printSQL)
-      info(Util.prettyPrintAsciiBanner(sql,"query"))
-    val cmd = makeHiveCommand(sql)
-    val retCode = executeCmd(cmd)
+  /**
+    * 
+    * @param hql
+    * @param taskName
+    * @return
+    */
+  def execute(hql: String, taskName: String) = {
+    info(Util.prettyPrintAsciiBanner(hql,"query"))
+    val effectiveHQL = s"set mapred.job.name = $taskName;\n" + hql
+    val cmd = makeHiveCommand(effectiveHQL)
+    val logParser = new HQLExecuteParser
+    val retCode = executeCmd(cmd, stderr = logParser)
     assert(retCode == 0, s"query execution failed with ret code $retCode")
-    0L
+    Util.mapToConfig(logParser.rowsLoaded.toMap)
   }
 
   def makeHiveCommand(sql: String): Seq[String] = {
@@ -43,13 +63,5 @@ class HiveCLIInterface extends DBInterface with DBImporter with DBExporter {
       case None => throw new RuntimeException("hive command not found")
     }
   }
-
-  override def load(tableName: String, inputStream: InputStream, loadSetting: LoadSetting): (Long, Long) = ???
-
-  override def load(tableName: String, location: URI, loadSetting: LoadSetting): (Long, Long) = ???
-
-  override def export(sql: String, outputStream: OutputStream, exportSetting: ExportSetting): Long = ???
-
-  override def export(sql: String, location: URI, exportSetting: ExportSetting): Long = ???
 
 }

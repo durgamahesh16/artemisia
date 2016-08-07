@@ -1,7 +1,6 @@
 package tech.artemisia.task.hadoop.hive
 
 import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
 import tech.artemisia.util.HoconConfigUtil.Handler
@@ -13,10 +12,25 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 class HQLExecute(override val taskName: String, override val sql: String, connectionProfile: Option[DBConnection])
     extends database.SQLExecute(taskName, sql, connectionProfile.getOrElse(DBConnection.getDummyConnection)) {
 
-  override val dbInterface: DBInterface = DBInterfaceFactory.getDBInterface(connectionProfile)
-
   override protected[task] def setup(): Unit = {}
 
+  override val dbInterface = connectionProfile match {
+    case Some(profile) => new HiveServerDBInterface(profile)
+    case None => null // see if we can eliminate the usage of null
+  }
+
+  override def work() = {
+    connectionProfile match {
+      case Some(profile) => super.work()
+      case None => {
+        val dbInterface = new HiveCLIInterface()
+        wrapAsStats {
+          ConfigFactory.empty()
+                  .withValue("loaded", dbInterface.execute(sql, taskName).root())
+        }
+      }
+    }
+  }
 }
 
 object HQLExecute extends TaskLike {
