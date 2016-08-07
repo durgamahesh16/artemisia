@@ -1,12 +1,14 @@
 package tech.artemisia.task.hadoop.hive
 
+import java.io.Writer
+
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.apache.commons.exec.LogOutputStream
 
 /**
   * Created by chlr on 8/6/16.
   */
-class HQLReadParser extends LogOutputStream {
+class HQLReadParser(writer: Writer) extends LogOutputStream {
 
   var header: String = _
   var row: String = _
@@ -18,6 +20,7 @@ class HQLReadParser extends LogOutputStream {
       case 1 => counter += 1; row = line
       case _ => ()
     }
+    writer.write(line+System.lineSeparator())
   }
 
   def getData = {
@@ -25,6 +28,11 @@ class HQLReadParser extends LogOutputStream {
     joined.foldLeft(ConfigFactory.empty()) {
       (carry, input) => carry.withValue(input._1, ConfigValueFactory.fromAnyRef(input._2))
     }
+  }
+
+  override def close() = {
+    super.close()
+    writer.close()
   }
 
 }

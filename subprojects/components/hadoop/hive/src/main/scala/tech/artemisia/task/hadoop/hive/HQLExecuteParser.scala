@@ -1,5 +1,6 @@
 package tech.artemisia.task.hadoop.hive
 
+import java.io.Writer
 import org.apache.commons.exec.LogOutputStream
 import scala.collection.mutable
 
@@ -7,7 +8,7 @@ import scala.collection.mutable
   * Created by chlr on 8/6/16.
   */
 
-class HQLExecuteParser extends LogOutputStream {
+class HQLExecuteParser(writer: Writer) extends LogOutputStream {
 
   val rowsLoaded = mutable.Map[String,Long]() withDefaultValue 0L
   val pattern1 = raw"(\d+) Rows loaded to (\w+)".r
@@ -18,7 +19,14 @@ class HQLExecuteParser extends LogOutputStream {
     line match {
       case pattern1(table, row) => rowsLoaded + (table -> rowsLoaded(table)+row)
       case pattern2(table, row) => rowsLoaded + (table -> rowsLoaded(table)+row)
+      case _ => ()
     }
+    writer.write(line+System.lineSeparator())
+  }
+
+  override def close() = {
+    super.close()
+    writer.close()
   }
 
 }

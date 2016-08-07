@@ -1,5 +1,7 @@
 package tech.artemisia.task.hadoop.hive
 
+import java.io.PrintWriter
+
 import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.TaskContext
 import tech.artemisia.util.CommandUtil._
@@ -33,8 +35,9 @@ class HiveCLIInterface {
          |$hql
        """.stripMargin
     val cmd = makeHiveCommand(effectiveHQL)
-    val parser = new HQLReadParser
+    val parser = new HQLReadParser(new PrintWriter(System.out))
     executeCmd(cmd, stdout = parser)
+    parser.close()
     parser.getData
   }
 
@@ -49,9 +52,10 @@ class HiveCLIInterface {
     info(Util.prettyPrintAsciiBanner(hql,"query"))
     val effectiveHQL = s"set mapred.job.name = $taskName;\n" + hql
     val cmd = makeHiveCommand(effectiveHQL)
-    val logParser = new HQLExecuteParser
+    val logParser = new HQLExecuteParser(new PrintWriter(System.err))
     val retCode = executeCmd(cmd, stderr = logParser)
     assert(retCode == 0, s"query execution failed with ret code $retCode")
+    logParser.close()
     Util.mapToConfig(logParser.rowsLoaded.toMap)
   }
 
