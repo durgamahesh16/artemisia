@@ -20,9 +20,9 @@ class HiveCLIInterface {
 
 
   /**
-    *
-    * @param hql SELECT query to be executed.
-    * @param taskName map reduce job name to be set for the HQL query.
+    * execute select query that returns a single row and parse the single row as Hocon config object
+    * @param hql SELECT query to be executed
+    * @param taskName name to be set for the hive mapred job
     * @return resultset of the query with header and first row as Hocon config object
     */
   def queryOne(hql: String, taskName: String) = {
@@ -40,10 +40,10 @@ class HiveCLIInterface {
 
 
   /**
-    * 
-    * @param hql
-    * @param taskName
-    * @return
+    * execute DML/DDL HQL queries
+    * @param hql hql query to be executed
+    * @param taskName name to be set for the hive mapred job
+    * @return config with stats on rows loaded.
     */
   def execute(hql: String, taskName: String) = {
     info(Util.prettyPrintAsciiBanner(hql,"query"))
@@ -55,9 +55,15 @@ class HiveCLIInterface {
     Util.mapToConfig(logParser.rowsLoaded.toMap)
   }
 
-  def makeHiveCommand(sql: String): Seq[String] = {
+
+  /**
+    *
+    * @param hql hql query to be executed.
+    * @return command to execute the hive query
+    */
+  private[hive] def makeHiveCommand(hql: String): Seq[String] = {
     val file = TaskContext.getTaskFile("query.hql")
-    file <<= sql
+    file <<= hql
     getExecutablePath("hive") match {
       case Some(exe) => exe :: "-f" :: file.toPath.toString :: Nil
       case None => throw new RuntimeException("hive command not found")
