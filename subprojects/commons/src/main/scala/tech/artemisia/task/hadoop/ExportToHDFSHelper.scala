@@ -37,7 +37,7 @@ object ExportToHDFSHelper {
     val exportSettings = BasicExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val hdfs = HDFSWriteSetting(config.as[Config]("hdfs"))
-    val sql: String = config.asInlineOrFile("key")
+    val sql: String = config.asInlineOrFile("sql")
     implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[HDFSWriteSetting],
       classOf[DBConnection], classOf[ExportSetting])
       .newInstance(name, sql, hdfs, connectionProfile, exportSettings).asInstanceOf[T]

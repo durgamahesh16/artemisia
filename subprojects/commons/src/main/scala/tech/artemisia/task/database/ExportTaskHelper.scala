@@ -68,7 +68,7 @@ object ExportTaskHelper {
     val exportSettings = BasicExportSetting(config.as[Config]("export"))
     val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
     val location = new File(config.as[String]("file")).toURI
-    val sql = config.asInlineOrFile("key")
+    val sql = config.asInlineOrFile("sql")
     implicitly[ClassTag[T]].runtimeClass.getConstructor(classOf[String], classOf[String], classOf[URI], classOf[DBConnection],
       classOf[BasicExportSetting]).newInstance(name, sql, location, connectionProfile, exportSettings).asInstanceOf[ExportToFile]
   }

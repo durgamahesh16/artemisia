@@ -22,7 +22,7 @@ object Modules {
 
   object Hive {
     val settings = Seq(
-      libraryDependencies += "org.apache.hive" % "hive-jdbc" % "0.10.0-cdh4.2.0"
+      libraryDependencies += "org.apache.hive" % "hive-jdbc" % "0.10.0-cdh4.2.0" % "provided"
     )
   }
 
