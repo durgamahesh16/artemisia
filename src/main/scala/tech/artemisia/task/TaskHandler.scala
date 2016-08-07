@@ -1,7 +1,8 @@
 package tech.artemisia.task
 
-import com.typesafe.config.{Config, ConfigFactory}
-import tech.artemisia.core.{AppLogger, BooleanEvaluator, Keywords}
+import com.typesafe.config.{Config, ConfigFactory, ConfigRenderOptions}
+import tech.artemisia.core.{BooleanEvaluator, Keywords}
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.dag.Status
 import tech.artemisia.util.HoconConfigUtil.configToConfigEnhancer
 import tech.artemisia.util.Util
@@ -21,12 +22,12 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
 
     taskConfig.conditions match {
       case Some((true, x)) => {
-        AppLogger info s"executing task ${task.taskName} since expression $x succeeded"
+        info(s"executing task ${task.taskName} since expression $x succeeded")
         executeLifeCycles
       }
       case None => executeLifeCycles
       case Some((false, x)) => {
-        AppLogger info s"skipping execution of ${task.taskName} since expression $x failed"
+        info(s"skipping execution of ${task.taskName} since expression $x failed")
         status = Status.SKIPPED
         Success(ConfigFactory.empty())
       }
@@ -52,7 +53,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
     val assertionKey = s"${task.taskName}.${Keywords.Task.ASSERTION}"
     taskConfig.assertion match {
       case Some((configValue, desc)) => {
-        AppLogger debug s"running assertions on ${task.taskName}"
+        debug(s"running assertions on ${task.taskName}")
         val resolvedConfig: Config = effectiveConfig.withValue(assertionKey, configValue).hardResolve
         val result = BooleanEvaluator.evalBooleanExpr(resolvedConfig.getValue(assertionKey))
         assert(result, desc)
@@ -63,21 +64,23 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
 
   private def lifecyles(): Try[Config] = {
 
-    AppLogger info s"running task with total allowed attempts of ${taskConfig.retryLimit}"
+    info(s"running task with total allowed attempts of ${taskConfig.retryLimit}")
 
     val result = run(maxAttempts = taskConfig.retryLimit) {
-      AppLogger debug "executing setup phase of the task"
+      debug("executing setup phase of the task")
       task.setup()
-      AppLogger debug "executing work phase of the task"
-      task.work()
+      debug("executing work phase of the task")
+      val result = task.work()
+      debug(s"emitting config: ${result.root().render(ConfigRenderOptions.concise())}")
+      result
     }
 
     try {
       // teardown must run even if the task setup or work has failed
-      AppLogger debug "executing teardown phase of the task"
+      debug("executing teardown phase of the task")
       task.teardown()
     } catch {
-      case ex: Throwable => AppLogger warn s"teardown phase failed with exception ${ex.getClass.getCanonicalName} with message ${ex.getMessage}"
+      case ex: Throwable => warn(s"teardown phase failed with exception ${ex.getClass.getCanonicalName} with message ${ex.getMessage}")
     }
     result
   }
@@ -90,8 +93,8 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
       Success(result)
     } catch {
       case ex: Throwable => {
-        AppLogger info s"attempt ${taskConfig.retryLimit - maxAttempts + 1} for task ${task.taskName}"
-        AppLogger error Util.printStackTrace(ex)
+        info(s"attempt ${taskConfig.retryLimit - maxAttempts + 1} for task ${task.taskName}")
+        error(Util.printStackTrace(ex))
         if (maxAttempts > 1) {
           run(maxAttempts - 1)(body)
         }

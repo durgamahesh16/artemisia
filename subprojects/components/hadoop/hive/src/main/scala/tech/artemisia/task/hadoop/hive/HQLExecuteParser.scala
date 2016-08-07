@@ -1,9 +1,7 @@
 package tech.artemisia.task.hadoop.hive
 
 import java.io.PrintWriter
-
 import org.apache.commons.exec.LogOutputStream
-
 import scala.collection.mutable
 
 /**
@@ -19,8 +17,8 @@ class HQLExecuteParser(writer: PrintWriter) extends LogOutputStream {
 
   override def processLine(line: String, logLevel: Int): Unit = {
     line match {
-      case pattern1(table, row) => rowsLoaded + (table -> rowsLoaded(table)+row)
-      case pattern2(table, row) => rowsLoaded + (table -> rowsLoaded(table)+row)
+      case pattern1(row, table) => rowsLoaded += (table -> (rowsLoaded(table) + row.toLong))
+      case pattern2(table, row) => rowsLoaded += (table -> (rowsLoaded(table) + row.toLong))
       case _ => ()
     }
     writer.println(line)

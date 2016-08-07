@@ -54,8 +54,8 @@ class HiveCLIInterface {
     val cmd = makeHiveCommand(effectiveHQL)
     val logParser = new HQLExecuteParser(new PrintWriter(System.err, true))
     val retCode = executeCmd(cmd, stderr = logParser)
-    assert(retCode == 0, s"query execution failed with ret code $retCode")
     logParser.close()
+    assert(retCode == 0, s"query execution failed with ret code $retCode")
     Util.mapToConfig(logParser.rowsLoaded.toMap)
   }
 
