@@ -35,7 +35,7 @@ class HiveCLIInterface {
          |$hql
        """.stripMargin
     val cmd = makeHiveCommand(effectiveHQL)
-    val parser = new HQLReadParser(new PrintWriter(System.out))
+    val parser = new HQLReadParser(new PrintWriter(System.out, true))
     executeCmd(cmd, stdout = parser)
     parser.close()
     parser.getData
@@ -52,7 +52,7 @@ class HiveCLIInterface {
     info(Util.prettyPrintAsciiBanner(hql,"query"))
     val effectiveHQL = s"set mapred.job.name = $taskName;\n" + hql
     val cmd = makeHiveCommand(effectiveHQL)
-    val logParser = new HQLExecuteParser(new PrintWriter(System.err))
+    val logParser = new HQLExecuteParser(new PrintWriter(System.err, true))
     val retCode = executeCmd(cmd, stderr = logParser)
     assert(retCode == 0, s"query execution failed with ret code $retCode")
     logParser.close()

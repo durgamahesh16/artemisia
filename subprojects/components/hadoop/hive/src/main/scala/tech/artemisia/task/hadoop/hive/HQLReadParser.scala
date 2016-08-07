@@ -1,6 +1,6 @@
 package tech.artemisia.task.hadoop.hive
 
-import java.io.Writer
+import java.io.PrintWriter
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.apache.commons.exec.LogOutputStream
@@ -8,7 +8,7 @@ import org.apache.commons.exec.LogOutputStream
 /**
   * Created by chlr on 8/6/16.
   */
-class HQLReadParser(writer: Writer) extends LogOutputStream {
+class HQLReadParser(writer: PrintWriter) extends LogOutputStream {
 
   var header: String = _
   var row: String = _
@@ -20,7 +20,7 @@ class HQLReadParser(writer: Writer) extends LogOutputStream {
       case 1 => counter += 1; row = line
       case _ => ()
     }
-    writer.write(line+System.lineSeparator())
+    writer.println(line)
   }
 
   def getData = {
