@@ -47,7 +47,7 @@ object HQLExecute extends TaskLike {
   override def fieldDefinition: Map[String, AnyRef] = database.SQLExecute.fieldDefinition
 
   override def apply(name: String, config:  Config) = {
-    val sql = config.asInlineOrFile("hql")
+    val sql = config.asInlineOrFile("sql")
     val connection = config.hasPath("dsn") match {
       case true => Some(DBConnection.parseConnectionProfile(config.getValue("dsn")))
       case false => None

@@ -20,6 +20,14 @@ import tech.artemisia.util.Util
   */
 class HiveCLIInterface {
 
+  /**
+    * hive executable path:
+    * eg: /usr/local/bin/hive
+    */
+  protected val hive = getExecutablePath("hive") match {
+    case Some(exe) => exe
+    case None => throw new RuntimeException("hive executable not found. make sure it is set in the path variable.")
+  }
 
   /**
     * execute select query that returns a single row and parse the single row as Hocon config object
@@ -65,13 +73,10 @@ class HiveCLIInterface {
     * @param hql hql query to be executed.
     * @return command to execute the hive query
     */
-  private[hive] def makeHiveCommand(hql: String): Seq[String] = {
+  private[hive] def makeHiveCommand(hql: String) = {
     val file = TaskContext.getTaskFile("query.hql")
     file <<= hql
-    getExecutablePath("hive") match {
-      case Some(exe) => exe :: "-f" :: file.toPath.toString :: Nil
-      case None => throw new RuntimeException("hive command not found")
-    }
+    hive :: "-f" :: file.toPath.toString :: Nil
   }
 
 }
