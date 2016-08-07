@@ -50,10 +50,12 @@ class UtilSpec extends TestSpec {
   it must "convert map to hocon config" in {
     val map = Map[String, Any](
       "harley" -> "quinn",
+      "boy.friend" -> "joker",
       "age" -> 28
     )
     val config = Util.mapToConfig(map)
     config.getString("harley") must be ("quinn")
+    config.getString(""""boy.friend"""") must be ("joker")
     config.getInt("age") must be (28)
   }
 

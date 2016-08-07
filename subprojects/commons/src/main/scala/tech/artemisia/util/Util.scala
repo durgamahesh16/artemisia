@@ -134,7 +134,7 @@ object Util {
     */
   def mapToConfig(map: Map[String,Any]) = {
     map.foldLeft(ConfigFactory.empty()){
-      (carry, input) => carry withValue (input._1, ConfigValueFactory.fromAnyRef(input._2))
+      (carry, input) => carry withValue (s""""${input._1}"""", ConfigValueFactory.fromAnyRef(input._2))
     }
   }
 
