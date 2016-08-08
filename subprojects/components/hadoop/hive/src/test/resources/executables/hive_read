@@ -1,2 +1,2 @@
 #!/bin/sh
-echo  "col1\tcol2\n10\txyz"
+printf "col1\tcol2\n10\txyz"
