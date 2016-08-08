@@ -1,18 +1,18 @@
 package tech.artemisia.task.hadoop.hive
 
-import java.io.PrintWriter
-
+import java.io.{OutputStream, PrintWriter}
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.apache.commons.exec.LogOutputStream
 
 /**
   * Created by chlr on 8/6/16.
   */
-class HQLReadParser(writer: PrintWriter) extends LogOutputStream {
+class HQLReadParser(stream: OutputStream) extends LogOutputStream {
 
   var header: String = _
   var row: String = _
   var counter = 0
+  val writer = new PrintWriter(stream, true)
 
   override def processLine(line: String, logLevel: Int): Unit = {
     counter match {

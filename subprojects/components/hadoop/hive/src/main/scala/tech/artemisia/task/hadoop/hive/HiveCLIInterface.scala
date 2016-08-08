@@ -1,6 +1,6 @@
 package tech.artemisia.task.hadoop.hive
 
-import java.io.PrintWriter
+import java.io.OutputStream
 
 import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.TaskContext
@@ -18,16 +18,7 @@ import tech.artemisia.util.Util
   * submit queries. This interface can be used in the absence of a hiveserver service
   * not being available.
   */
-class HiveCLIInterface {
-
-  /**
-    * hive executable path:
-    * eg: /usr/local/bin/hive
-    */
-  protected val hive = getExecutablePath("hive") match {
-    case Some(exe) => exe
-    case None => throw new RuntimeException("hive executable not found. make sure it is set in the path variable.")
-  }
+class HiveCLIInterface(val hive: String, stdout: OutputStream = System.out, stderr: OutputStream = System.err) {
 
   /**
     * execute select query that returns a single row and parse the single row as Hocon config object
@@ -43,8 +34,8 @@ class HiveCLIInterface {
          |$hql
        """.stripMargin
     val cmd = makeHiveCommand(effectiveHQL)
-    val parser = new HQLReadParser(new PrintWriter(System.out, true))
-    executeCmd(cmd, stdout = parser)
+    val parser = new HQLReadParser(stdout)
+    executeCmd(cmd, stdout = parser, stderr = stderr)
     parser.close()
     parser.getData
   }
@@ -60,8 +51,8 @@ class HiveCLIInterface {
     info(Util.prettyPrintAsciiBanner(hql,"query"))
     val effectiveHQL = s"set mapred.job.name = $taskName;\n" + hql
     val cmd = makeHiveCommand(effectiveHQL)
-    val logParser = new HQLExecuteParser(new PrintWriter(System.err, true))
-    val retCode = executeCmd(cmd, stderr = logParser)
+    val logParser = new HQLExecuteParser(stderr)
+    val retCode = executeCmd(cmd, stdout = stdout ,stderr = logParser)
     logParser.close()
     assert(retCode == 0, s"query execution failed with ret code $retCode")
     Util.mapToConfig(logParser.rowsLoaded.toMap)

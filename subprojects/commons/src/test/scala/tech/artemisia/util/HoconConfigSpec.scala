@@ -118,7 +118,7 @@ class HoconConfigSpec extends TestSpec {
          |              batman = bruce
          |              superman = clark
          |              wonderwoman = gal gadot
-         |              others = [supergirl, martian, green latern]
+         |              others = [suprgirl, martian, green latern]
          |           }
          | }
        """.stripMargin
@@ -126,6 +126,19 @@ class HoconConfigSpec extends TestSpec {
 
    reConfig.root().render(ConfigRenderOptions.concise()) must be (config.root().render(ConfigRenderOptions.concise()))
 
+  }
+
+
+  it must "handle key or key-file fetch" in {
+    val config = ConfigFactory parseString
+      s"""
+         | {
+         |   bar = bingo
+         |   foo-file = ${this.getClass.getResource("/dummy_file.txt").getFile}
+         | }
+       """.stripMargin
+      config.asInlineOrFile("bar") must be ("bingo")
+      config.asInlineOrFile("foo") must be ("tango")
   }
 
 

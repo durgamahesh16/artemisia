@@ -1,8 +1,10 @@
 package tech.artemisia.task.hadoop.hive
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
+import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
+import tech.artemisia.util.CommandUtil._
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
@@ -11,9 +13,17 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 class HQLRead(taskName: String, sql: String, connectionProfile: Option[DBConnection]) extends
                         database.SQLRead(taskName, sql, connectionProfile.getOrElse(DBConnection.getDummyConnection)) {
 
-  override val dbInterface = connectionProfile match {
+
+  protected lazy val hiveCli = getExecutablePath("hive") map {
+    x => new HiveCLIInterface(x)
+  } match {
+    case Some(x) => x
+    case None => throw new RuntimeException(s"hive executable not found in path")
+  }
+
+  override lazy val dbInterface: DBInterface = connectionProfile match {
     case Some(profile) => new HiveServerDBInterface(profile)
-    case None => null // see if we can eliminate the usage of null
+    case None => throw new RuntimeException("HiveServer2 interface being accessed when it is not defined")
   }
 
 
@@ -21,9 +31,16 @@ class HQLRead(taskName: String, sql: String, connectionProfile: Option[DBConnect
     connectionProfile match {
       case Some(profile) => super.work()
       case None => {
-        val dbInterface = new HiveCLIInterface()
-        dbInterface.queryOne(sql, taskName)
+        hiveCli.queryOne(sql, taskName)
       }
+    }
+  }
+
+
+  override def teardown() = {
+    connectionProfile match {
+      case Some(profile) => super.teardown()
+      case _ => ()
     }
   }
 

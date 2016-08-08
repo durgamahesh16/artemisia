@@ -203,7 +203,7 @@ object HoconConfigUtil {
         HoconConfigEnhancer.stripLeadingWhitespaces(config.getString(key))
       }
       else if (config.hasPath(s"$key-file"))
-        HoconConfigEnhancer.readFileContent(new File(config.getString(key)))
+        HoconConfigEnhancer.readFileContent(new File(config.getString(s"$key-file")))
       else
         throw new SettingNotFoundException(s"key $key/$key-file was not found")
     }
