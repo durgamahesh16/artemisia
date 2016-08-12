@@ -39,7 +39,7 @@ trait ExportTaskHelper extends TaskLike {
          |{
          |   "dsn_[1]" = connection-name
          |   sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
-         |   sqlfile = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
+         |   sql-file = "run_queries.sql @info(path to the file) @optional(either sql or sqlfile key is required)"
          |   location = "/var/tmp/file.txt"
          |}
      """.stripMargin

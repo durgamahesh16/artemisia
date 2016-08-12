@@ -1,6 +1,6 @@
 package tech.artemisia.task.hadoop.hive
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{TaskLike, database}
@@ -55,6 +55,8 @@ object HQLExecute extends TaskLike {
   override val taskName: String = "HQLExecute"
 
   override def paramConfigDoc: Config =  database.SQLExecute.paramConfigDoc(10000)
+                                                .withValue("dsn_[1]",ConfigValueFactory.fromAnyRef("connection-name @optional"))
+                                                .withValue("dsn_[1]",DBConnection.structure(10000).root())
 
   override def defaultConfig: Config =  ConfigFactory.empty()
 

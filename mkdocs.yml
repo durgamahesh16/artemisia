@@ -6,9 +6,10 @@ pages:
   - {Installation: started.md}
   - {Defining Jobs: concept.md}
 - Components:
+  - {Hive: components/hive.md}
   - {MySQL: components/mysql.md}
-  - {Core: components/core.md}
   - {Postgres: components/postgres.md}
   - {Teradata: components/teradata.md}
+  - {Core: components/core.md}
 - Examples:
   - {Mysql: examples/mysql.md}

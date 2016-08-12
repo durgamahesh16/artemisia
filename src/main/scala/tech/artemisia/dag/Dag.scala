@@ -10,6 +10,7 @@ import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.LinearSeq
+import tech.artemisia.core.AppLogger._
 
 /**
  * Created by chlr on 1/3/16.
@@ -18,9 +19,9 @@ import scala.collection.LinearSeq
 private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointData) extends Iterable[LinearSeq[Node]] {
 
   this.resolveDependencies(node_list)
-  AppLogger debug "resolved all task dependency"
+  debug("resolved all task dependency")
   val graph = topSort(node_list)
-  AppLogger debug "no cyclic dependency detected"
+  debug("no cyclic dependency detected")
   this.applyCheckpoints(checkpointData)
 
   @tailrec
@@ -119,7 +120,7 @@ object Dag {
    val node_list = parseNodeFromConfig(appContext.checkpoints.adhocPayload withFallback  appContext.payload) map {
      case (name,payload) => Node(name,payload)
    }
-   new Dag(node_list.toList,appContext.checkpoints)
+   new Dag(node_list.toList, appContext.checkpoints)
   }
 
   def apply(node_list: LinearSeq[Node], checkpointData: CheckpointData = CheckpointData()) = {
@@ -132,7 +133,7 @@ object Dag {
     // this is done to make assert nodes un-resolved.
     TaskContext.payload  = assertNodes.foldLeft(resolvedConfig) {
       (tempConfig, kv) => {
-        tempConfig.withValue(s"${kv._1}.${Keywords.Task.ASSERTION}", kv._2) withFallback tempConfig
+        tempConfig.withValue(s""""${kv._1}".${Keywords.Task.ASSERTION}""", kv._2) withFallback tempConfig
       }
     }
       extractTaskNodes(TaskContext.payload) map {
@@ -145,7 +146,7 @@ object Dag {
     * This method parses a given Config Object and identifies task definition nodes and filters rest.
     *
     * for eg: consider below node the result will be Map("task" -> SimpleConfigObject())
-    * here the node foo = bar was filter and task and its corresponding configobject value is selected.
+    * here the node foo = bar would be filtered and task and its corresponding configobject value is selected.
     *
     * {{{
     *   foo = bar

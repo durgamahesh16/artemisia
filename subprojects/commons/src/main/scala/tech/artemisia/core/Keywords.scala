@@ -40,6 +40,7 @@ object Keywords {
     val ATTEMPT = "attempts"
     val PARAMS = "params"
     val CONDITION = "when"
+    val VARIABLES = "vars"
     val ASSERTION = "assert"
   }
 
