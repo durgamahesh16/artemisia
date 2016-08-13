@@ -1,16 +1,16 @@
 package tech.artemisia.dag
 
 import com.typesafe.config._
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
 import tech.artemisia.dag.Message.TaskStats
-import tech.artemisia.task.TaskContext
-import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
+import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.LinearSeq
-import tech.artemisia.core.AppLogger._
 
 /**
  * Created by chlr on 1/3/16.
@@ -117,7 +117,7 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointDat
 object Dag {
 
   def apply(appContext: AppContext) = {
-   val node_list = parseNodeFromConfig(appContext.checkpoints.adhocPayload withFallback  appContext.payload) map {
+   val node_list = parseNodeFromConfig(appContext.checkpoints.adhocPayload withFallback appContext.payload) map {
      case (name,payload) => Node(name,payload)
    }
    new Dag(node_list.toList, appContext.checkpoints)
@@ -128,15 +128,7 @@ object Dag {
   }
 
   def parseNodeFromConfig(code: Config): Map[String, Config] = {
-    val assertNodes = extractTaskAssertionNodes(code)
-    val resolvedConfig = code.hardResolve
-    // this is done to make assert nodes un-resolved.
-    TaskContext.payload  = assertNodes.foldLeft(resolvedConfig) {
-      (tempConfig, kv) => {
-        tempConfig.withValue(s""""${kv._1}".${Keywords.Task.ASSERTION}""", kv._2) withFallback tempConfig
-      }
-    }
-      extractTaskNodes(TaskContext.payload) map {
+      extractTaskNodes(code) map {
         case (name, body: ConfigObject) => name -> body.toConfig
       }
   }
@@ -163,7 +155,7 @@ object Dag {
     * @return Map of taskname and task definition config objects
     */
   private[dag] def extractTaskNodes(config: Config): Map[String, ConfigValue] = {
-    config.root() filterNot {
+    config.root().asScala filterNot {
       case (key, value) => key.startsWith("__") && key.endsWith("__")
     } filter {
       case (key, value)  =>
@@ -173,14 +165,6 @@ object Dag {
       case (key, value: ConfigObject) =>
         value.toConfig.hasPath(Task.COMPONENT) && value.toConfig.hasPath(Keywords.Task.TASK)
     } toMap
-  }
-
-  def extractTaskAssertionNodes(config: Config) = {
-    extractTaskNodes(config) filter {
-      case (taskName, taskDef: ConfigObject) => taskDef.contains(Keywords.Task.ASSERTION)
-    } map {
-      case (taskName, taskDef: ConfigObject) => taskName -> taskDef.toConfig.getValue(Keywords.Task.ASSERTION)
-    }
   }
 
 }

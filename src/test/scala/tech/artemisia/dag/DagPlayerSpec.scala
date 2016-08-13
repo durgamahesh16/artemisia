@@ -8,7 +8,6 @@ import tech.artemisia.core.{AppContext, AppSetting}
 import tech.artemisia.dag.Message.{Messageable, TaskStats, _}
 import tech.artemisia.task.{TaskHandler, TestAdderTask, TestFailTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 import scala.concurrent.duration._
 
 /**
@@ -66,7 +65,7 @@ class DagPlayerSpec extends ActorTestSpec {
   }
 
 
-  "DagPlayer" must "must handle error" in {
+  "DagPlayer" must "handle error" in {
 
     setUpArtifacts(this.getClass.getResource("/code/multi_step_addition_with_failure.conf").getFile)
     info("Sending tick 1")

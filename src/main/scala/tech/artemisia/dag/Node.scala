@@ -1,29 +1,44 @@
 package tech.artemisia.dag
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.{TaskConfig, TaskHandler}
-import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 
 import scala.collection.LinearSeq
 
 /**
- * Created by chlr on 1/4/16.
- */
+  * Created by chlr on 1/4/16.
+  */
 
 class Node(val name: String, var payload: Config) {
 
-  /* this variable is expected to be handled by actors
-     access outside of the actor system might coroupt the state of the node
-  */
+  def resolvedPayload(code: Config) = {
+    // we do this so that assertions are resolved now and only after task execution completes
+    val assertions = payload.getAs[ConfigValue](Keywords.Task.ASSERTION)
+    val variables = payload.getAs[Config](Keywords.Task.VARIABLES)
+      .getOrElse(ConfigFactory.empty())
+    val config = payload
+      .withoutPath(Keywords.Task.ASSERTION)
+      .withoutPath(Keywords.Task.VARIABLES)
+      .withFallback(variables)
+      .withFallback(code)
+      .hardResolve
+    assertions match {
+      case Some(x) => config.withValue(Keywords.Task.ASSERTION, x)
+      case None => config
+    }
+  }
 
   private var status = Status.READY
   val ignoreFailure: Boolean = false
   var parents: LinearSeq[Node] = Nil
 
   def isRunnable = {
-    (parents forall { _.isComplete }) && this.status == Status.READY // forall for Nil returns true
+    (parents forall {
+      _.isComplete
+    }) && this.status == Status.READY // forall for Nil returns true
   }
 
   def isComplete = {
@@ -31,12 +46,14 @@ class Node(val name: String, var payload: Config) {
   }
 
   def getNodeTask(app_context: AppContext): TaskHandler = {
-    val componentName = payload.as[String](Task.COMPONENT)
-    val taskName = payload.as[String](Keywords.Task.TASK)
+    val config = resolvedPayload(app_context.payload)
+    val componentName = config.as[String](Task.COMPONENT)
+    val taskName = config.as[String](Keywords.Task.TASK)
+    val defaults = app_context.payload.getAs[Config](s""""${Keywords.Config.DEFAULTS}"."$componentName"."$taskName"""")
     val component = app_context.componentMapper(componentName)
-    val task = component.dispatchTask(taskName, name, payload.as[Config](Keywords.Task.PARAMS))
-    val taskVars =
-    new TaskHandler(TaskConfig(payload,app_context),task)
+    val task = component.dispatchTask(taskName, name, config.as[Config](Keywords.Task.PARAMS) withFallback
+      defaults.getOrElse(ConfigFactory.empty()))
+    new TaskHandler(TaskConfig(config, app_context), task)
   }
 
   override def equals(that: Any): Boolean = {
@@ -70,7 +87,7 @@ class Node(val name: String, var payload: Config) {
       }
       case Status.FAILURE_IGNORED => {
         AppLogger info s"marking node $name status as $checkpointStatus from checkpoint"
-    }
+      }
       case _ => {
         AppLogger warn s"node $name has an unhandled status of $checkpointStatus}. setting node status as ${Status.READY}"
       }
@@ -86,11 +103,11 @@ class Node(val name: String, var payload: Config) {
 object Node {
 
   def apply(name: String, body: Config) = {
-    new Node(name,body)
+    new Node(name, body)
   }
 
   def apply(name: String) = {
-    new Node(name,ConfigFactory.empty())
+    new Node(name, ConfigFactory.empty())
   }
 
   def unapply(node: Node) = {

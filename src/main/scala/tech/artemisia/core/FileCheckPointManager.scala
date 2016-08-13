@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
  */
 
 /**
- * This class manages checkpointing mechanism.
+ * This class manages check-pointing mechanism.
  * It is responsible for writing checkpoints to file.
  * and parsing checkpoint file to bootstrap a Dag
  * @todo adhoc-payload can be computed by merge all tasks output from TaskStats.
