@@ -153,7 +153,7 @@ class DagPlayerSpec extends ActorTestSpec {
     within(1000 millis) {
       dag_player ! new Tick
       probe.validateAndRelay(workers) {
-        case TaskWrapper("step2",task_handler: TaskHandler) => {
+        case TaskWrapper("step1",task_handler: TaskHandler) => {
           task_handler.task mustBe a[TestAdderTask]
         }
         case x => info(x.toString)
@@ -165,6 +165,28 @@ class DagPlayerSpec extends ActorTestSpec {
         }
       }
     }
+  }
+
+
+
+  it must "apply local variables" in {
+    setUpArtifacts(this.getClass.getResource("/code/local_variables.conf").getFile)
+    within(1000 millis) {
+      dag_player ! new Tick
+      probe.validateAndRelay(workers) {
+        case TaskWrapper("step1",task_handler: TaskHandler) => {
+          task_handler.task mustBe a[TestAdderTask]
+        }
+        case x => info(x.toString)
+      }
+      probe.validateAndRelay(dag_player) {
+        case TaskSuceeded("step1", stats: TaskStats) => {
+          stats.status must be (Status.SUCCEEDED)
+          stats.taskOutput.as[Int]("foo") must be (50)
+        }
+      }
+    }
+
   }
   
 
