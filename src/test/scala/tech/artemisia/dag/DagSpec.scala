@@ -28,7 +28,7 @@ class DagSpec extends TestSpec {
     val dag = Dag(graph)
 
     info("inspecting Dag size")
-    dag.size must be (7)
+    dag.graph.size must be (7)
     info("Dag must be in same order as in source")
     for (i <- 1 to 7; current_node: Node <- dag.getRunnableNodes) {
       current_node must be (graph(i-1))
@@ -116,7 +116,7 @@ class DagSpec extends TestSpec {
   it must "parse Task Nodes correctly from the ConfigObject" in {
 
     val code = scala.io.Source.fromFile(this.getClass.getResource("/code/code_with_incorrect_blocks.conf").getFile).mkString
-    val nodes = Dag.parseNodeFromConfig(ConfigFactory parseString code)
+    val nodes = Dag.parseNodesFromConfig(ConfigFactory parseString code)
     val dummy_step1 = ConfigFactory parseString "{ Component: Dummy, Task: DummyTask ,params: { dummy_param1 = 11, dummy_param2 = no } }"
     nodes must be (mutable.Map("dummy_step1" -> dummy_step1))
 
@@ -159,7 +159,7 @@ object DagSpec {
 
   def makeDagFromFile(file: String) = {
     val config = ConfigFactory.parseFile(new File(file))
-    val node_list: Iterable[Node] = Dag.parseNodeFromConfig(config) map {
+    val node_list: Iterable[Node] = Dag.parseNodesFromConfig(config) map {
       case (name: String, body: Config) => Node(name,body)
     }
     Dag(node_list.toList)

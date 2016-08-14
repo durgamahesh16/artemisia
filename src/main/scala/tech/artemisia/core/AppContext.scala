@@ -21,10 +21,21 @@ import scala.concurrent.duration.FiniteDuration
 
 class AppContext(private val cmdLineParam: AppSetting) {
 
+
   val skipCheckpoints = cmdLineParam.skip_checkpoints
   val globalConfigFile = cmdLineParam.globalConfigFileRef
   val runId: String = cmdLineParam.run_id.getOrElse(Util.getUUID)
-  var payload = getConfigObject
+
+  // Always keep the payload of Appcontext and its smaller cousin TaskContext in sync.
+  // this is done by leveraging the setter of payload attribute
+  private var actualPayload: Config = ConfigFactory.empty()
+  def payload = actualPayload
+  def payload_=(config: Config): Unit = {
+    TaskContext.payload = config
+    actualPayload = config
+  }
+  actualPayload = getConfigObject
+
   val logging: Logging =  AppContext.parseLoggingFromPayload(payload.as[Config](s"${Keywords.Config.SETTINGS_SECTION}.logging"))
   val dagSetting: DagSetting = AppContext.parseDagSettingFromPayload(payload.as[Config](s"${Keywords.Config.SETTINGS_SECTION}.dag"))
   val workingDir: String = computeWorkingDir

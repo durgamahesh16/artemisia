@@ -42,6 +42,7 @@ object Keywords {
     val CONDITION = "when"
     val VARIABLES = "define"
     val ASSERTION = "assert"
+    val ITERATE = "forall"
   }
 
   object TaskStats {

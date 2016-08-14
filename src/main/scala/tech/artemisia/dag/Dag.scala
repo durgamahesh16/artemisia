@@ -6,26 +6,28 @@ import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
 import tech.artemisia.dag.Message.TaskStats
+import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.LinearSeq
+import scala.collection.Seq
 
 /**
  * Created by chlr on 1/3/16.
  */
 
-private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointData) extends Iterable[LinearSeq[Node]] {
+private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
 
   this.resolveDependencies(node_list)
   debug("resolved all task dependency")
-  val graph = topSort(node_list)
+  var graph = topSort(node_list)
   debug("no cyclic dependency detected")
   this.applyCheckpoints(checkpointData)
+  DagEditor.editDag(this, TaskContext.payload)
 
   @tailrec
-  private def topSort(unsorted_graph: LinearSeq[Node], sorted_graph: LinearSeq[Node] = Nil):LinearSeq[Node] = {
+  private def topSort(unsorted_graph: Seq[Node], sorted_graph: Seq[Node] = Nil): Seq[Node] = {
     (unsorted_graph ,sorted_graph) match {
       case (Nil,a) =>  a
       case _ => {
@@ -42,7 +44,7 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointDat
     }
   }
 
-  protected[dag] def resolveDependencies(nodeList: LinearSeq[Node]): Unit = {
+  protected[dag] def resolveDependencies(nodeList: Seq[Node]): Unit = {
     val nodeMap = (nodeList map { x => { x.name -> x } } ).toMap
     nodeList map { x => x -> x.payload.getAs[List[String]](Keywords.Task.DEPENDENCY) } filter {
       x => x._2.nonEmpty
@@ -62,9 +64,10 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointDat
   }
 
   def updateNodePayloads(code: Config) = {
-    Dag.parseNodeFromConfig(code) foreach {
+    Dag.parseNodesFromConfig(code) foreach {
       case (node_name,payload) => this.getNodeByName(node_name).payload = payload
     }
+    DagEditor.editDag(this, code)
   }
 
   private def applyCheckpoints(checkpointData: CheckpointData): Unit = {
@@ -83,11 +86,15 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointDat
     node.head
   }
 
+  def getChildNodes(node: Node) = {
+    this.graph filter { x => x.parents contains node}
+  }
+
   def hasCompleted = {
     graph forall { _.isComplete }
   }
 
-  def getRunnableNodes: LinearSeq[Node] = {
+  def getRunnableNodes: Seq[Node] = {
     graph filter { _.isRunnable }
   }
 
@@ -98,36 +105,23 @@ private[dag] class Dag(node_list: LinearSeq[Node], checkpointData: CheckpointDat
 
   override def toString() = graph.toString()
 
-  override def iterator: Iterator[LinearSeq[Node]] = new Iterator[LinearSeq[Node]] {
-
-    var traversed = Set[Node]()
-    val source = graph.toSet[Node]
-
-    override def hasNext: Boolean = (source diff traversed).nonEmpty
-
-    override def next(): LinearSeq[Node] = {
-      val open_nodes = (source diff traversed) filter { x => (x.parents.toSet[Node] diff traversed).isEmpty }
-      traversed = traversed ++ open_nodes
-      open_nodes.toList
-    }
-  }
 }
 
 
 object Dag {
 
   def apply(appContext: AppContext) = {
-   val node_list = parseNodeFromConfig(appContext.checkpoints.adhocPayload withFallback appContext.payload) map {
+   val node_list = parseNodesFromConfig(appContext.checkpoints.adhocPayload withFallback appContext.payload) map {
      case (name,payload) => Node(name,payload)
    }
    new Dag(node_list.toList, appContext.checkpoints)
   }
 
-  def apply(node_list: LinearSeq[Node], checkpointData: CheckpointData = CheckpointData()) = {
+  def apply(node_list: Seq[Node], checkpointData: CheckpointData = CheckpointData()) = {
     new Dag(node_list,checkpointData)
   }
 
-  def parseNodeFromConfig(code: Config): Map[String, Config] = {
+  def parseNodesFromConfig(code: Config): Map[String, Config] = {
       extractTaskNodes(code) map {
         case (name, body: ConfigObject) => name -> body.toConfig
       }

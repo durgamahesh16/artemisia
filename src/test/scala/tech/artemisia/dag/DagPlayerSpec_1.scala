@@ -14,10 +14,10 @@ import scala.concurrent.duration._
  * Created by chlr on 1/25/16.
  */
 
-class DagPlayerSpec extends ActorTestSpec {
+class DagPlayerSpec_1 extends ActorTestSpec {
 
   var workers: ActorRef = _
-  var probe: DagPlayerSpec.DagProbe = _
+  var probe: DagPlayerSpec_1.DagProbe = _
   var app_settings: AppSetting = _
   var dag: Dag = _
   var dag_player: ActorRef = _
@@ -25,7 +25,7 @@ class DagPlayerSpec extends ActorTestSpec {
 
   override def beforeEach() = {
     workers = system.actorOf(RoundRobinPool(1).props(Props[Worker]))
-    probe = DagPlayerSpec.getTestProbe(system)
+    probe = DagPlayerSpec_1.getTestProbe(system)
   }
 
 
@@ -148,47 +148,7 @@ class DagPlayerSpec extends ActorTestSpec {
     dag.getNodeByName("step1").getStatus must be (Status.FAILED)
   }
 
-  it must "apply defaults defined in settings.conf" in {
-    setUpArtifacts(this.getClass.getResource("/code/apply_defaults.conf").getFile)
-    within(1000 millis) {
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("step1",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-        case x => info(x.toString)
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step1", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("foo") must be (50)
-        }
-      }
-    }
-  }
 
-
-
-  it must "apply local variables" in {
-    setUpArtifacts(this.getClass.getResource("/code/local_variables.conf").getFile)
-    within(1000 millis) {
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("step1",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-        case x => info(x.toString)
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step1", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("foo") must be (50)
-        }
-      }
-    }
-
-  }
-  
 
   def setUpArtifacts(code: String) = {
     app_settings = AppSetting(value = Some(code),skip_checkpoints = true)
@@ -199,7 +159,7 @@ class DagPlayerSpec extends ActorTestSpec {
 
 }
 
-object DagPlayerSpec {
+object DagPlayerSpec_1 {
 
   class DagProbe(system: ActorSystem) extends TestProbe(system) {
 

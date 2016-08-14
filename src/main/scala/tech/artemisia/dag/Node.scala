@@ -6,13 +6,11 @@ import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.{TaskConfig, TaskHandler}
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 
-import scala.collection.LinearSeq
-
 /**
   * Created by chlr on 1/4/16.
   */
 
-class Node(val name: String, var payload: Config) {
+final class Node(val name: String, var payload: Config) {
 
   def resolvedPayload(code: Config) = {
     // we do this so that assertions are resolved now and only after task execution completes
@@ -33,7 +31,7 @@ class Node(val name: String, var payload: Config) {
 
   private var status = Status.READY
   val ignoreFailure: Boolean = false
-  var parents: LinearSeq[Node] = Nil
+  var parents: Seq[Node] = Nil
 
   def isRunnable = {
     (parents forall {
