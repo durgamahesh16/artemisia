@@ -20,7 +20,7 @@ object Message {
   case class TaskFailed(name: String, taskStats: TaskStats, exception: Throwable)
     extends TaskCompleted
 
-  case class TaskWrapper(name: String,task: TaskHandler) extends Messageable
+  case class TaskWrapper(name: String, task: TaskHandler) extends Messageable
 
   case class TaskSuceeded(name: String, task_stats: TaskStats) extends TaskCompleted
 
@@ -36,7 +36,7 @@ object Message {
 
       ConfigFactory parseString {
         s"""
-          |$task_name = {
+          |"$task_name" = {
           |  ${Keywords.TaskStats.START_TIME} = "$startTime"
           |  ${Keywords.TaskStats.END_TIME} = "$endTime"
           |  ${Keywords.TaskStats.STATUS} = $status

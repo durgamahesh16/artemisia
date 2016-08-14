@@ -6,8 +6,7 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 /**
  * Created by chlr on 1/26/16.
  */
-class
-TestAdderTask(name: String ,val num1: Int, val num2: Int, val result: String) extends Task(name) {
+class TestAdderTask(name: String ,val num1: Int, val num2: Int, val result: String) extends Task(name) {
 
   override def setup(): Unit = {}
   override def work(): Config = {

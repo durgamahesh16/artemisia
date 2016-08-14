@@ -8,6 +8,7 @@ import tech.artemisia.core.{AppContext, AppSetting}
 import tech.artemisia.dag.Message._
 import tech.artemisia.task.{TaskHandler, TestAdderTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.concurrent.duration.{Duration, _}
 
 /**
@@ -27,46 +28,8 @@ class DagPlayerSpec_2 extends ActorTestSpec {
     probe = DagPlayerSpec_2.getTestProbe(system)
   }
 
-//  "DagPlayer" must "apply local variables" in {
-//    setUpArtifacts(this.getClass.getResource("/code/local_variables.conf").getFile)
-//    within(1000 millis) {
-//      dag_player ! new Tick
-//      probe.validateAndRelay(workers) {
-//        case TaskWrapper("step1",task_handler: TaskHandler) => {
-//          task_handler.task mustBe a[TestAdderTask]
-//        }
-//      }
-//      probe.validateAndRelay(dag_player) {
-//        case TaskSuceeded("step1", stats: TaskStats) => {
-//          stats.status must be (Status.SUCCEEDED)
-//          stats.taskOutput.as[Int]("foo") must be (50)
-//        }
-//      }
-//    }
-//  }
-//
-//
-//  it must "apply defaults defined in settings.conf" in {
-//    setUpArtifacts(this.getClass.getResource("/code/apply_defaults.conf").getFile)
-//    within(1000 millis) {
-//      dag_player ! new Tick
-//      probe.validateAndRelay(workers) {
-//        case TaskWrapper("step1",task_handler: TaskHandler) => {
-//          task_handler.task mustBe a[TestAdderTask]
-//        }
-//      }
-//      probe.validateAndRelay(dag_player) {
-//        case TaskSuceeded("step1", stats: TaskStats) => {
-//          stats.status must be (Status.SUCCEEDED)
-//          stats.taskOutput.as[Int]("foo") must be (50)
-//        }
-//      }
-//    }
-//  }
-
-
-  it must "handle looping in dag" in {
-    setUpArtifacts(this.getClass.getResource("/code/iteration_test.conf").getFile)
+  "DagPlayer" must "apply local variables" in {
+    setUpArtifacts(this.getClass.getResource("/code/local_variables.conf").getFile)
     within(1000 millis) {
       dag_player ! new Tick
       probe.validateAndRelay(workers) {
@@ -75,53 +38,93 @@ class DagPlayerSpec_2 extends ActorTestSpec {
         }
       }
       probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step1",stats: TaskStats) => {
+        case TaskSuceeded("step1", stats: TaskStats) => {
           stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango1") must be (3)
+          stats.taskOutput.as[Int]("foo") must be (50)
         }
       }
+    }
+  }
 
+
+  it must "apply defaults defined in settings.conf" in {
+    setUpArtifacts(this.getClass.getResource("/code/apply_defaults.conf").getFile)
+    within(1000 millis) {
       dag_player ! new Tick
       probe.validateAndRelay(workers) {
-        case TaskWrapper("step2",task_handler: TaskHandler) => {
+        case TaskWrapper("step1",task_handler: TaskHandler) => {
           task_handler.task mustBe a[TestAdderTask]
         }
       }
       probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step2",stats: TaskStats) => {
+        case TaskSuceeded("step1", stats: TaskStats) => {
           stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango2") must be (3)
+          stats.taskOutput.as[Int]("foo") must be (50)
+        }
+      }
+    }
+  }
+
+
+  it must "handle looping in dag" in {
+    setUpArtifacts(this.getClass.getResource("/code/iteration_test.conf").getFile)
+    within(20000 millis) {
+      var messages: Seq[AnyRef] = Nil
+      dag_player ! new Tick
+
+      probe.receiveN(2, 2 second) foreach {
+         case msg @ TaskWrapper("step1", taskHandler) => workers.tell(msg, probe.ref)
+         case msg @ TaskWrapper("step2", taskHandler) => workers.tell(msg, probe.ref)
+       }
+      probe.receiveN(2, 2 second) foreach {
+        case msg @ TaskSuceeded("step1", taskStats) => {
+          taskStats.taskOutput.as[Int]("tango1") must be (3)
+          dag_player.tell(msg, probe.ref)
+        }
+        case msg @ TaskSuceeded("step2", taskStats) => {
+          taskStats.taskOutput.as[Int]("tango2") must be (3)
+          dag_player.tell(msg, probe.ref)
         }
       }
 
       dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("step3$1",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
+      probe.receiveN(2, 2 second) foreach {
+        case msg @ TaskWrapper("step3$1", taskHandler) => workers.tell(msg, probe.ref)
+        case msg @ TaskWrapper("step3$2", taskHandler) => workers.tell(msg, probe.ref)
+      }
+      probe.receiveN(2, 2 second) foreach {
+        case msg @ TaskSuceeded("step3$1", taskStats) => {
+          taskStats.taskOutput.as[Int]("tango3a") must be (30)
+          dag_player.tell(msg, probe.ref)
+        }
+        case msg @ TaskSuceeded("step3$2", taskStats) => {
+          taskStats.taskOutput.as[Int]("tango3b") must be (300)
+          dag_player.tell(msg, probe.ref)
         }
       }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step3$1",stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango3a") must be (30)
+
+      dag_player ! new Tick
+      probe.receiveN(1, 1 second) foreach {
+        case msg @ TaskWrapper("step3$3", taskHandler) => workers.tell(msg, probe.ref)
+      }
+      probe.receiveN(1, 1 second) foreach {
+        case msg @ TaskSuceeded("step3$3", taskStats) => {
+          taskStats.taskOutput.as[Int]("tango3c") must be (70)
+          dag_player.tell(msg, probe.ref)
         }
       }
 
 
       dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("step3$2",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
+      probe.receiveN(1, 1 second) foreach {
+        case msg @ TaskWrapper("step4", taskHandler) => workers.tell(msg, probe.ref)
+      }
+      probe.receiveN(1, 1 second) foreach {
+        case msg @ TaskSuceeded("step4", taskStats) => {
+          taskStats.taskOutput.as[Int]("tango4") must be (30)
+          dag_player.tell(msg, probe.ref)
         }
       }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step3$2",stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango3b") must be (300)
-        }
-      }
-
-
     }
   }
 
