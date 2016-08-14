@@ -18,8 +18,22 @@ object DagEditor {
         dag.graph = dag.graph.filterNot(_ == node) ++ newNodes
         resultPayload = newNodes.foldLeft(payload.withoutPath(node.name)) { (carry, input) => input.payload.withFallback(carry) }
       }
+
     }
     resultPayload
+  }
+
+
+  /**
+    * inspects and confirms if a node requires editing.
+    * editing could be such as
+    *  * expanding iterable nodes
+    *  * importing worklets
+    * @param node node to be inspected
+    * @return boolean value to indicate result
+    */
+  def requireEditing(node: Node) = {
+    node.payload.hasPath(Keywords.Task.ITERATE)
   }
 
 

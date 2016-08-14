@@ -12,7 +12,7 @@ import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 
 final class Node(val name: String, var payload: Config) {
 
-  def resolvedPayload(code: Config) = {
+  def resolvedPayload(contextConfig: Config) = {
     // we do this so that assertions are resolved now and only after task execution completes
     val assertions = payload.getAs[ConfigValue](Keywords.Task.ASSERTION)
     val variables = payload.getAs[Config](Keywords.Task.VARIABLES)
@@ -21,7 +21,7 @@ final class Node(val name: String, var payload: Config) {
       .withoutPath(Keywords.Task.ASSERTION)
       .withoutPath(Keywords.Task.VARIABLES)
       .withFallback(variables)
-      .withFallback(code)
+      .withFallback(contextConfig)
       .hardResolve
     assertions match {
       case Some(x) => config.withValue(Keywords.Task.ASSERTION, x)
@@ -43,15 +43,15 @@ final class Node(val name: String, var payload: Config) {
     Seq(Status.SUCCEEDED, Status.SKIPPED, Status.FAILURE_IGNORED) contains status
   }
 
-  def getNodeTask(app_context: AppContext): TaskHandler = {
-    val config = resolvedPayload(app_context.payload)
+  def getNodeTask(contextConfig: Config, appContext: AppContext): TaskHandler = {
+    val config = resolvedPayload(contextConfig)
     val componentName = config.as[String](Task.COMPONENT)
     val taskName = config.as[String](Keywords.Task.TASK)
-    val defaults = app_context.payload.getAs[Config](s""""${Keywords.Config.DEFAULTS}"."$componentName"."$taskName"""")
-    val component = app_context.componentMapper(componentName)
+    val defaults = appContext.payload.getAs[Config](s""""${Keywords.Config.DEFAULTS}"."$componentName"."$taskName"""")
+    val component = appContext.componentMapper(componentName)
     val task = component.dispatchTask(taskName, name, config.as[Config](Keywords.Task.PARAMS) withFallback
       defaults.getOrElse(ConfigFactory.empty()))
-    new TaskHandler(TaskConfig(config, app_context), task)
+    new TaskHandler(TaskConfig(config, appContext), task)
   }
 
   override def equals(that: Any): Boolean = {

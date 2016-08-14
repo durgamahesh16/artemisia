@@ -12,6 +12,7 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.Seq
+import scala.util.Try
 
 /**
  * Created by chlr on 1/3/16.
@@ -44,6 +45,10 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     }
   }
 
+  /**
+    * parse node dependencies and link them.
+    * @param nodeList
+    */
   protected[dag] def resolveDependencies(nodeList: Seq[Node]): Unit = {
     val nodeMap = (nodeList map { x => { x.name -> x } } ).toMap
     nodeList map { x => x -> x.payload.getAs[List[String]](Keywords.Task.DEPENDENCY) } filter {
@@ -69,7 +74,7 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     }
     DagEditor.editDag(this, code)
   }
-
+  
   private def applyCheckpoints(checkpointData: CheckpointData): Unit = {
     AppLogger info "applying checkpoints"
     checkpointData.taskStatRepo foreach {
@@ -77,6 +82,18 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
           val node = this.getNodeByName(task_name)
           node.applyStatusFromCheckpoint(task_stats.status)
       }
+    }
+  }
+
+  def setNodeStatus(nodeName: String, status: Status.Value) = {
+    this.getNodeByName(nodeName).setStatus(status)
+  }
+
+  def getRunnableTasks(appContext: AppContext) = {
+    for(node <- this.getRunnableNodes) yield {
+      node.name -> Try(node.getNodeTask(graph.foldLeft(appContext.payload) {
+        (carry: Config, inputNode: Node) => carry.withoutPath(s""""${inputNode.name}"""")
+      },appContext))
     }
   }
 

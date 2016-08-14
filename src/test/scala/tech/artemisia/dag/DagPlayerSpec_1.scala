@@ -28,7 +28,6 @@ class DagPlayerSpec_1 extends ActorTestSpec {
     probe = DagPlayerSpec_1.getTestProbe(system)
   }
 
-
   "DagPlayer" must "execute all tasks in the Dag" in {
 
     setUpArtifacts(this.getClass.getResource("/code/multi_step_addition_job.conf").getFile)
