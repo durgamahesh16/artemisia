@@ -23,6 +23,11 @@ object Keywords {
     val SYSTEM_DEFAULT_CONFIG_FILE_JVM_PARAM = "setting.file"
   }
 
+  object DagEditor {
+    val Component = "Dag"
+    val Task = "Import"
+  }
+
   object Connection {
     val HOSTNAME = "host"
     val USERNAME = "username"

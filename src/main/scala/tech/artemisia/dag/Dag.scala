@@ -98,10 +98,7 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     * @param nodeList
     */
   protected[dag] def resolveDependencies(nodeList: Seq[Node]): Unit = {
-    val nodeMap = (nodeList map { x => {
-      x.name -> x
-    }
-    }).toMap
+    val nodeMap = nodeList.map(x => x.name -> x).toMap
     nodeList map { x => x -> x.payload.getAs[List[String]](Keywords.Task.DEPENDENCY) } filter {
       x => x._2.nonEmpty
     } foreach {

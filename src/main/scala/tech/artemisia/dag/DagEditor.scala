@@ -1,9 +1,10 @@
 package tech.artemisia.dag
 
+import java.io.File
+import scala.collection.JavaConverters._
 import com.typesafe.config._
 import tech.artemisia.core.Keywords
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 /**
   * Created by chlr on 8/12/16.
   */
@@ -13,8 +14,14 @@ object DagEditor {
   def editDag(node: Node): Seq[Node] = {
     if(node.payload.hasPath(Keywords.Task.ITERATE)) {
       expandIterableNode(node)
-    } else
-      Seq()
+    }
+    else if (
+      (node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component)
+      && (node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component)
+    ) {
+      Seq[Node]()
+    }
+    Seq[Node]()
   }
 
 
@@ -53,6 +60,28 @@ object DagEditor {
     nodes.sliding(groupSize,groupSize).sliding(2,1) foreach {
       case parents :: children :: Nil => for(child <- children) { child.parents = parents }
     }
+    nodes
+  }
+
+
+  def importModule(node: Node) = {
+    val file = new File(node.payload.as[String](s"${Keywords.Task.PARAMS}.module"))
+    val module = ConfigFactory parseFile file
+    val nodeMap = Dag.parseNodesFromConfig(module)
+    val nodes = nodeMap map {
+      case (name, payload) =>
+        Node(
+          s"${node.name}$$$name",
+          payload.withValue(Keywords.Task.DEPENDENCY
+          ,ConfigValueFactory.fromIterable(payload.getAs[List[String]](Keywords.Task.DEPENDENCY)
+                .map(x => s""""${node.name}$$$x"""").toIterable.asJava)
+          )
+        )
+    }
+    // we create a mini dag to
+    // * identify cycles in the Dag
+    // * link all nodes
+    Dag(nodes.toSeq)
     nodes
   }
 
