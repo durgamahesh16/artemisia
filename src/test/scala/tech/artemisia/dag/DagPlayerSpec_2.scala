@@ -6,7 +6,6 @@ import akka.testkit.TestProbe
 import tech.artemisia.ActorTestSpec
 import tech.artemisia.core.{AppContext, AppSetting}
 import tech.artemisia.dag.Message._
-import tech.artemisia.task.{TaskHandler, TestAdderTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.concurrent.duration.{Duration, _}
@@ -28,50 +27,48 @@ class DagPlayerSpec_2 extends ActorTestSpec {
     probe = DagPlayerSpec_2.getTestProbe(system)
   }
 
-  "DagPlayer" must "apply local variables" in {
-    setUpArtifacts(this.getClass.getResource("/code/local_variables.conf").getFile)
-    within(1000 millis) {
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("step1",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step1", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("foo") must be (50)
-        }
-      }
-    }
-  }
-
-
-  it must "apply defaults defined in settings.conf" in {
-    setUpArtifacts(this.getClass.getResource("/code/apply_defaults.conf").getFile)
-    within(1000 millis) {
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("step1",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("step1", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("foo") must be (50)
-        }
-      }
-    }
-  }
+//  "DagPlayer" must "apply local variables" in {
+//    setUpArtifacts(this.getClass.getResource("/code/local_variables.conf").getFile)
+//    within(1000 millis) {
+//      dag_player ! new Tick
+//      probe.validateAndRelay(workers) {
+//        case TaskWrapper("step1",task_handler: TaskHandler) => {
+//          task_handler.task mustBe a[TestAdderTask]
+//        }
+//      }
+//      probe.validateAndRelay(dag_player) {
+//        case TaskSuceeded("step1", stats: TaskStats) => {
+//          stats.status must be (Status.SUCCEEDED)
+//          stats.taskOutput.as[Int]("foo") must be (50)
+//        }
+//      }
+//    }
+//  }
+//
+//
+//  it must "apply defaults defined in settings.conf" in {
+//    setUpArtifacts(this.getClass.getResource("/code/apply_defaults.conf").getFile)
+//    within(1000 millis) {
+//      dag_player ! new Tick
+//      probe.validateAndRelay(workers) {
+//        case TaskWrapper("step1",task_handler: TaskHandler) => {
+//          task_handler.task mustBe a[TestAdderTask]
+//        }
+//      }
+//      probe.validateAndRelay(dag_player) {
+//        case TaskSuceeded("step1", stats: TaskStats) => {
+//          stats.status must be (Status.SUCCEEDED)
+//          stats.taskOutput.as[Int]("foo") must be (50)
+//        }
+//      }
+//    }
+//  }
 
 
   it must "handle looping in dag" in {
     setUpArtifacts(this.getClass.getResource("/code/iteration_test.conf").getFile)
     within(20000 millis) {
-      var messages: Seq[AnyRef] = Nil
       dag_player ! new Tick
-
       probe.receiveN(2, 2 second) foreach {
          case msg @ TaskWrapper("step1", taskHandler) => workers.tell(msg, probe.ref)
          case msg @ TaskWrapper("step2", taskHandler) => workers.tell(msg, probe.ref)
@@ -103,6 +100,8 @@ class DagPlayerSpec_2 extends ActorTestSpec {
         }
       }
 
+
+
       dag_player ! new Tick
       probe.receiveN(1, 1 second) foreach {
         case msg @ TaskWrapper("step3$3", taskHandler) => workers.tell(msg, probe.ref)
@@ -113,12 +112,12 @@ class DagPlayerSpec_2 extends ActorTestSpec {
           dag_player.tell(msg, probe.ref)
         }
       }
-
-
+      
       dag_player ! new Tick
       probe.receiveN(1, 1 second) foreach {
         case msg @ TaskWrapper("step4", taskHandler) => workers.tell(msg, probe.ref)
       }
+
       probe.receiveN(1, 1 second) foreach {
         case msg @ TaskSuceeded("step4", taskStats) => {
           taskStats.taskOutput.as[Int]("tango4") must be (30)

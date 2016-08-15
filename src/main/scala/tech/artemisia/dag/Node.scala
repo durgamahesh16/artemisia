@@ -1,10 +1,11 @@
 package tech.artemisia.dag
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValue, ConfigValueFactory}
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.{TaskConfig, TaskHandler}
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
+import scala.collection.JavaConverters._
 
 /**
   * Created by chlr on 1/4/16.
@@ -12,8 +13,31 @@ import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
 
 final class Node(val name: String, var payload: Config) {
 
+
+  private var status = Status.READY
+
+  val ignoreFailure: Boolean = false
+
+  private var _parents: Seq[Node] = Nil
+
+  /**
+    * getter for parents attribute
+    * @return
+    */
+  def parents = _parents
+
+  /**
+    * setter for parents attribute
+    * @param nodes new parents for the
+    */
+  def parents_=(nodes: Seq[Node]) = {
+    payload =  ConfigFactory.empty().withValue(Keywords.Task.DEPENDENCY,
+      ConfigValueFactory.fromIterable(nodes.map(_.name).asJava)) withFallback payload
+    _parents = nodes
+  }
+
   def resolvedPayload(contextConfig: Config) = {
-    // we do this so that assertions are resolved now and only after task execution completes
+    // we do this so that assertions are not resolved now and only after task execution completes
     val assertions = payload.getAs[ConfigValue](Keywords.Task.ASSERTION)
     val variables = payload.getAs[Config](Keywords.Task.VARIABLES)
       .getOrElse(ConfigFactory.empty())
@@ -29,12 +53,9 @@ final class Node(val name: String, var payload: Config) {
     }
   }
 
-  private var status = Status.READY
-  val ignoreFailure: Boolean = false
-  var parents: Seq[Node] = Nil
 
   def isRunnable = {
-    (parents forall {
+    (_parents forall {
       _.isComplete
     }) && this.status == Status.READY // forall for Nil returns true
   }
