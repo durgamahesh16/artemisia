@@ -72,20 +72,4 @@ object DagEditor {
     }
   }
 
-
-  /**
-    * replace a new parent with a old parent if already exists or add new parent
-    *
-    * @param targetNode node to be updated
-    * @param newParent new parent to be set
-    * @param oldParent old parent to be replace if exists.
-    */
-  def mergeNodeDependencies(targetNode: Node, newParent: Node, oldParent: Node) = {
-    targetNode.parents = targetNode.parents.find(x => x == oldParent) match {
-      case Some(x) => (targetNode.parents filterNot (x => x == oldParent)) :+ newParent
-      case None => targetNode.parents :+ newParent
-    }
-  }
-
-
 }
