@@ -20,6 +20,7 @@ object Keywords {
     val USER_DEFAULT_CONFIG_FILE = FileSystemUtil.joinPath(System.getProperty("user.home"), "artemisia.conf")
     val CHECKPOINT_FILE = "checkpoint.conf"
     val DEFAULTS = "__defaults__"
+    val WORKLET = "__worklet__"
     val SYSTEM_DEFAULT_CONFIG_FILE_JVM_PARAM = "setting.file"
   }
 
@@ -49,6 +50,7 @@ object Keywords {
     val ASSERTION = "assert"
     val ITERATE = "forall"
   }
+
 
   object TaskStats {
     val STATS = "__stats__"

@@ -1,9 +1,11 @@
 package tech.artemisia.dag
 
 import java.io.File
+
 import scala.collection.JavaConverters._
 import com.typesafe.config._
 import tech.artemisia.core.Keywords
+import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler
 /**
   * Created by chlr on 8/12/16.
@@ -12,19 +14,15 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 object DagEditor {
 
   def editDag(node: Node): Seq[Node] = {
-    if(node.payload.hasPath(Keywords.Task.ITERATE)) {
+    if(node.payload.hasPath(Keywords.Task.ITERATE))
       expandIterableNode(node)
-    }
-    else if (
+    else if ((node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component) &&
       (node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component)
-      && (node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component)
-    ) {
-      Seq[Node]()
-    }
-    Seq[Node]()
+    )
+      importModule(node)
+    else
+      throw new DagException(s"failed to expand/edit node ${node.name}")
   }
-
-
 
 
   /**
@@ -32,16 +30,20 @@ object DagEditor {
     * editing could be such as
     *  * expanding iterable nodes
     *  * importing worklets
+    *
     * @param node node to be inspected
     * @return boolean value to indicate result
     */
   def requireEditing(node: Node) = {
-    node.payload.hasPath(Keywords.Task.ITERATE)
+    node.payload.hasPath(Keywords.Task.ITERATE) ||
+      ((node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component) &&
+        (node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component))
   }
 
 
   /**
     * expand iterable node to sequence of node
+    *
     * @param node node to be expanded
     * @return sequence of the expanded nodes
     */
@@ -65,24 +67,43 @@ object DagEditor {
 
 
   def importModule(node: Node) = {
-    val file = new File(node.payload.as[String](s"${Keywords.Task.PARAMS}.module"))
+
+    val module = node.payload.as[Config](Keywords.Task.PARAMS).root()
+      .keySet().asScala.toList match {
+      case "file" :: Nil => ConfigFactory parseFile new File(node.payload.as[String](s"${Keywords.Task.PARAMS}.file"))
+      case "node" :: Nil => TaskContext.payload.as[Config](s"${Keywords.Config.WORKLET}.${node.payload.as[String](s"${Keywords.Task.PARAMS}.node")}")
+    }
+
     val module = ConfigFactory parseFile file
     val nodeMap = Dag.parseNodesFromConfig(module)
-    val nodes = nodeMap map {
-      case (name, payload) =>
-        Node(
-          s"${node.name}$$$name",
-          payload.withValue(Keywords.Task.DEPENDENCY
-          ,ConfigValueFactory.fromIterable(payload.getAs[List[String]](Keywords.Task.DEPENDENCY)
-                .map(x => s""""${node.name}$$$x"""").toIterable.asJava)
-          )
-        )
+    val nodes = nodeMap.toSeq map {
+      case (name, payload) => Node(s"${node.name}$$$name", processImportedNode(payload, node))
     }
-    // we create a mini dag to
-    // * identify cycles in the Dag
-    // * link all nodes
-    Dag(nodes.toSeq)
+    Dag(nodes) // we create a dag object to link nodes and identify cycles.
+    node.payload.getAs[ConfigValue](Keywords.Task.ASSERTION) foreach {
+      assertion =>
+      nodes.filterNot(x => nodes.exists(_.parents contains x))
+        .foreach(x => x.payload.withValue(Keywords.Task.ASSERTION, assertion))
+    }
     nodes
+  }
+
+
+  private def processImportedNode(importedNodePayLoad: Config, parentNode: Node) = {
+    var result = importedNodePayLoad
+    importedNodePayLoad.getAs[List[String]](Keywords.Task.DEPENDENCY) foreach {
+      dependency: List[String] =>
+        result = importedNodePayLoad.withValue(Keywords.Task.DEPENDENCY
+        ,ConfigValueFactory.fromIterable(dependency.map(x => s"${parentNode.name}$$$x").asJava))
+    }
+    // Assertion is not added here because the assertion node must be added only in the last node(s) of the  worklet
+    val taskSettingNodes = Seq(Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR
+      ,Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR)
+    taskSettingNodes.foldLeft(result) {
+      (config: Config, inputNode: String) => config.getAs[ConfigValue](inputNode)
+        .map{x => config.withValue(inputNode, x)}
+        .getOrElse(config)
+    }
   }
 
 
