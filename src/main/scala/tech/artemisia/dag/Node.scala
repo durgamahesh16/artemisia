@@ -1,10 +1,11 @@
 package tech.artemisia.dag
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValue, ConfigValueFactory}
+import com.typesafe.config._
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core.{AppContext, AppLogger, Keywords}
 import tech.artemisia.task.{TaskConfig, TaskHandler}
 import tech.artemisia.util.HoconConfigUtil.{Handler, configToConfigEnhancer}
+
 import scala.collection.JavaConverters._
 
 /**
@@ -44,9 +45,12 @@ final class Node(val name: String, var payload: Config) {
     val config = payload
       .withoutPath(Keywords.Task.ASSERTION)
       .withoutPath(Keywords.Task.VARIABLES)
-      .withFallback(variables)
-      .withFallback(contextConfig)
-      .hardResolve
+      .hardResolve(variables
+        .withFallback(contextConfig)
+        .withoutPath(Keywords.Config.WORKLET)
+        .withoutPath(Keywords.Config.DEFAULTS)
+        .withoutPath(Keywords.Config.SETTINGS_SECTION)
+        .withoutPath(Keywords.Config.CONNECTION_SECTION))
     assertions match {
       case Some(x) => config.withValue(Keywords.Task.ASSERTION, x)
       case None => config

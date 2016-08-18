@@ -33,7 +33,7 @@ class HoconConfigEnhancerSpec extends TestSpec {
         |        }
         |}
       """.stripMargin
-    val resolvedConfig = testData.hardResolve
+    val resolvedConfig = testData.hardResolve()
     resolvedConfig.getAnyRefList("key2").get(2).asInstanceOf[java.util.Map[String, String]].get("key4")
       .asInstanceOf[java.util.List[AnyRef]].get(0).asInstanceOf[java.util.Map[String,String]]
       .get("key7") must be ("bar2")
@@ -64,7 +64,7 @@ class HoconConfigEnhancerSpec extends TestSpec {
         |   hello = ${foo.bar}
         | }
       """.stripMargin
-    testData.hardResolve.getString("hello") must be ("baz")
+    testData.hardResolve().getString("hello") must be ("baz")
   }
 
   it must "parse quoted strings properly" in {
@@ -77,7 +77,7 @@ class HoconConfigEnhancerSpec extends TestSpec {
         |   }
         | }
       """.stripMargin
-    val config = testData.hardResolve
+    val config = testData.hardResolve()
     config.getConfig("foo").getString("bar") must be ("baz")
     config.getConfig("hello").getConfigList("world").get(0).getString(""""foo.bar"""") must be ("baz")
     config.getConfig("hello").getConfigList("world").get(1).getString(""""foo=bar"""") must be ("baz")

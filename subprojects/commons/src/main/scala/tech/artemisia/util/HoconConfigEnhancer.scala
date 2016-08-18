@@ -17,7 +17,12 @@ import scala.collection.JavaConverters._
  */
 class HoconConfigEnhancer(val root: Config)  {
 
-  val hardResolve = resolveConfig(root.resolve())
+  private var reference: Config = _
+
+  def hardResolve(reference: Config = root) = {
+    this.reference = reference
+    resolveConfig(root.resolveWith(reference))
+  }
 
   private def resolveConfig(config: Config): Config = {
 
@@ -28,7 +33,7 @@ class HoconConfigEnhancer(val root: Config)  {
            quoted key
        */
       config.getAnyRef(s""""$key"""")  match {
-        case x: String => key -> ConfigValueFactory.fromAnyRef(HoconConfigEnhancer.resolveString(x, root))
+        case x: String => key -> ConfigValueFactory.fromAnyRef(HoconConfigEnhancer.resolveString(x, this.reference))
         case x: java.lang.Iterable[AnyRef] @unchecked => key -> ConfigValueFactory.fromAnyRef(resolveList(x.asScala))
         case x: java.util.Map[String, AnyRef] @unchecked => key -> ConfigValueFactory.fromMap(resolveConfig(config.getConfig(key)).root().unwrapped())
         case x => key -> ConfigValueFactory.fromAnyRef(x)
@@ -45,7 +50,7 @@ class HoconConfigEnhancer(val root: Config)  {
           resolveConfig(ConfigValueFactory.fromMap(x).toConfig).root().unwrapped()
         }
         case x: java.lang.Iterable[AnyRef] @unchecked => resolveList(x.asScala)
-        case x: String => HoconConfigEnhancer.resolveString(x, root)
+        case x: String => HoconConfigEnhancer.resolveString(x, this.reference)
         case x => x
       }
     }

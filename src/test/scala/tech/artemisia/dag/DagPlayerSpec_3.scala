@@ -29,64 +29,79 @@ class DagPlayerSpec_3 extends ActorTestSpec {
     probe = DagPlayerSpec_3.getTestProbe(system)
   }
 
-  it must "file import worklet" in {
-    setUpArtifacts(this.getClass.getResource("/code/worklet_node_import.conf").getFile)
+//  it must "file import worklet" in {
+//    setUpArtifacts(this.getClass.getResource("/code/worklet_node_import.conf").getFile)
+//    within(20000 millis) {
+//      dag_player ! new Tick
+//      probe.validateAndRelay(workers) {
+//        case TaskWrapper("task1",task_handler: TaskHandler) => {
+//          task_handler.task mustBe a[TestAdderTask]
+//        }
+//      }
+//      probe.validateAndRelay(dag_player) {
+//        case TaskSuceeded("task1", stats: TaskStats) => {
+//          stats.status must be (Status.SUCCEEDED)
+//          stats.taskOutput.as[Int]("tango1") must be (3)
+//        }
+//      }
+//
+//      dag_player ! new Tick
+//      probe.validateAndRelay(workers) {
+//        case TaskWrapper("task2$step1",task_handler: TaskHandler) => {
+//          task_handler.task mustBe a[TestAdderTask]
+//        }
+//      }
+//      probe.validateAndRelay(dag_player) {
+//        case TaskSuceeded("task2$step1", stats: TaskStats) => {
+//          stats.status must be (Status.SUCCEEDED)
+//          stats.taskOutput.as[Int]("tango") must be (30)
+//        }
+//      }
+//
+//      dag_player ! new Tick
+//      probe.validateAndRelay(workers) {
+//        case TaskWrapper("task2$step2",task_handler: TaskHandler) => {
+//          task_handler.task mustBe a[TestAdderTask]
+//        }
+//      }
+//      probe.validateAndRelay(dag_player) {
+//        case TaskSuceeded("task2$step2", stats: TaskStats) => {
+//          stats.status must be (Status.SUCCEEDED)
+//          stats.taskOutput.as[Int]("beta") must be (50)
+//        }
+//      }
+//
+//      dag_player ! new Tick
+//      probe.validateAndRelay(workers) {
+//        case TaskWrapper("task3",task_handler: TaskHandler) => {
+//          task_handler.task mustBe a[TestAdderTask]
+//        }
+//      }
+//      probe.validateAndRelay(dag_player) {
+//        case TaskSuceeded("task3", stats: TaskStats) => {
+//          stats.status must be(Status.SUCCEEDED)
+//          stats.taskOutput.as[Int]("tango2") must be(3)
+//        }
+//      }
+//    }
+//  }
+
+
+  it must "import and iteration in single test" in {
+    setUpArtifacts(this.getClass.getResource("/code/worklet_iteration.conf").getFile)
     within(20000 millis) {
       dag_player ! new Tick
       probe.validateAndRelay(workers) {
-        case TaskWrapper("task1",task_handler: TaskHandler) => {
+        case TaskWrapper("task2$1$step1", task_handler: TaskHandler) => {
           task_handler.task mustBe a[TestAdderTask]
         }
       }
       probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("task1", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango1") must be (3)
+        case TaskSuceeded("task2$1$step1", stats: TaskStats) => {
+          stats.status must be(Status.SUCCEEDED)
+          stats.taskOutput.as[Int]("tango1") must be(11)
         }
       }
-
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("task2$step1",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("task2$step1", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango") must be (30)
-        }
-      }
-
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("task2$step2",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("task2$step2", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("beta") must be (50)
-        }
-      }
-
-      dag_player ! new Tick
-      probe.validateAndRelay(workers) {
-        case TaskWrapper("task3",task_handler: TaskHandler) => {
-          task_handler.task mustBe a[TestAdderTask]
-        }
-      }
-      probe.validateAndRelay(dag_player) {
-        case TaskSuceeded("task3", stats: TaskStats) => {
-          stats.status must be (Status.SUCCEEDED)
-          stats.taskOutput.as[Int]("tango2") must be (3)
-        }
-      }
-
-      dag_player ! new Tick
-      probe.expectNoMsg(2 second)
-
     }
   }
 

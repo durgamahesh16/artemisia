@@ -42,7 +42,6 @@ class DagPlayer(val dag: Dag, app_context: AppContext, val router: ActorRef) ext
             dag.setNodeStatus(taskName, Status.RUNNING)
           }
           case (taskName, Failure(th)) => {
-            throw th
             AppLogger error s"node $taskName failed to initialize due to following error"
             AppLogger error th.getMessage
             AppLogger error ExceptionUtils.getStackTrace(th)

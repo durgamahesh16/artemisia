@@ -54,7 +54,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
     taskConfig.assertion match {
       case Some((configValue, desc)) => {
         debug(s"running assertions on ${task.taskName}")
-        val resolvedConfig: Config = effectiveConfig.withValue(assertionKey, configValue).hardResolve
+        val resolvedConfig: Config = effectiveConfig.withValue(assertionKey, configValue).hardResolve()
         val result = BooleanEvaluator.evalBooleanExpr(resolvedConfig.getValue(assertionKey))
         assert(result, desc)
       }

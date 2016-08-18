@@ -186,6 +186,8 @@ class DagPlayerSpec_2 extends ActorTestSpec {
 
       dag_player ! new Tick
       probe.expectNoMsg(2 second)
+      // By sending this final tick message when no nodes are available to execute
+      // the actor system is shutdown and no further tests can be executed in this spec class.
 
     }
   }
