@@ -25,7 +25,7 @@ object Keywords {
   }
 
   object DagEditor {
-    val Component = "Dag"
+    val Component = "DagEditor"
     val Task = "Import"
   }
 

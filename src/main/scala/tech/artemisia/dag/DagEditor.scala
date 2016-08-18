@@ -2,24 +2,25 @@ package tech.artemisia.dag
 
 import java.io.File
 
-import scala.collection.JavaConverters._
 import com.typesafe.config._
 import tech.artemisia.core.Keywords
-import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler
+
+import scala.collection.JavaConverters._
 /**
   * Created by chlr on 8/12/16.
   */
 
 object DagEditor {
 
-  def editDag(node: Node): Seq[Node] = {
+  def editDag(node: Node, jobConfig: Config): (Seq[Node],Config) = {
     if(node.payload.hasPath(Keywords.Task.ITERATE))
       expandIterableNode(node)
     else if ((node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component) &&
       (node.payload.getString(Keywords.Task.COMPONENT) == Keywords.DagEditor.Component)
-    )
-      importModule(node)
+    ) {
+      importModule(node, jobConfig)
+    }
     else
       throw new DagException(s"failed to expand/edit node ${node.name}")
   }
@@ -62,30 +63,36 @@ object DagEditor {
     nodes.sliding(groupSize,groupSize).sliding(2,1) foreach {
       case parents :: children :: Nil => for(child <- children) { child.parents = parents }
     }
-    nodes
+    val outputConfig = nodes.foldLeft(ConfigFactory.empty) {
+      case (carry, inputNode) => carry.withFallback(ConfigFactory.empty.withValue(s""""${inputNode.name}"""",
+        inputNode.payload.root()))
+    }
+    nodes -> outputConfig
   }
 
 
-  def importModule(node: Node) = {
+  def importModule(node: Node, jobConfig: Config) = {
 
-    val module = node.payload.as[Config](Keywords.Task.PARAMS).root()
+    var module = node.payload.as[Config](Keywords.Task.PARAMS).root()
       .keySet().asScala.toList match {
       case "file" :: Nil => ConfigFactory parseFile new File(node.payload.as[String](s"${Keywords.Task.PARAMS}.file"))
-      case "node" :: Nil => TaskContext.payload.as[Config](s"${Keywords.Config.WORKLET}.${node.payload.as[String](s"${Keywords.Task.PARAMS}.node")}")
+      case "node" :: Nil =>
+        jobConfig.getConfig(Keywords.Config.WORKLET).as[Config](node.payload.as[String](s"${Keywords.Task.PARAMS}.node"))
+      case _ => throw new IllegalArgumentException("file and node are the only supported nodes for Dag Import task")
     }
-
-    val module = ConfigFactory parseFile file
     val nodeMap = Dag.parseNodesFromConfig(module)
     val nodes = nodeMap.toSeq map {
-      case (name, payload) => Node(s"${node.name}$$$name", processImportedNode(payload, node))
+      case (name, payload) =>
+        // performing sideeffect in map operation.
+        module = module.withoutPath(name).withValue(s""""${node.name}$$$name"""", processImportedNode(payload, node).root())
+        Node(s"${node.name}$$$name", processImportedNode(payload, node))
     }
     Dag(nodes) // we create a dag object to link nodes and identify cycles.
     node.payload.getAs[ConfigValue](Keywords.Task.ASSERTION) foreach {
-      assertion =>
-      nodes.filterNot(x => nodes.exists(_.parents contains x))
+      assertion => nodes.filterNot(x => nodes.exists(_.parents contains x))
         .foreach(x => x.payload.withValue(Keywords.Task.ASSERTION, assertion))
     }
-    nodes
+    nodes -> module
   }
 
 
@@ -107,19 +114,20 @@ object DagEditor {
   }
 
 
-  def replaceNode(dag: Dag ,node: Node, nodes: Seq[Node], currentConfig: Config) = {
+  /**
+    *
+    * @param dag Dag to be updated.
+    * @param node node to replaced
+    * @param nodes new nodes replacing the node
+    */
+  def replaceNode(dag: Dag ,node: Node, nodes: Seq[Node]) = {
     nodes filter ( _.parents == Nil ) foreach {
       x => x.parents = node.parents
     }
     dag.graph filter { _.parents contains node } foreach {
       case x =>  x.parents = x.parents.filterNot(_ == node) ++  nodes filter { x => !nodes.exists(_.parents contains x) }
     }
-
     dag.graph = dag.graph.filterNot(_ == node) ++ nodes
-    dag.graph.foldLeft(currentConfig.withoutPath(node.name)) {
-      case (carry: Config, input: Node) => ConfigFactory.empty().withValue(s""""${input.name}"""",input.payload.root())
-            .withFallback(carry)
-    }
   }
 
 }

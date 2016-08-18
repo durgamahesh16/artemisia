@@ -35,16 +35,15 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
   }
 
   def editDag(code: Config): Config = {
-
     this.getRunnableNodes.filter(DagEditor.requireEditing) match {
       case Nil => code
       case nodes =>
-        val editedConfig = nodes
-          .map(x => x -> DagEditor.editDag(x))
-          .foldLeft(code) {
-            case (carry: Config, input) => DagEditor.replaceNode(this, input._1, input._2, carry)
-          }
-        editDag(editedConfig)
+        nodes.foldLeft(code) {
+          (carry, node) =>
+            val (newNodes, newConfig) = DagEditor.editDag(node, code)
+            DagEditor.replaceNode(this, node, newNodes) // performing side-effects inside a map function.
+            newConfig withFallback carry.withoutPath(node.name)
+        }
     }
   }
 
