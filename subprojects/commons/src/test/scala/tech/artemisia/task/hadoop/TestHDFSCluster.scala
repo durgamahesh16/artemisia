@@ -22,7 +22,9 @@ class TestHDFSCluster(baseDir: File) {
     System.setProperty("test.build.data",Files.createTempDirectory("hdfstest").toAbsolutePath.toString)
     val conf = new Configuration()
     conf.set("dfs.datanode.data.dir", baseDir.toString)
-    conf.set("dfs.namenode.name.dir",Files.createTempDirectory("hdfstest").toAbsolutePath.toString)
+    val nameDir = Files.createTempDirectory("hdfstest").toAbsolutePath.toString
+    System.err.println(s"name dir: $nameDir")
+    conf.set("dfs.namenode.name.dir",nameDir)
     FileUtil.fullyDelete(baseDir)
     conf.set("dfs.namenode.logging.level","block")
     conf.setInt("dfs.block.size", 512)
