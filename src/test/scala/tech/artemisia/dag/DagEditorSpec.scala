@@ -4,6 +4,7 @@ import java.io.File
 
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.TestSpec
+import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.{BasicCheckpointManager, Keywords}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -31,7 +32,7 @@ class DagEditorSpec extends TestSpec {
     node3b.parents must be (Seq())
     node3c.parents must be (Seq(node3a, node3b))
 
-    DagEditor.replaceNode(dag, node3, Seq(node3a, node3b, node3c))
+    DagEditor.replaceNode(dag, node3, Seq(node3a, node3b, node3c), CheckpointData())
     modifiedConfig.getAs[Config]("step3") must be (None)
     modifiedConfig.getList(s""""step3$$1".${Keywords.Task.DEPENDENCY}""").unwrapped.asScala must be (Seq("step1", "step2"))
     modifiedConfig.getList(s""""step3$$2".${Keywords.Task.DEPENDENCY}""").unwrapped.asScala must be (Seq("step1", "step2"))

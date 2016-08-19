@@ -5,7 +5,6 @@ import tech.artemisia.core.AppLogger._
 import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
-import tech.artemisia.dag.Message.TaskStats
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.annotation.tailrec
@@ -23,7 +22,6 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
   debug("resolved all task dependency")
   var graph = topSort(node_list)
   debug("no cyclic dependency detected")
-  this.applyCheckpoints(checkpointData)
 
   def updateNodePayloads(code: Config) = {
     Dag.extractTaskNodes(code) foreach {
@@ -44,7 +42,7 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
         editDag(nodes.foldLeft(code) {
           (carry, node) =>
             val (newNodes, newConfig) = DagEditor.editDag(node, code)
-            DagEditor.replaceNode(this, node, newNodes) // performing side-effects inside a map function.
+            DagEditor.replaceNode(this, node, newNodes, checkpointData) // performing side-effects inside a map function.
             newConfig withFallback carry.withoutPath(s""""${node.name}"""")
         })
     }
@@ -55,9 +53,7 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
   }
 
   def getNodeByName(name: String) = {
-    val node = graph filter {
-      _.name == name
-    }
+    val node = graph filter { _.name == name }
     assert(node.size == 1, s" A single node by the name $name must exist")
     node.head
   }
@@ -77,8 +73,18 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     }
   }
 
+  /**
+    * get the sequence of nodes whose all parents nodes have already succeeded.
+    *
+    * @return
+    */
   def getRunnableNodes: Seq[Node] = {
-    graph filter {
+    graph map {
+      x => checkpointData.taskStatRepo.get(x.name) match {
+        case Some(stat) if x.getStatus != stat.status  => x.setStatus(stat.status); x
+        case _ => x
+      }
+    } filter {
       _.isRunnable
     }
   }
@@ -88,15 +94,11 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
   }
 
   def hasCompleted = {
-    graph forall {
-      _.isComplete
-    }
+    graph forall { _.isComplete }
   }
 
   def getNodesWithStatus(status: Status.Value) = {
-    graph filter {
-      _.getStatus == status
-    }
+    graph filter { _.getStatus == status }
   }
 
   override def toString() = graph.toString()
@@ -149,15 +151,15 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     }
   }
 
-  private def applyCheckpoints(checkpointData: CheckpointData): Unit = {
-    AppLogger info "applying checkpoints"
-    checkpointData.taskStatRepo foreach {
-      case (task_name, task_stats: TaskStats) => {
-        val node = this.getNodeByName(task_name)
-        node.applyStatusFromCheckpoint(task_stats.status)
-      }
-    }
-  }
+//  private def applyCheckpoints(checkpointData: CheckpointData): Unit = {
+//    AppLogger info "applying checkpoints"
+//    checkpointData.taskStatRepo foreach {
+//      case (task_name, task_stats: TaskStats) => {
+//        val node = this.getNodeByName(task_name)
+//        node.applyStatusFromCheckpoint(task_stats.status)
+//      }
+//    }
+//  }
 
 }
 

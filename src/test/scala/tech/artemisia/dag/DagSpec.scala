@@ -108,9 +108,11 @@ class DagSpec extends TestSpec {
                           "node2" -> DagSpec.taskStats("node2",Status.SUCCEEDED)
                                   )
     val dag = Dag(node1 :: node2 :: node3 :: node4 :: Nil, CheckpointData(taskStatRepo = checkpoints))
+    dag.getRunnableNodes must contain only node3
     dag.getNodeByName("node1").getStatus must be (Status.SUCCEEDED)
     dag.getNodeByName("node2").getStatus must be (Status.SUCCEEDED)
     dag.getNodeByName("node3").getStatus must be (Status.READY)
+    dag.getNodeByName("node4").getStatus must be (Status.READY)
   }
 
   it must "parse Task Nodes correctly from the ConfigObject" in {

@@ -3,6 +3,7 @@ package tech.artemisia.dag
 import java.io.File
 
 import com.typesafe.config._
+import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -83,7 +84,7 @@ object DagEditor {
     val nodeMap = Dag.extractTaskNodes(module)
     val nodes = nodeMap.toSeq map {
       case (name, payload) =>
-        // performing sideeffect in map operation.
+        // performing side-effect in map operation.
         module = module.withoutPath(name).withValue(s""""${node.name}$$$name"""", processImportedNode(payload, node).root())
         Node(s"${node.name}$$$name", processImportedNode(payload, node))
     }
@@ -121,7 +122,13 @@ object DagEditor {
     * @param node node to replaced
     * @param nodes new nodes replacing the node
     */
-  def replaceNode(dag: Dag ,node: Node, nodes: Seq[Node]) = {
+  def replaceNode(dag: Dag ,node: Node, nodes: Seq[Node], checkpoint: CheckpointData) = {
+    nodes foreach {
+      x => checkpoint.taskStatRepo.get(x.name) match {
+        case Some(taskStat) => x.setStatus(taskStat.status)
+        case _ => ()
+      }
+    }
     nodes filter ( _.parents == Nil ) foreach {
       x => x.parents = node.parents
     }
