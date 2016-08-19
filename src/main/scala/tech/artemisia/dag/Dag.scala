@@ -6,7 +6,6 @@ import tech.artemisia.core.BasicCheckpointManager.CheckpointData
 import tech.artemisia.core.Keywords.Task
 import tech.artemisia.core._
 import tech.artemisia.dag.Message.TaskStats
-import tech.artemisia.task.TaskContext
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.annotation.tailrec
@@ -25,15 +24,19 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
   var graph = topSort(node_list)
   debug("no cyclic dependency detected")
   this.applyCheckpoints(checkpointData)
-  editDag(TaskContext.payload)
 
   def updateNodePayloads(code: Config) = {
-    Dag.parseNodesFromConfig(code) foreach {
+    Dag.extractTaskNodes(code) foreach {
       case (node_name, payload) => this.getNodeByName(node_name).payload = payload
     }
-    editDag(code)
   }
 
+  /**
+    * Edits the current DAG when runnable nodes have iterations to expand
+    * or worklets to import.
+    * @param code application config payload
+    * @return
+    */
   def editDag(code: Config): Config = {
     this.getRunnableNodes.filter(DagEditor.requireEditing) match {
       case Nil => code
@@ -59,7 +62,14 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     node.head
   }
 
+  /**
+    * get sequence of tasks whose dependencies have met.
+    *
+    * @param appContext
+    * @return
+    */
   def getRunnableTasks(appContext: AppContext) = {
+    appContext.payload = editDag(appContext.payload)
     for (node <- this.getRunnableNodes) yield {
       node.name -> Try(node.getNodeTask(graph.foldLeft(appContext.payload) {
         (carry: Config, inputNode: Node) => carry.withoutPath(s""""${inputNode.name}"""")
@@ -155,17 +165,12 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
 object Dag {
 
   def apply(appContext: AppContext) = {
-    val node_list = parseNodesFromConfig(appContext.checkpoints.adhocPayload withFallback appContext.payload) map {
+    val node_list = extractTaskNodes(appContext.checkpoints.adhocPayload withFallback appContext.payload) map {
       case (name, payload) => Node(name, payload)
     }
     new Dag(node_list.toList, appContext.checkpoints)
   }
 
-  def parseNodesFromConfig(code: Config): Map[String, Config] = {
-    extractTaskNodes(code) map {
-      case (name, body: ConfigObject) => name -> body.toConfig
-    }
-  }
 
   /**
     * This method parses a given Config Object and identifies task definition nodes and filters rest.
@@ -187,8 +192,8 @@ object Dag {
     * @param config config payload to be parsed
     * @return Map of taskname and task definition config objects
     */
-  private[dag] def extractTaskNodes(config: Config): Map[String, ConfigValue] = {
-    config.root().asScala filterNot {
+  private[dag] def extractTaskNodes(config: Config): Map[String, Config] = {
+   val data = config.root().asScala filterNot {
       case (key, value) => key.startsWith("__") && key.endsWith("__")
     } filter {
       case (key, value) =>
@@ -197,7 +202,10 @@ object Dag {
     } filter {
       case (key, value: ConfigObject) =>
         value.toConfig.hasPath(Task.COMPONENT) && value.toConfig.hasPath(Keywords.Task.TASK)
-    } toMap
+    } map {
+     case (key, value: ConfigObject) => key -> value.toConfig
+      }
+    data.toMap
   }
 
   def apply(node_list: Seq[Node], checkpointData: CheckpointData = CheckpointData()) = {

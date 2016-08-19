@@ -116,7 +116,7 @@ class DagSpec extends TestSpec {
   it must "parse Task Nodes correctly from the ConfigObject" in {
 
     val code = scala.io.Source.fromFile(this.getClass.getResource("/code/code_with_incorrect_blocks.conf").getFile).mkString
-    val nodes = Dag.parseNodesFromConfig(ConfigFactory parseString code)
+    val nodes = Dag.extractTaskNodes(ConfigFactory parseString code)
     val dummy_step1 = ConfigFactory parseString "{ Component: Dummy, Task: DummyTask ,params: { dummy_param1 = 11, dummy_param2 = no } }"
     nodes must be (mutable.Map("dummy_step1" -> dummy_step1))
 
@@ -159,7 +159,7 @@ object DagSpec {
 
   def makeDagFromFile(file: String) = {
     val config = ConfigFactory.parseFile(new File(file))
-    val node_list: Iterable[Node] = Dag.parseNodesFromConfig(config) map {
+    val node_list: Iterable[Node] = Dag.extractTaskNodes(config) map {
       case (name: String, body: Config) => Node(name,body)
     }
     Dag(node_list.toList)

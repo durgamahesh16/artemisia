@@ -42,6 +42,8 @@ final class Node(val name: String, var payload: Config) {
     val assertions = payload.getAs[ConfigValue](Keywords.Task.ASSERTION)
     val variables = payload.getAs[Config](Keywords.Task.VARIABLES)
       .getOrElse(ConfigFactory.empty())
+    // for predictably and to generate clean config
+    // we exclude any special nodes like __worklet__, __defaults__ during resolution.
     val config = payload
       .withoutPath(Keywords.Task.ASSERTION)
       .withoutPath(Keywords.Task.VARIABLES)

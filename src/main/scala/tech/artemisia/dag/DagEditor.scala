@@ -80,7 +80,7 @@ object DagEditor {
         jobConfig.getConfig(Keywords.Config.WORKLET).as[Config](node.payload.as[String](s"${Keywords.Task.PARAMS}.node"))
       case _ => throw new IllegalArgumentException("file and node are the only supported nodes for Dag Import task")
     }
-    val nodeMap = Dag.parseNodesFromConfig(module)
+    val nodeMap = Dag.extractTaskNodes(module)
     val nodes = nodeMap.toSeq map {
       case (name, payload) =>
         // performing sideeffect in map operation.
@@ -104,10 +104,10 @@ object DagEditor {
         ,ConfigValueFactory.fromIterable(dependency.map(x => s"${parentNode.name}$$$x").asJava))
     }
     // Assertion is not added here because the assertion node must be added only in the last node(s) of the  worklet
-    val taskSettingNodes = Seq(Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR
-      ,Keywords.Task.IGNORE_ERROR, Keywords.Task.IGNORE_ERROR)
+    val taskSettingNodes = Seq(Keywords.Task.IGNORE_ERROR, Keywords.Task.COOLDOWN, Keywords.Task.ATTEMPT, Keywords.Task.CONDITION
+      ,Keywords.Task.VARIABLES, Keywords.Task.ASSERTION)
     taskSettingNodes.foldLeft(result) {
-      (config: Config, inputNode: String) => config.getAs[ConfigValue](inputNode)
+      (config: Config, inputNode: String) => parentNode.payload.getAs[ConfigValue](inputNode)
         .map{x => config.withValue(inputNode, x)}
         .getOrElse(config)
     }
@@ -115,7 +115,8 @@ object DagEditor {
 
 
   /**
-    *
+    * update the graph of the Dag by replacing editable Dag node with
+    * expanded nodes.
     * @param dag Dag to be updated.
     * @param node node to replaced
     * @param nodes new nodes replacing the node
