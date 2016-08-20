@@ -1,7 +1,7 @@
 package tech.artemisia.dag
 
 import java.io.File
-
+import tech.artemisia.util.FileSystemUtil._
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.TestSpec
 import tech.artemisia.core.BasicCheckpointManager.CheckpointData
@@ -41,8 +41,12 @@ class DagEditorSpec extends TestSpec {
   }
 
   it must "import worklets from file" in {
-
-    val config = ConfigFactory parseFile new File(this.getClass.getResource("/code/worklet_file_import.conf").getFile)
+    var config: Config = ConfigFactory.empty()
+    withTempFile(fileName = "worklet_import") {
+      file =>
+        file <<= TestUtils.worklet_file_import(this.getClass.getResource("/code/multi_step_addition_job.conf").getFile)
+        config = ConfigFactory.parseFile(file)
+    }
     val node1 = Node("task1", config.as[Config]("task1"))
     val node2 = Node("task2", config.as[Config]("task2"))
     val node3 = Node("task3", config.as[Config]("task3"))

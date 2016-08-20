@@ -8,7 +8,7 @@ import tech.artemisia.core.{AppContext, AppSetting}
 import tech.artemisia.dag.Message._
 import tech.artemisia.task.{TaskHandler, TestAdderTask}
 import tech.artemisia.util.HoconConfigUtil.Handler
-
+import tech.artemisia.util.FileSystemUtil._
 import scala.concurrent.duration.{Duration, _}
 import scala.language.postfixOps
 
@@ -130,7 +130,11 @@ class DagPlayerSpec_2 extends ActorTestSpec {
 
 
   it must "file import worklet" in {
-    setUpArtifacts(this.getClass.getResource("/code/worklet_file_import.conf").getFile)
+    withTempFile(fileName = "worklet_file_import") {
+      file =>
+         file <<= TestUtils.worklet_file_import(this.getClass.getResource("/code/multi_step_addition_job.conf").getFile)
+        setUpArtifacts(file.getAbsolutePath)
+    }
     within(20000 millis) {
       dag_player ! new Tick
       probe.validateAndRelay(workers) {
