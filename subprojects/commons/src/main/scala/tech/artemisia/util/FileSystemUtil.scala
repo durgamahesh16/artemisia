@@ -90,6 +90,8 @@ object FileSystemUtil {
    * @return
    */
   def withTempFile(directory: String = null,fileName: String)(body: File => Unit): Unit = {
+    System.err.println("the directory is" + directory)
+    System.err.println("the file is" + fileName)
     val file = if (directory == null) File.createTempFile(fileName, null) else File.createTempFile(fileName, null, new File(directory))
     try
       body(file)
