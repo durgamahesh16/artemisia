@@ -1,6 +1,6 @@
 package tech.artemisia.task.database.teradata
 
-import java.io.{File, FileInputStream}
+import java.io.FileInputStream
 
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
@@ -54,6 +54,6 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
 
 object HDFSTaskSpec {
 
-  val cluster = new TestHDFSCluster(new File(this.getClass.getResource("/hdfs").getFile))
+  val cluster = new TestHDFSCluster("teradata")
 
 }

@@ -2,35 +2,32 @@ package tech.artemisia.task.hadoop
 
 import java.io.File
 import java.net.URI
-import java.nio.file.Files
 
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileUtil, Path}
-import org.apache.hadoop.hdfs.MiniDFSCluster
+import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.hadoop.hdfs.{HdfsConfiguration, MiniDFSCluster}
+import org.apache.hadoop.test.PathUtils
 
 /**
   * Created by chlr on 7/22/16.
   */
 
-class TestHDFSCluster(baseDir: File) {
+class TestHDFSCluster(cluster: String) {
 
   var dfs: MiniDFSCluster = _
+  val testDataPath = new File(PathUtils.getTestDir(this.getClass),cluster)
+  var fileSystem: FileSystem = _
+  var conf: HdfsConfiguration = _
   setup()
 
   private def setup() = {
-    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    System.setProperty("test.build.data",Files.createTempDirectory("hdfstest").toAbsolutePath.toString)
-    val conf = new Configuration()
-    conf.set("dfs.datanode.data.dir", baseDir.toString)
-    val nameDir = Files.createTempDirectory("hdfstest").toAbsolutePath.toString
-    System.err.println(s"name dir: $nameDir")
-    conf.set("dfs.namenode.name.dir",nameDir)
-    FileUtil.fullyDelete(baseDir)
-    conf.set("dfs.namenode.logging.level","block")
-    conf.setInt("dfs.block.size", 512)
-    conf.setBoolean("dfs.support.broken.append", true)
+    conf = new HdfsConfiguration()
+    val testDataCluster1 = new File(testDataPath, cluster)
+    conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, testDataCluster1.getAbsolutePath)
+    conf.setInt("dfs.blocksize", 512  )
+    conf.setInt("dfs.namenode.fs-limits.min-block-size", 512)
     try {
-      dfs = new MiniDFSCluster(conf, 1, true, null)
+      dfs =  new MiniDFSCluster.Builder(conf).build()
+      fileSystem= FileSystem.get(conf);
     } catch {
       case e: NullPointerException => {
         System.err.println("Mini HDFS cluster setup failed. Did you set umask 022 before running the test?")
@@ -52,8 +49,14 @@ class TestHDFSCluster(baseDir: File) {
   }
 
   def terminate() = {
+    val dataDir = new Path(testDataPath.getParentFile.getParentFile.getParent)
+    fileSystem.delete(dataDir, true)
+    val rootTestFile = new File(testDataPath.getParentFile.getParentFile.getParent)
+    val rootTestDir = rootTestFile.getAbsolutePath
+    val rootTestPath = new Path(rootTestDir)
+    val localFileSystem = FileSystem.getLocal(conf)
+    localFileSystem.delete(rootTestPath, true)
     dfs.shutdown()
-    FileUtil.fullyDelete(baseDir)
   }
 
 

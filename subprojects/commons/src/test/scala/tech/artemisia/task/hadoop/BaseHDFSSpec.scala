@@ -1,7 +1,5 @@
 package tech.artemisia.task.hadoop
 
-import java.io.File
-
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
 
@@ -13,7 +11,7 @@ class BaseHDFSSpec extends TestSpec with BeforeAndAfterAll with HDFSUtilSpec wit
   import BaseHDFSSpec._
 
   override def beforeAll: Unit = {
-    cluster = new TestHDFSCluster(new File(this.getClass.getClassLoader.getResource("arbitary/hdfs").toString))
+    cluster = new TestHDFSCluster("commons")
     cluster.initialize(this.getClass.getClassLoader.getResource("arbitary/glob").toString)
   }
 

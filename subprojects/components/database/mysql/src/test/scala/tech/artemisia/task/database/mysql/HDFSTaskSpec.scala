@@ -1,7 +1,5 @@
 package tech.artemisia.task.database.mysql
 
-import java.io.File
-
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.{BasicExportSetting, BasicLoadSetting, TestDBInterFactory}
@@ -51,6 +49,6 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
 
 object HDFSTaskSpec {
 
-  val cluster = new TestHDFSCluster(new File(this.getClass.getResource("/hdfs").getFile))
+  val cluster = new TestHDFSCluster("mysql")
 
 }
