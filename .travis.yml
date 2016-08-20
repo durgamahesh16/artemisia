@@ -6,7 +6,7 @@ scala:
 branches:
   only:
   - master
-script: umask 022 && sbt fulltest
+script: sbt fulltest
 after_success:
 - sbt coveralls
 - sbt publish
