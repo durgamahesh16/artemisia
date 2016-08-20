@@ -16,7 +16,10 @@ fork := true // This is required so that setting.file system property is properl
 
 javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
 
-javaOptions in Test += s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
+javaOptions in Test ++= Seq(
+    s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
+    ,"-Xmx4G"
+)
 
 resolvers in ThisBuild ++= Seq(
     "Hadoop Releases" at "https://repository.cloudera.com/content/repositories/releases/"
