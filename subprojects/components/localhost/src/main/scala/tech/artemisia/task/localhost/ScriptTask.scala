@@ -6,7 +6,6 @@ import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.{AppLogger, Keywords}
 import tech.artemisia.task.localhost.util.ProcessRunner
 import tech.artemisia.task.{Task, TaskLike}
-import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import tech.artemisia.util.Util
 
@@ -29,14 +28,8 @@ class ScriptTask(name: String = Util.getUUID, script: String,interpreter: String
     AppLogger info s"executing script"
     AppLogger info Util.prettyPrintAsciiBanner(script, heading = "script")
     var result: (String, String, Int) = null
-    withTempFile(fileName = this.getFileHandle(scriptFileName).toString) {
-      file => {
-        file <<= script
-         result = processRunner.executeFile(cwd,env) {
-          file.toPath.toAbsolutePath.toString
-        }
-      }
-    }
+    writeToFile(script, scriptFileName)
+    result = processRunner.executeFile(cwd, env)(getFileHandle(scriptFileName).toString)
 
     AppLogger debug s"stdout detected: ${result._1}"
     AppLogger debug s"stderr detected: ${result._2}"
