@@ -34,16 +34,16 @@ class FileSystemUtilSpec extends TestSpec  {
   }
 
   it must "it must resolve globs" in {
-    val path = this.getClass.getClassLoader.getResource("arbitary/glob")
-    val location = FileSystemUtil.joinPath(path.getFile ,"**/*.txt")
+    val path = this.getClass.getResource("/arbitary/glob").getFile
+    val location = FileSystemUtil.joinPath(path ,"**/*.txt")
     val files = FileSystemUtil.expandPathToFiles(Paths.get(location))
     files must have size 4
     for (file <- files) { file.exists() mustBe true }
   }
 
   it must "reads all contents that points to multiple files via globbed path" in {
-    val path = this.getClass.getClassLoader.getResource("arbitary/glob")
-    val location = FileSystemUtil.joinPath(path.getFile ,"**/*.txt")
+    val path = this.getClass.getResource("/arbitary/glob").getFile
+    val location = FileSystemUtil.joinPath(path ,"**/*.txt")
     val files = FileSystemUtil.expandPathToFiles(Paths.get(location))
     val reader = new BufferedReader(new InputStreamReader(FileSystemUtil.mergeFileStreams(files)))
     Stream.continually(reader.readLine()).takeWhile(_ != null).toArray must have size 8

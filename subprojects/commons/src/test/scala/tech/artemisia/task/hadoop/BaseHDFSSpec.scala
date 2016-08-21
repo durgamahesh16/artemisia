@@ -12,7 +12,7 @@ class BaseHDFSSpec extends TestSpec with BeforeAndAfterAll with HDFSUtilSpec wit
 
   override def beforeAll: Unit = {
     cluster = new TestHDFSCluster("commons")
-    cluster.initialize(this.getClass.getClassLoader.getResource("arbitary/glob").toString)
+    cluster.initialize(this.getClass.getClassLoader.getResource("arbitary/glob").getFile)
   }
 
 

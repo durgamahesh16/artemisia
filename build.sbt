@@ -8,6 +8,9 @@ assemblySettings
 
 coverageEnabled.in(ThisBuild ,Test, test) := true
 
+parallelExecution in Global := false // this is required so that different modules that launch
+  // that launch miniDFSCluster doesn't fail due to resource contention.
+
 lazy val docgen = taskKey[Unit]("Generate Components documentation")
 
 lazy val refgen = taskKey[Unit]("Generate settings conf file")
