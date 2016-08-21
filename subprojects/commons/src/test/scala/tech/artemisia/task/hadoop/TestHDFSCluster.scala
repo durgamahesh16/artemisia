@@ -2,7 +2,6 @@ package tech.artemisia.task.hadoop
 
 import java.io.File
 import java.net.URI
-
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.hdfs.{HdfsConfiguration, MiniDFSCluster}
 import org.apache.hadoop.test.PathUtils
@@ -15,7 +14,6 @@ class TestHDFSCluster(cluster: String) {
 
   var dfs: MiniDFSCluster = _
   val testDataPath = new File(PathUtils.getTestDir(this.getClass),cluster)
-  var fileSystem: FileSystem = _
   var conf: HdfsConfiguration = _
   setup()
 
@@ -23,17 +21,9 @@ class TestHDFSCluster(cluster: String) {
     conf = new HdfsConfiguration()
     val testDataCluster1 = new File(testDataPath, cluster)
     conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, testDataCluster1.getAbsolutePath)
-    conf.setInt("dfs.blocksize", 512  )
+    conf.setInt("dfs.blocksize", 512)
     conf.setInt("dfs.namenode.fs-limits.min-block-size", 512)
-    try {
-      dfs =  new MiniDFSCluster.Builder(conf).build()
-      fileSystem= FileSystem.get(conf);
-    } catch {
-      case e: NullPointerException => {
-        System.err.println("Mini HDFS cluster setup failed. Did you set umask 022 before running the test?")
-        throw e
-      }
-    }
+    dfs =  new MiniDFSCluster.Builder(conf).build()
     dfs.waitActive()
   }
 
@@ -50,7 +40,7 @@ class TestHDFSCluster(cluster: String) {
 
   def terminate() = {
     val dataDir = new Path(testDataPath.getParentFile.getParentFile.getParent)
-    fileSystem.delete(dataDir, true)
+    dfs.getFileSystem.delete(dataDir, true)
     val rootTestFile = new File(testDataPath.getParentFile.getParentFile.getParent)
     val rootTestDir = rootTestFile.getAbsolutePath
     val rootTestPath = new Path(rootTestDir)

@@ -46,7 +46,7 @@ object FileSystemUtil {
    * @param file path of the file
    * @param append set true to append content to the file.
    */
-  def writeFile(content: String,file: File, append: Boolean = true) {
+  def writeFile(content: String, file: File, append: Boolean = true) {
     file.getParentFile.mkdirs()
     val writer = new BufferedWriter(new FileWriter(file,append))
     writer.write(content)
