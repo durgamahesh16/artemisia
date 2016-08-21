@@ -19,7 +19,7 @@ class GenericTaskSpec extends TestSpec {
       override def setup(): Unit = { throw new Exception("fail") }
       override def teardown(): Unit = {}
     }
-    val task = new TaskHandler(task_config,fail_task)
+    val task = new TaskHandler(task_config,fail_task, ConfigFactory.empty())
     val result = task.execute()
     result.isFailure must be (true)
     result.failed.get mustBe an [Exception]
@@ -36,7 +36,7 @@ class GenericTaskSpec extends TestSpec {
        override def work(): Config = { if (this.attempts == 1) {  attempts += 1 ; throw new Exception("") } else { ConfigFactory.empty() } }
        override def teardown(): Unit = {}
      }
-    val task = new TaskHandler(task_config,succeed_on_2_attempt_task)
+    val task = new TaskHandler(task_config,succeed_on_2_attempt_task, ConfigFactory.empty())
     task.execute()
     task.getAttempts must be (2)
   }
@@ -48,7 +48,7 @@ class GenericTaskSpec extends TestSpec {
       override def work(): Config = {  ConfigFactory.empty }
       override def teardown(): Unit = { throw new Exception("my own exception") }
     }
-    val task = new TaskHandler(task_config,fail_on_teardown_task)
+    val task = new TaskHandler(task_config,fail_on_teardown_task, ConfigFactory.empty())
     val result = task.execute()
     result.get must equal (ConfigFactory.empty)
   }
@@ -60,7 +60,7 @@ class GenericTaskSpec extends TestSpec {
       override def work(): Config = {  throw new Exception("my own exception") }
       override def teardown(): Unit = { throw new Exception("my own exception") }
     }
-    val task = new TaskHandler(task_config,a_dummy_task)
+    val task = new TaskHandler(task_config,a_dummy_task, ConfigFactory.empty())
     val result = task.execute()
     task.getStatus must be (Status.SKIPPED)
     task.getAttempts must be (0)

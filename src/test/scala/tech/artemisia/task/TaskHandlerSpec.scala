@@ -18,7 +18,7 @@ class TaskHandlerSpec extends TestSpec {
         override protected[task] def teardown(): Unit = ()
       }
       val taskConfig = TaskConfig(assertion = Some((ConfigValueFactory.fromAnyRef("${foo} == 0"),"test")))
-      val handler = new TaskHandler(taskConfig, task)
+      val handler = new TaskHandler(taskConfig, task, ConfigFactory.empty())
       val ex = intercept[AssertionError] {
         handler.execute()
       }
@@ -34,7 +34,7 @@ class TaskHandlerSpec extends TestSpec {
       override protected[task] def teardown(): Unit = ()
     }
     val taskConfig = TaskConfig(assertion = Some((ConfigValueFactory.fromAnyRef("${foo} == 100"),"test")))
-    val handler = new TaskHandler(taskConfig, task)
+    val handler = new TaskHandler(taskConfig, task, ConfigFactory.empty())
     handler.execute() match {
       case Success(config) => config.getInt("foo") must be (100)
       case Failure(th) => throw th

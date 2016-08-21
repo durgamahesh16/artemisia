@@ -13,7 +13,7 @@ import scala.util.{Failure, Success, Try}
   * Created by chlr on 1/7/16.
   */
 
-class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
+class TaskHandler(val taskConfig: TaskConfig, val task: Task, contextConfig: Config) {
 
   private var attempts = 0
   private var status: Status.Value = Status.UNKNOWN
@@ -49,7 +49,7 @@ class TaskHandler(val taskConfig: TaskConfig, val task: Task) {
   }
 
   private def runAssertions(taskResult: Config) = {
-    val effectiveConfig = taskResult withFallback TaskContext.payload
+    val effectiveConfig = taskResult withFallback contextConfig
     val assertionKey = s"${task.taskName}.${Keywords.Task.ASSERTION}"
     taskConfig.assertion match {
       case Some((configValue, desc)) => {

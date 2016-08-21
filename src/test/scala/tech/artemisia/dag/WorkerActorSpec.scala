@@ -6,7 +6,9 @@ import tech.artemisia.ActorTestSpec
 import tech.artemisia.core.Keywords
 import tech.artemisia.dag.Message.{TaskFailed, TaskStats, TaskSuceeded, TaskWrapper}
 import tech.artemisia.task.{GenericTaskSpec, Task, TaskHandler}
+
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
  * Created by chlr on 1/25/16.
@@ -21,7 +23,7 @@ class WorkerActorSpec extends ActorTestSpec {
       override def work(): Config = {ConfigFactory.empty()}
       override def teardown(): Unit = {}
     }
-    val task = new TaskHandler(GenericTaskSpec.getDefaultTaskConfig,test_task)
+    val task = new TaskHandler(GenericTaskSpec.getDefaultTaskConfig, test_task, ConfigFactory.empty())
     within(1 seconds) {
       worker ! TaskWrapper("test_task", task)
       expectMsgPF(1 second) {
@@ -40,7 +42,7 @@ class WorkerActorSpec extends ActorTestSpec {
       override def work(): Config = {ConfigFactory.empty()}
       override def teardown(): Unit = {}
     }
-    val task = new TaskHandler(GenericTaskSpec.getDefaultTaskConfig,test_task)
+    val task = new TaskHandler(GenericTaskSpec.getDefaultTaskConfig,test_task, ConfigFactory.empty())
 
       within(1 seconds) {
       worker ! TaskWrapper("test_task", task)
@@ -59,7 +61,7 @@ class WorkerActorSpec extends ActorTestSpec {
       override def work(): Config = {ConfigFactory.empty()}
       override def teardown(): Unit = {}
     }
-    val task = new TaskHandler(GenericTaskSpec.getDefaultTaskConfig.copy(ignoreFailure = true),test_task)
+    val task = new TaskHandler(GenericTaskSpec.getDefaultTaskConfig.copy(ignoreFailure = true),test_task, ConfigFactory.empty())
 
     within(1 seconds) {
       worker ! TaskWrapper("test_task", task)

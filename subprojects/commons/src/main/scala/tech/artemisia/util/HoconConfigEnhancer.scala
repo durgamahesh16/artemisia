@@ -2,10 +2,11 @@ package tech.artemisia.util
 
 import java.io.File
 
-import com.typesafe.config.{ConfigValueFactory, ConfigFactory, Config}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import tech.artemisia.task.TaskContext
-import scala.util.matching.Regex.Match
+
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex.Match
 
 /**
  * Created by chlr on 4/25/16.

@@ -37,6 +37,32 @@ final class Node(val name: String, var payload: Config) {
     _parents = nodes
   }
 
+
+  /**
+    * config payload used for resolving the node payload.
+    * This is the entire job config excluding special nodes
+    * for worklets, connections, settings and defaults.
+    * @param contextConfig job config
+    * @return context config which is used for resolving variables.
+    */
+  private def getcontextConfig(contextConfig: Config) = {
+    val variables = payload.getAs[Config](Keywords.Task.VARIABLES)
+        .getOrElse(ConfigFactory.empty())
+    variables withFallback
+    contextConfig
+      .withoutPath(Keywords.Config.WORKLET)
+      .withoutPath(Keywords.Config.DEFAULTS)
+      .withoutPath(Keywords.Config.SETTINGS_SECTION)
+      .withoutPath(Keywords.Config.CONNECTION_SECTION)
+  }
+
+
+  /**
+    * generate resolved payload for the node.
+    * The entire node payload is resolved except the assertion field of the node.
+    * @param contextConfig contextConfig for this node.
+    * @return resolved payload of the node.
+    */
   def resolvedPayload(contextConfig: Config) = {
     // we do this so that assertions are not resolved now and only after task execution completes
     val assertions = payload.getAs[ConfigValue](Keywords.Task.ASSERTION)
@@ -47,12 +73,7 @@ final class Node(val name: String, var payload: Config) {
     val config = payload
       .withoutPath(Keywords.Task.ASSERTION)
       .withoutPath(Keywords.Task.VARIABLES)
-      .hardResolve(variables
-        .withFallback(contextConfig)
-        .withoutPath(Keywords.Config.WORKLET)
-        .withoutPath(Keywords.Config.DEFAULTS)
-        .withoutPath(Keywords.Config.SETTINGS_SECTION)
-        .withoutPath(Keywords.Config.CONNECTION_SECTION))
+      .hardResolve(contextConfig)
     assertions match {
       case Some(x) => config.withValue(Keywords.Task.ASSERTION, x)
       case None => config
@@ -60,17 +81,32 @@ final class Node(val name: String, var payload: Config) {
   }
 
 
+  /**
+    *
+    * @return true if the node is in runnable state.
+    */
   def isRunnable = {
     (_parents forall {
       _.isComplete
     }) && this.status == Status.READY // forall for Nil returns true
   }
 
+  /**
+    *
+    * @return
+    */
   def isComplete = {
     Seq(Status.SUCCEEDED, Status.SKIPPED, Status.FAILURE_IGNORED) contains status
   }
 
-  def getNodeTask(contextConfig: Config, appContext: AppContext): TaskHandler = {
+  /**
+    *
+    * @param jobPayload
+    * @param appContext
+    * @return
+    */
+  def getNodeTask(jobPayload: Config, appContext: AppContext): TaskHandler = {
+    val contextConfig = getcontextConfig(jobPayload)
     val config = resolvedPayload(contextConfig)
     val componentName = config.as[String](Task.COMPONENT)
     val taskName = config.as[String](Keywords.Task.TASK)
@@ -78,7 +114,7 @@ final class Node(val name: String, var payload: Config) {
     val component = appContext.componentMapper(componentName)
     val task = component.dispatchTask(taskName, name, config.as[Config](Keywords.Task.PARAMS) withFallback
       defaults.getOrElse(ConfigFactory.empty()))
-    new TaskHandler(TaskConfig(config, appContext), task)
+    new TaskHandler(TaskConfig(config, appContext), task, contextConfig)
   }
 
   override def equals(that: Any): Boolean = {
