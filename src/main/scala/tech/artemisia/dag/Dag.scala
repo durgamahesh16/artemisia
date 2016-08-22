@@ -101,7 +101,7 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
     graph filter { _.getStatus == status }
   }
 
-  override def toString() = graph.toString()
+  override def toString = graph.toString()
 
   /**
     * parse node dependencies and link them.
@@ -150,17 +150,6 @@ private[dag] class Dag(node_list: Seq[Node], checkpointData: CheckpointData) {
       }
     }
   }
-
-//  private def applyCheckpoints(checkpointData: CheckpointData): Unit = {
-//    AppLogger info "applying checkpoints"
-//    checkpointData.taskStatRepo foreach {
-//      case (task_name, task_stats: TaskStats) => {
-//        val node = this.getNodeByName(task_name)
-//        node.applyStatusFromCheckpoint(task_stats.status)
-//      }
-//    }
-//  }
-
 }
 
 
