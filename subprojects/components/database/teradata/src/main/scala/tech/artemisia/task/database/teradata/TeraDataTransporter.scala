@@ -2,7 +2,7 @@ package tech.artemisia.task.database.teradata
 
 import java.sql.{SQLException, BatchUpdateException}
 import scala.collection.JavaConverters._
-import tech.artemisia.core.AppLogger
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.database.{DefaultDBExporter, BatchDBImporter, BaseDBBatchWriter, DBInterface}
 import tech.artemisia.task.settings.LoadSetting
 
@@ -53,16 +53,16 @@ object TeraDataTransporter {
           errorCounter += th.getUpdateCounts.count(_ < 0)
           th.iterator.asScala foreach {
             case x: SQLException if ignoreErrorCodes contains x.getErrorCode => ()
-            case x: SQLException => { AppLogger error x.getMessage; throw x }
+            case x: SQLException => { error(x.getMessage); throw x }
             case x: Throwable => true
           }
         }
         case th: Throwable => {
-          AppLogger error th.getMessage
+          error(th.getMessage)
           throw th
         }
       }
-      System.out.println(s"batch of size ${batch.length} has been process")
+      debug(s"processed batch of size ${batch.length}")
     }
 
     override  def close() = {
@@ -74,24 +74,24 @@ object TeraDataTransporter {
           th.iterator.asScala foreach {
             case x: SQLException => {
               if (displayErrorCode contains x.getErrorCode) {
-                AppLogger warn x.getMessage
+                warn(x.getMessage)
               }
               if (x.getErrorCode == errorRecordCode) {
                 errorRecordHandler.parseException(x)
               }
               if (!(ignoreErrorCodes contains x.getErrorCode)) {
-                AppLogger error x.getMessage
+                error(x.getMessage)
                 throw x
               }
             }
             case x: Throwable => {
-              AppLogger error x.getMessage
+              error(x.getMessage)
               throw x
             }
           }
         }
         case th: Throwable => {
-          AppLogger error th.getMessage
+          error(th.getMessage)
           throw th
         }
       } finally {

@@ -1,12 +1,15 @@
 package tech.artemisia.task.hadoop
 
-import java.io.{ByteArrayOutputStream, InputStream, PipedInputStream, PipedOutputStream}
+import java.io.{ByteArrayOutputStream, InputStream}
 import java.net.URI
+
+import com.Ostermiller.util.CircularByteBuffer
 import tech.artemisia.core.AppLogger._
 import tech.artemisia.util.CommandUtil._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Created by chlr on 8/21/16.
@@ -27,20 +30,19 @@ class HDFSCLIReader(cli: String) {
     */
   def readPath(path: String): InputStream = {
     val command = cli :: "dfs" :: "-text" :: path :: Nil
-    val inputStream = new PipedInputStream()
-    val outputStream = new PipedOutputStream(inputStream)
+    val buffer = new CircularByteBuffer(10485760)
     Future {
-      executeCmd(command, outputStream)
+      executeCmd(command, buffer.getOutputStream)
     } onComplete  {
       case Success(retCode) =>
         debug("reading from path $path completed successfully")
-        outputStream.close()
+        buffer.getOutputStream.close()
         assert(retCode == 0, s"command ${command.mkString(" ")} failed with retcode $retCode")
       case Failure(th) =>
-        outputStream.close()
+        buffer.getOutputStream.close()
         throw th;
     }
-    inputStream
+    buffer.getInputStream
   }
 
   /**
