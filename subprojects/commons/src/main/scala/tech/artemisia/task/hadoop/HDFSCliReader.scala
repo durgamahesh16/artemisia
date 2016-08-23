@@ -1,10 +1,13 @@
 package tech.artemisia.task.hadoop
 
-import java.io.{ByteArrayOutputStream, InputStream}
+import java.io.{ByteArrayOutputStream, InputStream, PipedInputStream, PipedOutputStream}
 import java.net.URI
-
-import com.Ostermiller.util.CircularByteBuffer
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.util.CommandUtil._
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
+
 /**
   * Created by chlr on 8/21/16.
   */
@@ -24,10 +27,20 @@ class HDFSCLIReader(cli: String) {
     */
   def readPath(path: String): InputStream = {
     val command = cli :: "dfs" :: "-text" :: path :: Nil
-    val circularByteBuffer = new CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE)
-    val result = executeCmd(command, circularByteBuffer.getOutputStream)
-    assert(result == 0, s"command ${command.mkString(" ")} failed with return code $result")
-    circularByteBuffer.getInputStream
+    val inputStream = new PipedInputStream()
+    val outputStream = new PipedOutputStream(inputStream)
+    Future {
+      executeCmd(command, outputStream)
+    } onComplete  {
+      case Success(retCode) =>
+        debug("reading from path $path completed successfully")
+        outputStream.close()
+        assert(retCode == 0, s"command ${command.mkString(" ")} failed with retcode $retCode")
+      case Failure(th) =>
+        outputStream.close()
+        throw th;
+    }
+    inputStream
   }
 
   /**
@@ -61,8 +74,10 @@ class HDFSCLIReader(cli: String) {
     val result = executeCmd(command, cmdResult)
     assert(result == 0, s"command ${command.mkString(" ")} failed with return code $result")
     val output = new String(cmdResult.toByteArray)
-    output.split(System.lineSeparator()).tail // tail is done to remove the first line which says 'Found n items'
+    val num = output.split(System.lineSeparator()).filterNot(_.startsWith("Found")) // tail is done to remove the first line which says 'Found n items'
       .map(_.split("\\s+").head.toLong).sum
+    debug(s"the total size of path $path is $num bytes")
+    num
   }
 
 }

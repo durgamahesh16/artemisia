@@ -62,6 +62,7 @@ object TeraDataTransporter {
           throw th
         }
       }
+      System.out.println(s"batch of size ${batch.length} has been process")
     }
 
     override  def close() = {
