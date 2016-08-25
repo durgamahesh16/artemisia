@@ -39,7 +39,6 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
     result.getInt(s"$tableName.__stats__.rejected") must be (0)
   }
 
-
   override def afterAll() = {
     cluster.terminate()
   }

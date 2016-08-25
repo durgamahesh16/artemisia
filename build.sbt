@@ -8,8 +8,6 @@ assemblySettings
 
 coverageEnabled.in(ThisBuild ,Test, test) := true
 
-testOptions in Global += Tests.Argument("-oF")
-
 parallelExecution in Global := false // this is required so that different modules that launch
   // that launch miniDFSCluster doesn't fail due to resource contention.
 

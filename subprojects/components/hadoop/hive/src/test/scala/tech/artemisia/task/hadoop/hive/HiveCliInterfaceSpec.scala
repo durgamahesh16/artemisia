@@ -1,7 +1,6 @@
 package tech.artemisia.task.hadoop.hive
 
 import java.io.File
-
 import org.apache.hadoop.io.IOUtils.NullOutputStream
 import tech.artemisia.TestSpec
 import tech.artemisia.util.TestUtils._

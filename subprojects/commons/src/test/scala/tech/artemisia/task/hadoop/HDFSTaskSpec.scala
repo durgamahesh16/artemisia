@@ -1,6 +1,7 @@
 package tech.artemisia.task.hadoop
 
 import java.io.{BufferedReader, InputStreamReader}
+
 import org.scalatest.DoNotDiscover
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.{BasicExportSetting, BasicLoadSetting, DBInterface, TestDBInterFactory}
@@ -50,5 +51,4 @@ trait HDFSTaskSpec extends TestSpec {
     val result = task.execute()
     result.getInt("hdfs-task.__stats__.loaded") must be > 5
   }
-
 }
