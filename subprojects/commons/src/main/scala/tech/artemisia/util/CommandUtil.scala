@@ -1,10 +1,9 @@
 package tech.artemisia.util
 
 import java.io.{File, OutputStream}
-
 import org.apache.commons.exec.{CommandLine, DefaultExecutor, PumpStreamHandler}
-
 import scala.collection.JavaConverters._
+import tech.artemisia.core.AppLogger._
 
 /**
   * Created by chlr on 8/3/16.
@@ -30,6 +29,7 @@ object CommandUtil {
     val executor = new DefaultExecutor()
     cwd foreach executor.setWorkingDirectory
     executor.setStreamHandler(new PumpStreamHandler(stdout, stderr))
+    debug(s"""executing command ${command.mkString(" ")}""")
     executor.execute(cmdLine, (env ++ System.getenv().asScala).asJava)
   }
 
@@ -47,6 +47,19 @@ object CommandUtil {
               .find(new File(_).listFiles().map(_.getName).contains(executable))
               .map(new File(_, executable).toPath.toString)
       case None => None
+    }
+  }
+
+
+  /**
+    * search for an executable in PATH and if not found throw an exception.
+    * @param executable executable to search for
+    * @return absolute path of executable
+    */
+  def getExecutableOrFail(executable: String) = {
+    getExecutablePath(executable) match {
+      case Some(exe) => exe
+      case None => throw new RuntimeException(s"$executable not found in PATH")
     }
   }
 

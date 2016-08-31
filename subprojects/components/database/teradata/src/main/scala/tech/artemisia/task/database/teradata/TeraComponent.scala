@@ -9,7 +9,8 @@ import tech.artemisia.task.{Component, TaskLike}
 
 class TeraComponent(name: String) extends Component(name: String) {
 
-  override val tasks: Seq[TaskLike] = Seq(SQLExecute, SQLRead, LoadFromFile, ExportToFile, ExportToHDFS, LoadFromHDFS)
+  override val tasks: Seq[TaskLike] = Seq(SQLExecute, SQLRead, LoadFromFile, ExportToFile, ExportToHDFS, LoadFromHDFS,
+    TDCHLoadFromHDFS)
 
   override val defaultConfig: Config = ConfigFactory parseString
     """

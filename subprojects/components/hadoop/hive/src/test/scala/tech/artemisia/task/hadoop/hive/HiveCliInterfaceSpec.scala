@@ -1,9 +1,9 @@
 package tech.artemisia.task.hadoop.hive
-
+import tech.artemisia.util.TestUtils._
 import java.io.File
 import org.apache.hadoop.io.IOUtils.NullOutputStream
 import tech.artemisia.TestSpec
-import tech.artemisia.util.TestUtils._
+
 /**
   * Created by chlr on 8/7/16.
   */
