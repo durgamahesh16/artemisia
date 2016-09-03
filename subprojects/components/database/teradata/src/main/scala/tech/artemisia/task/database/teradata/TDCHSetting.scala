@@ -1,5 +1,6 @@
 package tech.artemisia.task.database.teradata
 
+import java.io.File
 import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory}
@@ -15,11 +16,14 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 
 
 
-case class TDCHHadoopSetting(tdchJar: String, numMapper: Int = 10, queueName: String = "default", format: String = "textfile",
-                             textSettings: TDCHTextFileSetting, libJars: Seq[String] = Nil, miscOptions: Map[String, String] = Map()) {
+case class TDCHSetting(tdchJar: String, hadoop: Option[File] = None, numMapper: Int = 10, queueName: String = "default", format: String = "textfile",
+                       textSettings: TDCHTextSetting = TDCHTextSetting(),
+                       libJars: Seq[String] = Nil, miscOptions: Map[String, String] = Map()) {
 
-  import TDCHHadoopSetting._
+  import TDCHSetting._
 
+  hadoop foreach { x => require(x.exists(), s"hadoop binary ${x.toString} doesn't exists") }
+  require(new File(tdchJar).exists(), s"TDCH jar $tdchJar doesn't exists")
   require(allowedFormats contains format, s"$format is not supported. ${allowedFormats.mkString(",")} are the only format supported")
 
   def commandArgs(export: Boolean, connection: DBConnection, jobType: String, otherSettings: Map[String, String]) = {
@@ -38,7 +42,7 @@ case class TDCHHadoopSetting(tdchJar: String, numMapper: Int = 10, queueName: St
       case x => Map("HADOOP_CLASSPATH" -> libJars.mkString(":"))
     }
 
-    val command = CommandUtil.getExecutableOrFail("hadoop") :: "jar" :: tdchJar ::
+    val command = hadoop.map(_.toString).getOrElse(CommandUtil.getExecutableOrFail("hadoop")) :: "jar" :: tdchJar ::
       (if (export) "com.teradata.connector.common.tool.ConnectorImportTool" else "com.teradata.connector.common.tool.ConnectorExportTool") ::
     s"-Dmapred.job.queue.name=$queueName" :: Nil ++ (mainArguments flatMap { case (x,y) => x :: y :: Nil })
 
@@ -64,14 +68,14 @@ case class TDCHHadoopSetting(tdchJar: String, numMapper: Int = 10, queueName: St
   private def getLibJars = {
     libJars match {
       case Nil => Map[String, String]()
-      case x =>  Map("-libjars" -> libJars.mkString(","))
+      case x =>  Map("-lib-jars" -> libJars.mkString(","))
     }
   }
 
 }
 
 
-object TDCHHadoopSetting extends ConfigurationNode[TDCHHadoopSetting] {
+object TDCHSetting extends ConfigurationNode[TDCHSetting] {
 
   private val allowedFormats = Seq("textfile", "avrofile", "rcfile", "orcfile", "sequenceFile")
 
@@ -87,17 +91,18 @@ object TDCHHadoopSetting extends ConfigurationNode[TDCHHadoopSetting] {
        |   misc-options = {}
        | }
      """.stripMargin
-    config.withValue("text-setting", TDCHTextFileSetting.defaultConfig.root())
+    config.withValue("text-setting", TDCHTextSetting.defaultConfig.root())
     }
 
 
-  override def apply(config: Config): TDCHHadoopSetting= {
-    TDCHHadoopSetting(
+  override def apply(config: Config): TDCHSetting= {
+    TDCHSetting(
       config.as[String]("tdch-jar"),
+      config.getAs[String]("hadoop").map(x => new File(x)),
       config.as[Int]("num-mappers"),
       config.as[String]("queue-name"),
       config.as[String]("format"),
-      TDCHTextFileSetting(config.as[Config]("text-setting")),
+      TDCHTextSetting(config.as[Config]("text-setting")),
       processLibJarsField(config.as[List[String]]("lib-jars")),
       config.asMap[String]("misc-options")
     )
@@ -108,6 +113,7 @@ object TDCHHadoopSetting extends ConfigurationNode[TDCHHadoopSetting] {
       s"""
        | {
        |   tdch-jar = "/path/teradata-connector.jar"
+       |   hadoop = "/usr/local/bin/hadoop @optional"
        |   num-mappers = "5 @default(10)"
        |   queue-name = "public @default(default)"
        |   format = "avrofile @default(default)"
@@ -121,18 +127,19 @@ object TDCHHadoopSetting extends ConfigurationNode[TDCHHadoopSetting] {
        |   }
        | }
      """.stripMargin
-    config.withValue("text-setting", TDCHTextFileSetting.structure.root())
+    config.withValue("text-setting", TDCHTextSetting.structure.root())
     }
 
 
   override val fieldDescription: Map[String, Any] = Map(
     "tdch-jar" -> "path to tdch jar file",
+    "hadoop" -> "optional path to the hadoop binary. If not specified the binary will be searched in the PATH variable",
     "num-mappers" -> "num of mappers to be used in the MR job",
     "queue-name" -> "scheduler queue where the MR job is submitted",
     "format" -> ("format of the file. Following are the allowed values" -> allowedFormats),
-    "libjars" -> ("list of files and directories that will be added to libjars argument and set in HADOOP_CLASSPATH environment variable." +
+    "lib-jars" -> ("list of files and directories that will be added to libjars argument and set in HADOOP_CLASSPATH environment variable." +
       "Usually the hive conf and hive lib jars are added here. The path accept java glob pattern"),
-    "text-setting" -> TDCHTextFileSetting.fieldDescription,
+    "text-setting" -> TDCHTextSetting.fieldDescription,
     "misc-options" -> "other TDHC arguments to be appended must be defined in this Config object"
   )
 

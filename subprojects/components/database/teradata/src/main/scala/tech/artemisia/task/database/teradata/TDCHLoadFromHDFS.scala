@@ -3,6 +3,7 @@ package tech.artemisia.task.database.teradata
 import java.sql.SQLException
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue, ConfigValueFactory}
+import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskLike}
 import tech.artemisia.util.CommandUtil
@@ -14,8 +15,12 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 
 class TDCHLoadFromHDFS(override val taskName: String, val dBConnection: DBConnection, val sourcePath: String
                        , val targetTable: String, val method: String = "batch.insert", val truncate: Boolean = false
-                       , val tdchHadoopSetting: TDCHHadoopSetting)
+                       , val tdchHadoopSetting: TDCHSetting)
   extends Task(taskName) {
+
+  val dbInterface: DBInterface = DBInterfaceFactory.getInstance(dBConnection)
+
+  protected val logStream = new TDCHTDLoadLogParser(System.out)
 
   private val supportedFormats = Seq("avrofile", "textfile")
 
@@ -25,27 +30,27 @@ class TDCHLoadFromHDFS(override val taskName: String, val dBConnection: DBConnec
 
   require(supportedFormats contains tdchHadoopSetting.format, s"${supportedFormats.mkString(",")} ")
 
+
   /**
     * @todo detect error table overrides with errortablename argument
     */
   override protected[task] def setup(): Unit = {
-    implicit val dbInterface = DBInterfaceFactory.getInstance(dBConnection)
     if (method == "batch.insert" && truncate) {
-      dbInterface.execute(s"DELETE FROM $targetTable")
-    } else {
-      try { dbInterface.execute(s"DROP TABLE ${targetTable}_ERR_1") } catch { case th: SQLException => () }
-      try { dbInterface.execute(s"DROP TABLE ${targetTable}_ERR_2") } catch { case th: SQLException => () }
-      TeraUtils.dropRecreateTable(targetTable)
+      dbInterface.execute(s"DELETE FROM $targetTable", printSQL = false)
+    }
+    else if(method == "internal.fastload") {
+      try { dbInterface.execute(s"DROP TABLE ${targetTable}_ERR_1", printSQL = false) } catch { case th: SQLException => () }
+      try { dbInterface.execute(s"DROP TABLE ${targetTable}_ERR_2", printSQL = false) } catch { case th: SQLException => () }
+      TeraUtils.dropRecreateTable(targetTable)(dbInterface)
     }
   }
 
   override protected[task] def work(): Config = {
     val settings = Map("-sourcepaths" -> sourcePath, "-targettable" -> targetTable, "-method" -> method)
     val (command, env) = tdchHadoopSetting.commandArgs(export = false, connection = dBConnection, jobType = "hdfs", settings)
-    val logParser = new TDCHTDLoadLogParser(System.out)
-    CommandUtil.executeCmd(command = command, env = env, stderr = logParser)
+    CommandUtil.executeCmd(command = command, env = env, stderr = logStream)
     wrapAsStats {
-      ConfigFactory.empty().withValue("rows", ConfigValueFactory.fromAnyRef(logParser.rowsLoaded.toString))
+      ConfigFactory.empty().withValue("rows", ConfigValueFactory.fromAnyRef(logStream.rowsLoaded.toString))
     }
   }
 
@@ -71,7 +76,7 @@ object TDCHLoadFromHDFS extends TaskLike {
         stripMargin
   config
     .withValue(""""dsn_[2]"""",DBConnection.structure(1025).root())
-    .withValue("tdch-settings",TDCHHadoopSetting.structure.root())
+    .withValue("tdch-settings",TDCHSetting.structure.root())
 
   }
 
@@ -84,7 +89,7 @@ object TDCHLoadFromHDFS extends TaskLike {
        |  truncate = no
        |}
      """.stripMargin
-      config.withValue("tdch-setting", TDCHHadoopSetting.defaultConfig.root())
+      config.withValue("tdch-setting", TDCHSetting.defaultConfig.root())
     }
 
   override def fieldDefinition: Map[String, AnyRef] = Map(
@@ -93,7 +98,7 @@ object TDCHLoadFromHDFS extends TaskLike {
     "target-table" -> "teradata tablename",
     "method" -> "defines whether to use fastload or normal jdbc insert for loading data to teradata",
     "truncate" -> "truncate target table before load",
-    "tdch-setting" -> TDCHHadoopSetting.fieldDescription
+    "tdch-setting" -> TDCHSetting.fieldDescription
   )
 
   /**
@@ -109,7 +114,7 @@ object TDCHLoadFromHDFS extends TaskLike {
       config.as[String]("target-table"),
       config.as[String]("method"),
       config.as[Boolean]("truncate"),
-      TDCHHadoopSetting(config.as[Config]("tdch-setting"))
+      TDCHSetting(config.as[Config]("tdch-setting"))
     )
   }
 
@@ -124,8 +129,6 @@ object TDCHLoadFromHDFS extends TaskLike {
       | and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
       | them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradaata
     """.stripMargin
-
-
 
 
 }

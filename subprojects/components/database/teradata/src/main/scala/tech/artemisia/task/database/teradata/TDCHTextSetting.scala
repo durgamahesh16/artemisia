@@ -16,17 +16,18 @@ import tech.artemisia.util.HoconConfigUtil.Handler
   * @param nullString string to represent null values
   * @param escapedBy escape characters to be used.
   */
-case class TDCHTextFileSetting(delimiter: Char = ',', quoting: Boolean = false, quoteChar: Char= '"', nullString: Option[String] = None, escapedBy: Char = '\\') {
+case class TDCHTextSetting(delimiter: Char = ',', quoting: Boolean = false, quoteChar: Char= '"', nullString: Option[String] = None,
+                           escapedBy: Char = '\\') {
 
 
-  val commandArgs = "separator" :: "\\u" + Integer.toHexString('÷' | 0x10000).substring(1) :: Nil ++
-    (if(quoting) "enclosedby" :: quoteChar :: "escapedby" :: escapedBy :: Nil else Nil) ++
-    (if(nullString.isDefined) "nullstring" :: nullString :: Nil else Nil)
+  val commandArgs = "-separator" :: "\\u" + Integer.toHexString('÷' | 0x10000).substring(1) :: Nil ++
+    (if(quoting) "-enclosedby" :: quoteChar :: "-escapedby" :: escapedBy :: Nil else Nil) ++
+    (if(nullString.isDefined) "-nullstring" :: nullString.get :: Nil else Nil)
 
 
 }
 
-object TDCHTextFileSetting extends ConfigurationNode[TDCHTextFileSetting] {
+object TDCHTextSetting extends ConfigurationNode[TDCHTextSetting] {
 
   override val defaultConfig: Config = ConfigFactory parseString
    """
@@ -38,8 +39,8 @@ object TDCHTextFileSetting extends ConfigurationNode[TDCHTextFileSetting] {
      |}
    """.stripMargin
 
-  override def apply(config: Config): TDCHTextFileSetting = {
-    TDCHTextFileSetting(
+  override def apply(config: Config): TDCHTextSetting = {
+    TDCHTextSetting(
       config.as[Char]("delimiter"),
       config.as[Boolean]("quoting"),
       config.as[Char]("quote-char"),
