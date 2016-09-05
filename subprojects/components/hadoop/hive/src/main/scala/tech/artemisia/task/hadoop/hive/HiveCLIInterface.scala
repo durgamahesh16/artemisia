@@ -22,6 +22,7 @@ class HiveCLIInterface(val hive: String, stdout: OutputStream = System.out, stde
 
   /**
     * execute select query that returns a single row and parse the single row as Hocon config object
+    *
     * @param hql SELECT query to be executed
     * @param taskName name to be set for the hive mapred job
     * @return resultset of the query with header and first row as Hocon config object
@@ -43,12 +44,14 @@ class HiveCLIInterface(val hive: String, stdout: OutputStream = System.out, stde
 
   /**
     * execute DML/DDL HQL queries
+    *
     * @param hql hql query to be executed
     * @param taskName name to be set for the hive mapred job
     * @return config with stats on rows loaded.
     */
-  def execute(hql: String, taskName: String) = {
-    info(Util.prettyPrintAsciiBanner(hql,"query"))
+  def execute(hql: String, taskName: String, printSQL: Boolean = true) = {
+    if (printSQL)
+      info(Util.prettyPrintAsciiBanner(hql, "query"))
     val effectiveHQL = s"set mapred.job.name = $taskName;\n" + hql
     val cmd = makeHiveCommand(effectiveHQL)
     val logParser = new HQLExecuteParser(stderr)

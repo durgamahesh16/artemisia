@@ -7,7 +7,7 @@ import org.apache.commons.exec.LogOutputStream
 /**
   * Created by chlr on 8/30/16.
   */
-class TDCHTDLoadLogParser(stream: OutputStream) extends LogOutputStream {
+class TDCHLogParser(stream: OutputStream) extends LogOutputStream {
 
   var rowsLoaded = 0L
   val pattern = "^[\\s]*Map output records=(\\d+)[\\s]*$".r

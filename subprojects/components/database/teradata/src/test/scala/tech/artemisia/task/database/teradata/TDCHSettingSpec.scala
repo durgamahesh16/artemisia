@@ -1,6 +1,8 @@
 package tech.artemisia.task.database.teradata
 
+import java.io.File
 import java.nio.file.Paths
+
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
 import tech.artemisia.util.FileSystemUtil._
@@ -10,7 +12,7 @@ import tech.artemisia.util.FileSystemUtil._
   */
 class TDCHSettingSpec extends TestSpec {
 
-  "TDCHHadoopSettingSpec" must "throw exception if tdchjar doesn't exist" in {
+  "TDCHSettingSpec" must "throw exception if tdchjar doesn't exist" in {
     val ex = intercept[java.lang.IllegalArgumentException] {
       TDCHSetting("/path/jar_file_that_doesn't_exist.jar")
     }
@@ -25,6 +27,16 @@ class TDCHSettingSpec extends TestSpec {
     ex.getMessage must be ("requirement failed: some-unsupported-format is not supported. " +
       "textfile,avrofile,rcfile,orcfile,sequenceFile are the only format supported")
   }
+
+
+  it must "throw an exception when the hadoop binary doesn't exists" in {
+    val file = this.getClass.getResource("/samplefiles/file.txt").getFile
+    val ex = intercept[java.lang.IllegalArgumentException] {
+      TDCHSetting(file, hadoop = Some(new File("non-existant-hadoop")))
+    }
+    ex.getMessage must be ("requirement failed: hadoop binary non-existant-hadoop doesn't exists")
+  }
+
 
   it must "construct the object properly" in {
     val tdchJar = this.getClass.getResource("/samplefiles/file.txt").getFile

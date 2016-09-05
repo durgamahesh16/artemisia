@@ -55,8 +55,8 @@ object HQLExecute extends TaskLike {
   override val taskName: String = "HQLExecute"
 
   override def paramConfigDoc: Config =  database.SQLExecute.paramConfigDoc(10000)
-                                                .withValue("dsn_[1]",ConfigValueFactory.fromAnyRef("connection-name @optional"))
-                                                .withValue("dsn_[1]",DBConnection.structure(10000).root())
+                                                .withValue(""""dsn_[1]"""",ConfigValueFactory.fromAnyRef("connection-name @optional"))
+                                                .withValue(""""dsn_[2]"""",DBConnection.structure(10000).root())
 
   override def defaultConfig: Config =  ConfigFactory.empty()
 

@@ -76,6 +76,7 @@ lazy val postgres = (project in General.componentBase / "database" / "postgres")
 lazy val teradata = (project in General.componentBase / "database" / "teradata").enablePlugins(JavaAppPackaging)
   .settings(General.settings("teradata"))
   .dependsOn(commons  % "compile->compile;test->test")
+  .dependsOn(hive)
 
 lazy val hive = (project in General.componentBase / "hadoop" / "hive").enablePlugins(JavaAppPackaging)
   .settings(General.settings("hive"))
