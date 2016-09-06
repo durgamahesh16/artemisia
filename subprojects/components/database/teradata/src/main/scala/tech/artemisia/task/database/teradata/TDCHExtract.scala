@@ -83,7 +83,7 @@ class TDCHExtract(override val taskName: String, val dBConnection: DBConnection,
     )
     val settings: Map[String, String] = sourceTargetParams + ("-method" -> methodMap(splitBy))
     val (command, env) = tdchHadoopSetting.commandArgs(export = true, connection = dBConnection, settings)
-    CommandUtil.executeCmd(command = command, env = env, stderr = logStream)
+    CommandUtil.executeCmd(command = command, env = env, stderr = logStream, obfuscate = Seq(command.indexOf("-password")+2))
     wrapAsStats {
       ConfigFactory.empty().withValue("rows", ConfigValueFactory.fromAnyRef(logStream.rowsLoaded.toString))
     }

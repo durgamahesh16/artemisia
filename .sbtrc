@@ -1,2 +1,2 @@
 alias boot = ;reload ;project all ;iflast shell
-alias fulltest = ;clean;coverage;test;coverageReport;coverageAggregate
+alias fulltest = ;+clean;+coverage;+test;+coverageReport;+coverageAggregate

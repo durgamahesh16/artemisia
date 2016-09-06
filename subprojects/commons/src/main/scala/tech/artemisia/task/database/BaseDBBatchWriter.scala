@@ -39,8 +39,8 @@ abstract class BaseDBBatchWriter(tableName: String, loadSettings: LoadSetting, d
     dbInterface.connection.prepareStatement(insertSQL)
   }
 
-  protected val errorWriter = new CSVFileWriter(new FileOutputStream(TaskContext.getTaskFile("error.txt")),BasicExportSetting(header = false,
-    '\u0001',quoting = false))
+  protected val errorWriter = new CSVFileWriter(new FileOutputStream(TaskContext.getTaskFile("error.txt")),
+    BasicExportSetting(header = false, delimiter = '\u0001',quoting = false))
 
   def processBatch(batch: Array[Array[String]])
 

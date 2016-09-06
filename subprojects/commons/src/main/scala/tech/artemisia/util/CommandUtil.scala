@@ -20,19 +20,34 @@ object CommandUtil {
     * @param stderr standard error stream
     * @param env environment variables to be used in addition to existing variables
     * @param cwd current working directory
+    * @param obfuscate this specific argument while logging the command esp passwords.
     * @return return code of the command
     */
   def executeCmd(command: Seq[String], stdout: OutputStream = System.out, stderr: OutputStream = System.err
-                 ,env: Map[String, String] = Map(), cwd: Option[File] = None): Int = {
+                 ,env: Map[String, String] = Map(), cwd: Option[File] = None, obfuscate: Seq[Int] = Nil): Int = {
     val cmdLine = new CommandLine(command.head)
     command.tail foreach cmdLine.addArgument
     val executor = new DefaultExecutor()
     cwd foreach executor.setWorkingDirectory
     executor.setStreamHandler(new PumpStreamHandler(stdout, stderr))
-    debug(s"""executing command ${command.mkString(" ")}""")
+    debug(s"""executing command ${obfuscatedCommandString(command, obfuscate)}""")
     executor.execute(cmdLine, (env ++ System.getenv().asScala).asJava)
   }
 
+
+  /**
+    * obfuscate sections of command string
+    * @param command command sequence string
+    * @param sections parts of the command sequence string to obfuscate
+    * @return
+    */
+  def obfuscatedCommandString(command: Seq[String], sections: Seq[Int]) = {
+    val boolList = for (i <- 1 to command.length) yield { sections contains i }
+    command zip boolList map {
+      case (x, true) => "*" * 5
+      case (x, false) => x
+    } mkString " "
+  }
 
   /**
     * get the path of the executable by searching in the path environment variable

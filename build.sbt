@@ -1,6 +1,7 @@
 import Modules._
 import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt.Attributed.data
+import sbt.Keys._
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
 
@@ -18,6 +19,8 @@ lazy val refgen = taskKey[Unit]("Generate settings conf file")
 fork := true // This is required so that setting.file system property is properly set by javaOptions
 
 javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
+
+
 
 javaOptions in Test ++= Seq(
     s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"
@@ -47,6 +50,10 @@ lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"),
     bashScriptExtraDefines += """addJava "-Dsetting.file=${app_home}/../conf/settings.conf"""")
   .settings(libraryDependencies ++= Artemisia.dependencies,
+            libraryDependencies ++= Seq(
+                "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+                "org.scala-lang" % "scala-compiler" % scalaVersion.value
+            ),
           mainClass in Compile := Some("tech.artemisia.core.Main"))
   .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata, hive)
 

@@ -19,7 +19,6 @@ class CommandUtilSpec extends TestSpec {
   }
 
   it must "must executed command" in {
-
     TestUtils.runOnPosix {
       val cmd: Seq[String] = "echo" :: "hello" :: "world" :: Nil
       val stream = new ByteArrayOutputStream()
@@ -27,7 +26,11 @@ class CommandUtilSpec extends TestSpec {
       result must be (0)
       new String(stream.toByteArray).trim must be ("hello world")
     }
+  }
 
+  it must "obsfucate commands when needed" in {
+    val command = "binary" :: "-password" :: "bingo" :: Nil
+    CommandUtil.obfuscatedCommandString(command, Seq(3)) must be ("binary -password *****")
   }
 
 

@@ -1,9 +1,7 @@
 package tech.artemisia.task.hadoop.hive
 
 import java.io.{OutputStream, PrintWriter}
-
 import org.apache.commons.exec.LogOutputStream
-
 import scala.collection.mutable
 
 /**

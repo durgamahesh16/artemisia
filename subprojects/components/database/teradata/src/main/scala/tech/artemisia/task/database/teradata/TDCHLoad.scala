@@ -55,7 +55,7 @@ class TDCHLoad(override val taskName: String, val dBConnection: DBConnection, va
     )
     val settings: Map[String, String] = Map("-targettable" -> targetTable, "-method" -> method) ++ TDCHLoad.generateSourceParams(source, sourceType)
     val (command, env) = tdchHadoopSetting.commandArgs(export = false, connection = dBConnection, settings)
-    CommandUtil.executeCmd(command = command, env = env, stderr = logStream)
+    CommandUtil.executeCmd(command = command, env = env, stderr = logStream, obfuscate = Seq(command.indexOf("-password")+2))
     wrapAsStats {
       ConfigFactory.empty().withValue("rows", ConfigValueFactory.fromAnyRef(logStream.rowsLoaded.toString))
     }

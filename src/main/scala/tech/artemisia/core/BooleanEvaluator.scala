@@ -7,6 +7,7 @@ package tech.artemisia.core
 import java.util
 import com.typesafe.config.{ConfigFactory, ConfigValue}
 import tech.artemisia.util.HoconConfigUtil.Handler
+import java.util.{ArrayList => JavaArrayList}
 import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe
 import scala.tools.reflect.ToolBox
@@ -37,7 +38,7 @@ object BooleanEvaluator {
         case x: util.List[String @unchecked] => {
           x.asScala map { eval[Boolean] } forall { in => in }
         }
-        case x: util.Map[String, util.ArrayList[Any]] @unchecked => {
+        case x: util.Map[String, JavaArrayList[Any]] @unchecked => {
           x.asScala map {
             case ("or", value) => value.asScala map { evalBooleanExpr } exists { in => in }
             case ("and", value) => evalBooleanExpr(value)
@@ -64,7 +65,7 @@ object BooleanEvaluator {
           case Failure(_) => x
         }
         case x: util.List[String @unchecked] => x.asScala map { stringifyBoolExpr } map { in => s"($in)" } mkString " and "
-        case x: util.Map[String, util.ArrayList[Any]] @unchecked => {
+        case x: util.Map[String, JavaArrayList[Any]] @unchecked => {
           x.asScala map {
             case ("or", value) => value.asScala map { stringifyBoolExpr } map { in => s"($in)" } mkString " or "
             case ("and", value) => stringifyBoolExpr(value)
