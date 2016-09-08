@@ -8,8 +8,8 @@ branches:
   - master
 script: sbt fulltest
 after_success:
-- sbt +coveralls
-- sbt +publish
+- sbt coveralls
+- sbt publish
 env:
   global:
   - secure: zNjxLYkhOAdJssBO4juKavktwlSnAav5FbuPTRMsQe67EaVb/NFBvgAm+ZQw16D4nSr+ZO5jOy9tjjXX6JyWohdfOYg572Gi8lFLsJ60i1xXEV7LGU1iwFyPmh3RgBeE6owLeogbXB4xEKq/gkEUdfCZG0mPwfu2n8j91033Rn01sZtD8BLmgO5eoJe6BbqogSl6i/NrViuvHC76CB02zLFY9LRtSK08av2sDdwkjIZOwLfuaqtWE8N6qlouaBqyv0AJ2EEuGTAUo9i8nDAQkV2G7KUgq/ecWRL3tX1XCh5UjyGh4Hf/JO7+n0ogH2kdyglgTd7RtuxRtYKKgf7/Oi0ZLrDGA3AwgqOn3ArXGugP9pSPyDy9XtwTfCbGId0ZlEwcTFg33aIsfJHQL78p3CZpi/bjt5Pz+suFWE62ZeBPsGw1l+sOHd8PL1zXnkOYgFCydlryQx/1SzCNYwMAlBNZoOWfGcJMyOL3Q5wVH2UWdOoBcA5Z/UwhTnMbgDnxRhUdQTfujPHTtWNRwzqJPDnZkTYyhL9deH5jRdtt1Jy0I00r/9adr5XKJnMat137tSTKdMQg8pY+z5EIygDmAqhwFExOBEnpAiDBTuoZLD9eg7dnDGga/gpD+axRToE5oAZD2zp/WVyNIk+d9pmIJ5kM8GdAGMOiaMmbnR1e+Qo=

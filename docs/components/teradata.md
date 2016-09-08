@@ -5,17 +5,18 @@ Teradata
 
 This Component supports exporting loading and executing queries against Teradata database
 
-| Task              | Description                                             |
-|-------------------|---------------------------------------------------------|
-| SQLExecute        | executes DML statements such as Insert/Update/Delete    |
-| SQLRead           | execute select queries and wraps the results in config  |
-| SQLLoad           | load a file into a table                                |
-| SQLExport         | export query results to a file                          |
-| ExportToHDFS      | Export database resultset to HDFS                       |
-| LoadFromHDFS      | Load Table from HDFS                                    |
-| TDCHLoadFromHDFS  | 
- Loads data from HDFS path to Teradata.
-               |
+| Task          | Description                                             |
+|---------------|---------------------------------------------------------|
+| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
+| SQLRead       | execute select queries and wraps the results in config  |
+| SQLLoad       | load a file into a table                                |
+| SQLExport     | export query results to a file                          |
+| ExportToHDFS  | Export database resultset to HDFS                       |
+| LoadFromHDFS  | Load Table from HDFS                                    |
+| TDCHLoad      | 
+ Loads data from HDFS/Hive  into Teradata.
+            |
+| TDCHExtract   | Extract data from Teradata to HDFS/Hive                 |
 
      
 
@@ -397,15 +398,15 @@ The typical task SQLExport configuration is as shown below
 
 
 
-### TDCHLoadFromHDFS:
+### TDCHLoad:
 
 
 #### Description:
 
  
- Loads data from HDFS path to Teradata. The hadoop task nodes directly connect to Teradata nodes (AMPs)
+ Loads data from HDFS/Hive to Teradata. The hadoop task nodes directly connect to Teradata nodes (AMPs)
  and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
- them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradaata
+ them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata
     
 
 #### Configuration Structure:
@@ -413,7 +414,7 @@ The typical task SQLExport configuration is as shown below
 
       {
         Component = "Teradata"
-        Task = "TDCHLoadFromHDFS"
+        Task = "TDCHLoad"
         param =  {
          dsn_[1] = "connection-name"
          dsn_[2] =   {
@@ -424,11 +425,13 @@ The typical task SQLExport configuration is as shown below
            username = "username @required"
         }
          method = "@allowed(batch.insert, internal.fastload) @default(batch.insert)"
-         source-path = "@required @info(source hdfs path)"
+         source = "@required @info(hdfs path or hive table)"
+         source-type = "hive @defualt(hdfs) @allowed(hive, hdfs)"
          target-table = "database.tablename @info(teradata tablename)"
          tdch-settings =   {
            format = "avrofile @default(default)"
            hadoop = "/usr/local/bin/hadoop @optional"
+           hive = "/usr/local/bin/hive @optional"
            libjars = ["/path/hive/conf", "/path/hive/libs/*.jars"]
            misc-options =    {
               foo1 = "bar1"
@@ -467,14 +470,104 @@ The typical task SQLExport configuration is as shown below
        * null-string: string to represent null values
        * quoting: enable or disable quoting. both quote-char and escape-char fields are considered only when quoting is enabled
        * delimiter: delimiter of the textfile
+    * hive: optional path to the hive binary. If not specified the binary will be searched in the PATH variable
     * misc-options: other TDHC arguments to be appended must be defined in this Config object
     * tdch-jar: path to tdch jar file
     * queue-name: scheduler queue where the MR job is submitted
     * num-mappers: num of mappers to be used in the MR job
+ * source: hdfs path or hive tablename depending on the job-type defined
  * dsn: either a name of the dsn or a config-object with username/password and other credentials
  * truncate: truncate target table before load
  * target-table: teradata tablename
- * source-path: hdfs path or hive tablename depending on the job-type defined
+ * source-type: type of the source. currently hive and hdfs are the allowed values
+
+     
+
+
+
+
+### TDCHExtract:
+
+
+#### Description:
+
+ 
+ Extract data from Teradata to HDFS/Hive. The hadoop task nodes directly connect to Teradata nodes (AMPs)
+ and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
+ them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata
+    
+
+#### Configuration Structure:
+
+
+      {
+        Component = "Teradata"
+        Task = "TDCHExtract"
+        param =  {
+         dsn_[1] = "connection-name"
+         dsn_[2] =   {
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
+        }
+         source = "@required @info(tablename or sql query)"
+         source-type = "@default(table) @allowed(table, query)"
+         split-by = "@allowed(hash,partition,amp,value) @default(hash)"
+         target = "@required @info(hdfs path or hive tablename)"
+         target-type = "@default(hdfs) @allowed(hive, hdfs)"
+         tdch-settings =   {
+           format = "avrofile @default(default)"
+           hadoop = "/usr/local/bin/hadoop @optional"
+           hive = "/usr/local/bin/hive @optional"
+           libjars = ["/path/hive/conf", "/path/hive/libs/*.jars"]
+           misc-options =    {
+              foo1 = "bar1"
+              foo2 = "bar2"
+           }
+           num-mappers = "5 @default(10)"
+           queue-name = "public @default(default)"
+           tdch-jar = "/path/teradata-connector.jar"
+           text-setting =    {
+              delimiter = "| @default(,)"
+              escape-char = "\\"
+              quote-char = "\""
+              quoting = "no @type(boolean)"
+           }
+        }
+      }
+     }
+
+
+#### Field Description:
+
+ * tdch-setting:
+    * format: format of the file. Following are the allowed values
+        * textfile
+        * avrofile
+        * rcfile
+        * orcfile
+        * sequenceFile
+    * lib-jars: list of files and directories that will be added to libjars argument and set in HADOOP_CLASSPATH environment variable.Usually the hive conf and hive lib jars are added here. The path accept java glob pattern
+    * hadoop: optional path to the hadoop binary. If not specified the binary will be searched in the PATH variable
+    * text-setting:
+       * quote-char: character used for quoting
+       * escape-char: escape character to be used. forward slash by default
+       * null-string: string to represent null values
+       * quoting: enable or disable quoting. both quote-char and escape-char fields are considered only when quoting is enabled
+       * delimiter: delimiter of the textfile
+    * hive: optional path to the hive binary. If not specified the binary will be searched in the PATH variable
+    * misc-options: other TDHC arguments to be appended must be defined in this Config object
+    * tdch-jar: path to tdch jar file
+    * queue-name: scheduler queue where the MR job is submitted
+    * num-mappers: num of mappers to be used in the MR job
+ * source: defines the source table or query depending on the defined source type
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * truncate: if target is HDFS directory it is deleted. If target is a hive table it is dropped and recreated
+ * split-by: defines how the source table/query is split. allowed values being hash, partition, amp
+ * target-type: defines if the target is a HDFS path or a Hive table
+ * source-type: source can be either a table or a sql query. this field is used define source type
 
      
 

@@ -79,4 +79,30 @@ object DBUtil {
   }
 
 
+  /**
+    * convert a ResultSet object to list of type T.
+    * if two or more columns are to be extracted type T to be Tuple (recommended)
+    * the result object is automatically closed
+    * @param resultSet
+    * @tparam T
+    */
+  abstract class ResultSetIterator[T](val resultSet: ResultSet) extends Iterator[T] {
+
+    override def hasNext: Boolean = {
+      resultSet.next() match{
+        case true => true
+        case false => resultSet.close(); println("result closed") ; false
+      }
+    }
+
+    override def next(): T = generateRow
+
+    /**
+      * this method is to be implemented by the concrete class to generate each row of the iterator
+      * @return
+      */
+    def generateRow: T
+
+  }
+
  }

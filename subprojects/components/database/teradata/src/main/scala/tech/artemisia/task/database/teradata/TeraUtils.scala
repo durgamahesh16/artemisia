@@ -1,7 +1,7 @@
 package tech.artemisia.task.database.teradata
 
 import tech.artemisia.core.AppLogger._
-import tech.artemisia.task.database.DBInterface
+import tech.artemisia.task.database.{DBInterface, DBUtil}
 
 /**
   * Created by chlr on 7/31/16.
@@ -38,6 +38,40 @@ object TeraUtils {
     else {
       loadSetting.copy(batchSize = 1000, mode = "default")
     }
+  }
+
+
+  /**
+    * fetch table column metadata details
+    * @param databaseName databasename
+    * @param tableName target table name
+    * @param dBInterface Teradata DBInterface instance
+    * @return
+    */
+  def tableMetadata(databaseName: String, tableName: String, dBInterface: DBInterface) = {
+    val sql =
+      s"""
+        |SELECT
+        |ROW_NUMBER() over(order by ColumnId) as row_id
+        |,TRIM(ColumnName)
+        |,ColumnType
+        |,(CASE
+        |  WHEN Columntype = 'DA' THEN 15
+        |  WHEN ColumnType = 'D' THEN (decimaltotaldigits + 5)
+        |  WHEN ColumnType IN ('BV','PM','SZ') THEN ColumnLength
+        |  WHEN ColumnType IN ('TS','TZ') THEN 35
+        |  WHEN ColumnType IN ('I ','I2','I1','I8','F') THEN 25 ELSE ColumnLength END ) AS byteLength
+        |,TRIM(SUBSTR(ColumnName,1,23))||'_'||CAST(row_id as Varchar(5))||'_' as SafeColumnName
+        |,Nullable
+        |FROM DBC.Columns c WHERE DatabaseName = '$databaseName' AND TableName = '$tableName'  ORDER BY ColumnId
+      """.stripMargin
+    val rs = dBInterface.query(sql = sql, printSQL = false)
+    val resultSetIterator = new DBUtil.ResultSetIterator[(String, String, Short, String, String)](rs) {
+      override def generateRow: (String, String, Short, String, String) = {
+        (resultSet.getString(2), resultSet.getString(3), resultSet.getShort(4), resultSet.getString(5), resultSet.getString(6))
+      }
+    }
+    resultSetIterator.toList
   }
 
 
