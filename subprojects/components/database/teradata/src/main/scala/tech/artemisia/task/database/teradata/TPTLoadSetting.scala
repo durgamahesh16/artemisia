@@ -57,20 +57,17 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
   }
 
 
-  def parseAttributeNodes(node: Config): Map[String,(String, String)] = {
+  def parseAttributeNodes(node: Config) = {
     val map = node.root.keySet().asScala map {
       x => node.as[ConfigValue](x).valueType() match {
         case ConfigValueType.STRING => x -> ("VARCHAR", node.as[String](x))
         case ConfigValueType.OBJECT =>
           val valueNode = node.as[Config](x)
-          valueNode.as[String]("type") -> valueNode.as[String]("value")
+          x -> (valueNode.as[String]("type") -> valueNode.as[String]("value"))
       }
     }
     map.toMap
   }
-
-
-
 
 }
 

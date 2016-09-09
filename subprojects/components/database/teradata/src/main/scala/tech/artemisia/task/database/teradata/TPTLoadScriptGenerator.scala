@@ -1,34 +1,50 @@
 package tech.artemisia.task.database.teradata
 
 import tech.artemisia.task.settings.DBConnection
+import tech.artemisia.util.DocStringProcessor.StringUtil
 
 /**
   * Created by chlr on 9/6/16.
   */
 
-class TPTLoadScriptGenerator (val database: String ,val targetTable: String, loadSetting: TPTLoadSetting, dbConnection: DBConnection) {
+class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadSetting, dbConnection: DBConnection) {
 
+  protected val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
 
-  private val defaultLoadOperAtts = Map(
+  protected lazy val tableMetadata = TeraUtils.tableMetadata(tptLoadConfig.databaseName, tptLoadConfig.tableName, dbInterface)
+
+  private val loadOperAtts = Map(
     "TRACELEVEL" -> ("VARCHAR" -> "None"),
     "PACK" -> ("INTEGER" -> "2000"),
     "PACKMAXIMUM" -> ("VARCHAR" -> "No"),
     "ERRORLIMIT" -> ("INTEGER" -> "2000"),
-    "DropErrorTable" -> ("VARCHAR" -> "Yes")
+    "DropErrorTable" -> ("VARCHAR" -> "Yes"),
+    "ERRORTABLE1" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET"),
+    "ERRORTABLE2" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV"),
+    "WORKTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT"),
+    "TARGETTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}"),
+    "LOGTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG")
   )
 
 
-  private val defaultDataConnAttrs = Map(
+  private val dataConnAttrs = Map(
+    "OPENMODE" -> ("VARCHAR", "Read"),
+    "TEXTDELIMITERHEX" -> ("VARCHAR" -> Integer.toHexString(loadSetting.delimiter.toInt)),
+    "DIRECTORYPATH" -> ("VARCHAR" -> tptLoadConfig.directory),
+    "NAMEDPIPETIMEOUT" -> ("INTEGER" -> "120"),
+    "FILENAME" -> ("VARCHAR" -> tptLoadConfig.fileName),
+    "REPLACEMENTUTF8CHAR" -> ("VARCHAR" -> " "),
     "INDICATORMODE" -> ("VARCHAR","N"),
     "FORMAT" -> ("VARCHAR", "DELIMITED"),
     "VALIDUTF8" -> ("VARCHAR", "UTF8"),
-    "BUFFERSIZE" -> ("INTEGER", "524288")
+    "BUFFERSIZE" -> ("INTEGER", "524288"),
+    "ROWERRFILENAME" -> ("VARCHAR", tptLoadConfig.errorFile)
   )
 
-  private val _script =
+  def tptScript =
     s"""
        |USING CHARACTER SET UTF8
-       |DEFINE JOB load_$targetTable (
+       |DEFINE JOB load_${tptLoadConfig.tableName} (
        |    DEFINE OPERATOR tpt_writer
        |    TYPE LOAD
        |    SCHEMA *
@@ -37,21 +53,18 @@ class TPTLoadScriptGenerator (val database: String ,val targetTable: String, loa
        |        VARCHAR UserName,
        |        VARCHAR UserPassword,
        |        VARCHAR TdpId,
-       |        $loadOperatorAttributes
+       |        ${loadOperatorAttributes.ident(8)}
        |    );
        |    DEFINE SCHEMA W_0_sc_update_chlr_test2
        |    (
-       |        $schemaDefinition
-       |    );
-       |    DEFINE SCHEMA Boolean_conversion
-       |    (
+       |        ${schemaDefinition.ident(8)}
        |    );
        |    DEFINE OPERATOR tpt_reader
        |    TYPE DATACONNECTOR PRODUCER
-       |    SCHEMA W_0_sc_load_$targetTable
+       |    SCHEMA W_0_sc_load_${tptLoadConfig.tableName}
        |    ATTRIBUTES
        |    (
-       |        $dataConnectorAttributes
+       |        ${dataConnectorAttributes.ident(8)}
        |    );
        |    DEFINE OPERATOR DDL_OPERATOR ()
        |    DESCRIPTION 'DDL Operator'
@@ -66,11 +79,11 @@ class TPTLoadScriptGenerator (val database: String ,val targetTable: String, loa
        |    Step DROP_TABLE
        |    (
        |        APPLY
-       |        'drop table $targetTable;',
-       |        'drop table ${targetTable}_WT;',
-       |        'drop table ${targetTable}_ET;',
-       |        'drop table ${targetTable}_UV;',
-       |        'drop table ${targetTable}_LG;'
+       |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName};',
+       |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT;',
+       |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET;',
+       |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV;',
+       |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG;'
        |        TO OPERATOR (DDL_OPERATOR);
        |    );
        |    Step LOAD_TABLE
@@ -78,9 +91,9 @@ class TPTLoadScriptGenerator (val database: String ,val targetTable: String, loa
        |        APPLY
        |        (
        |            'INSERT INTO sandbox.chlr_test2 (
-       |                   $insertColumnList
+       |                   ${insertColumnList.ident(19)}
        |            ) VALUES (
-       |                   $valueColumnList
+       |                   ${valueColumnList.ident(19)}
        |            );'
        |        )
        |        TO OPERATOR
@@ -94,7 +107,7 @@ class TPTLoadScriptGenerator (val database: String ,val targetTable: String, loa
        |            )
        |        )
        |          SELECT
-       |                  $selectColumnList
+       |                  ${selectColumnList.ident(19)}
        |          FROM OPERATOR(
        |              tpt_reader[1]
        |          );
@@ -103,18 +116,35 @@ class TPTLoadScriptGenerator (val database: String ,val targetTable: String, loa
      """.stripMargin
 
 
-  def schemaDefinition = {}
+  def schemaDefinition = tableMetadata map { x => s""""${x._4}" VARCHAR(${x._3})""" } mkString "\n,"
 
-  def loadOperatorAttributes = {}
+  def loadOperatorAttributes = {
+    loadOperAtts ++ loadSetting.loadOperatorAttrs map {
+      case (attrName, (attrType, attrValue))
+        if attrType.toUpperCase.trim == "VARCHAR" => s"VARCHAR $attrName = '$attrValue'"
+      case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
+    } mkString ",\n"
+  }
 
-  def dataConnectorAttributes = {}
+  def dataConnectorAttributes = {
+    dataConnAttrs ++ loadSetting.dataConnectorAttrs map {
+      case (attrName, (attrType, attrValue))
+        if attrType.toUpperCase.trim == "VARCHAR" => s"VARCHAR $attrName = '$attrValue'"
+      case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
+    } mkString ",\n"
+  }
 
-  def insertColumnList = {}
+  def insertColumnList = tableMetadata map { x => s""""${x._1}""""} mkString "\n,"
 
-  def valueColumnList = {}
+  def valueColumnList = tableMetadata map { x => s":${x._4}"} mkString "\n,"
 
-  def selectColumnList = {}
-
-
+  def selectColumnList = {
+      tableMetadata map { x => x._5.trim.toUpperCase flatMap {
+        case 'N' => s""""${x._4}" as "${x._4}""""
+        case _ =>
+          s"""CASE WHEN "${x._4}" ='<!N!>' THEN NULL ELSE "${x._4}" END as "${x._4}"""".stripMargin
+      }
+    } mkString ",\n"
+  }
 
 }
