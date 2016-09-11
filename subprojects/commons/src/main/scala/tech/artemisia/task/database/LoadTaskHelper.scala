@@ -44,7 +44,7 @@ trait LoadTaskHelper extends TaskLike {
     "dsn" -> "either a name of the dsn or a config-object with username/password and other credentials",
     "destination-table" -> "destination table to load",
     "location" -> "path pointing to the source file",
-    s"load" -> BasicLoadSetting.fieldDescription
+    "load" -> BasicLoadSetting.fieldDescription
   )
 
   override def defaultConfig: Config = ConfigFactory.empty()

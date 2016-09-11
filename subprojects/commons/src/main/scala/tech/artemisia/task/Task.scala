@@ -45,14 +45,17 @@ abstract class Task(val taskName: String) {
 
   /**
    * get File object for `fileName`
-   *
+   * creates the file if the file doesn't exists
    * returns the java.io.File object for a give file `fileName` located within the working directory of the task.
    *
    * @param fileName name of the file to accessed
    * @return an instance of java.io.File representing the requested file.
    */
   protected def getFileHandle(fileName: String) = {
-    new File(FileSystemUtil.joinPath(TaskContext.workingDir.toString,taskName),fileName)
+    val file = new File(FileSystemUtil.joinPath(TaskContext.workingDir.toString,taskName),fileName)
+    Files.createParentDirs(file)
+    Files.touch(file)
+    file
   }
 
   /**

@@ -1,7 +1,11 @@
 package tech.artemisia.task.database.teradata
 
+import java.io.ByteArrayOutputStream
+import java.sql.SQLException
+import tech.artemisia.util.CommandUtil._
 import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.database.{DBInterface, DBUtil}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by chlr on 7/31/16.
@@ -24,6 +28,23 @@ object TeraUtils {
     dbInterface.execute(s"DROP TABLE $tableName", printSQL = false)
     dbInterface.execute(ct_stmt, printSQL = false)
   }
+
+
+  /**
+    * truncate the table and if truncate fails due to fastload lock drop and re-create the table.
+    * @param tableName name of the table.
+    * @param dBInterface
+    */
+  def truncateElseDrop(tableName: String)(implicit dBInterface: DBInterface): Unit = {
+    info("attempting to truncate table")
+    Try(dBInterface.execute(s"DELETE FROM $tableName")) match {
+      case Success(_) => ()
+      case Failure(th: SQLException)
+        if th.getErrorCode == 2652  => dropRecreateTable(tableName)
+      case Failure(x) => throw x
+    }
+  }
+
 
   /**
     *
@@ -72,6 +93,23 @@ object TeraUtils {
       }
     }
     resultSetIterator.toList
+  }
+
+  /**
+    *
+    * This is implemented by running twbstat command and parsing the output.
+    * @param jobName tpt job name
+    * @return
+    */
+  def detectTPTRun(jobName: String): Seq[String] = {
+    val stream = new ByteArrayOutputStream()
+    assert(executeCmd(Seq("twbstat"), stdout =stream) == 0, "twbstat command failed. ensure TPT is properly installed")
+    val content = new String(stream.toByteArray)
+    val rgx = s"$jobName-[\\d]+".r
+    content.split(System.lineSeparator())
+      .map(_.trim)
+      .map(rgx.findFirstMatchIn(_))
+      .filter(_.isDefined)
   }
 
 

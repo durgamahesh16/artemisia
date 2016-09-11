@@ -3,11 +3,11 @@ package tech.artemisia.task
 import java.io.File
 import java.nio.file.Path
 
-import tech.artemisia.util.HoconConfigUtil.Handler
 import com.google.common.io.Files
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.core.Keywords
 import tech.artemisia.util.FileSystemUtil.joinPath
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 
 /**
@@ -48,7 +48,7 @@ private[artemisia] object TaskContext {
   }
 
   /**
-    * creates a file associated with a task in the working directory.
+    * creates a file associated with a task in the working directory of the job.
     * A new directory with the name of the task is created in the working directory if it doesn't already exists
     * The file is created inside this task directory.
     * @param fileName name of the file
@@ -60,6 +60,20 @@ private[artemisia] object TaskContext {
       taskName getOrElse Thread.currentThread().getName))
     parent.mkdirs()
     new File(parent, fileName)
+  }
+
+
+  /**
+    * creates a directory associated with a task in the working directory of the job.
+    *
+    * @param dirName name of the directory to be created.
+    * @param taskName optional taskname. If the taskName is not specified the current thread name is used.
+    * @return
+    */
+  def getTaskDirectory(dirName: String, taskName: Option[String] = None) = {
+    val dir = new File(joinPath(workingDir.toString,taskName getOrElse Thread.currentThread().getName, dirName))
+    dir.mkdirs()
+    dir
   }
 
   def getDefaults(component: String, task: String) = {

@@ -4,8 +4,11 @@ import java.io._
 import java.net.URI
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
+
+import org.apache.commons.lang.SystemUtils
 import tech.artemisia.core.Keywords
-  import scala.collection.mutable
+
+import scala.collection.mutable
 import scala.io.Source
 
 /**
@@ -174,6 +177,17 @@ object FileSystemUtil {
     mergeFileStreams(files) -> files.map(_.length).sum
   }
 
+
+  /**
+    * create named pipe. This is method is supported only in OSX and Linux
+    * @param directory
+    * @param file
+    * @return
+    */
+  def createNamedPipe(file: String) = {
+    assert(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_LINUX, "creating pipes is supported only in Mac OSX and Linux")
+    CommandUtil.executeCmd(Seq("mkfifo", file))
+  }
 
 
   /**

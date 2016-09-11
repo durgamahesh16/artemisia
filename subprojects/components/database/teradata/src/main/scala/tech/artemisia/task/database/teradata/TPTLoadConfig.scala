@@ -10,6 +10,5 @@ package tech.artemisia.task.database.teradata
   * @param tableName
   * @param directory
   * @param fileName
-  * @param errorFile
   */
-case class TPTLoadConfig(databaseName: String, tableName: String, directory: String, fileName: String, errorFile: String)
+case class TPTLoadConfig(databaseName: String, tableName: String, directory: String, fileName: String)

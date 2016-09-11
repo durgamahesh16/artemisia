@@ -38,13 +38,13 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
     "FORMAT" -> ("VARCHAR", "DELIMITED"),
     "VALIDUTF8" -> ("VARCHAR", "UTF8"),
     "BUFFERSIZE" -> ("INTEGER", "524288"),
-    "ROWERRFILENAME" -> ("VARCHAR", tptLoadConfig.errorFile)
+    "ROWERRFILENAME" -> ("VARCHAR", loadSetting.errorFile)
   )
 
   def tptScript =
     s"""
        |USING CHARACTER SET UTF8
-       |DEFINE JOB load_${tptLoadConfig.tableName} (
+       |DEFINE JOB load_${tptLoadConfig.databaseName}_${tptLoadConfig.tableName} (
        |    DEFINE OPERATOR tpt_writer
        |    TYPE LOAD
        |    SCHEMA *
@@ -55,13 +55,13 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
        |        VARCHAR TdpId,
        |        ${loadOperatorAttributes.ident(8)}
        |    );
-       |    DEFINE SCHEMA W_0_sc_update_chlr_test2
+       |    DEFINE SCHEMA W_0_sc_load_${tptLoadConfig.databaseName}_${tptLoadConfig.tableName}
        |    (
        |        ${schemaDefinition.ident(8)}
        |    );
        |    DEFINE OPERATOR tpt_reader
        |    TYPE DATACONNECTOR PRODUCER
-       |    SCHEMA W_0_sc_load_${tptLoadConfig.tableName}
+       |    SCHEMA W_0_sc_load_${tptLoadConfig.databaseName}_${tptLoadConfig.tableName}
        |    ATTRIBUTES
        |    (
        |        ${dataConnectorAttributes.ident(8)}
@@ -79,7 +79,6 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
        |    Step DROP_TABLE
        |    (
        |        APPLY
-       |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName};',
        |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT;',
        |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET;',
        |        'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV;',
@@ -90,7 +89,7 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
        |    (
        |        APPLY
        |        (
-       |            'INSERT INTO sandbox.chlr_test2 (
+       |            'INSERT INTO ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName} (
        |                   ${insertColumnList.ident(19)}
        |            ) VALUES (
        |                   ${valueColumnList.ident(19)}

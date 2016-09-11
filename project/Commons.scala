@@ -9,6 +9,7 @@ object Commons {
      "org.apache.commons" % "commons-exec" % "1.3",
      "commons-io" % "commons-io" % "2.5",
      "org.ostermiller" % "utils" % "1.07.00",
+     "commons-lang" % "commons-lang" % "2.6",
      "org.apache.hadoop" % "hadoop-client" % "2.7.2" % "provided",
      "org.apache.hadoop" % "hadoop-hdfs" % "2.7.2" % "test",
      "org.apache.hadoop" % "hadoop-common" % "2.7.2" % "test",

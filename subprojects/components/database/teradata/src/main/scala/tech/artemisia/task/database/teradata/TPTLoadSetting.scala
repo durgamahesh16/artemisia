@@ -1,11 +1,10 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.{Config, ConfigValue, ConfigValueFactory, ConfigValueType}
-import tech.artemisia.task.ConfigurationNode
+import tech.artemisia.task.{ConfigurationNode, TaskContext}
 import tech.artemisia.task.database.BasicLoadSetting
 import tech.artemisia.task.settings.LoadSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
-
 import scala.collection.JavaConverters._
 
 /**
@@ -20,6 +19,7 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
                           override val batchSize: Int = 100,
                           override val errorTolerance: Option[Double] = None,
                           errorLimit: Int = 2000,
+                          errorFile: String = TaskContext.getTaskFile("error.txt").toString,
                           loadOperatorAttrs: Map[String,(String,String)] = Map(),
                           dataConnectorAttrs: Map[String,(String,String)] = Map()) extends
   LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, "fastload" ,batchSize, errorTolerance) {
@@ -31,6 +31,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
 
   override val structure = BasicLoadSetting.structure
     .withValue("error-limit", ConfigValueFactory.fromAnyRef("1000 @default(2000)"))
+    .withValue("error-file", ConfigValueFactory.fromAnyRef("/var/path/error.txt @optional"))
     .withoutPath("mode")
 
   override val fieldDescription = BasicLoadSetting.fieldDescription -- Seq("mode", "batch-size")
@@ -51,6 +52,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
       loadSetting.batchSize,
       loadSetting.errorTolerance,
       config.as[Int]("error-limit"),
+      config.getAs[String]("error-file").getOrElse(TaskContext.getTaskFile("error.txt").toString),
       parseAttributeNodes(config.as[Config]("load-attrs")),
       parseAttributeNodes(config.as[Config]("dataconnector-attrs"))
     )

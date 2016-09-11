@@ -14,7 +14,7 @@ object CommandUtil {
 
   /**
     *
-    * Execute commands
+    * Execute command
     * @param command arguments to the executable
     * @param stdout standard output stream
     * @param stderr standard error stream
@@ -31,6 +31,29 @@ object CommandUtil {
     cwd foreach executor.setWorkingDirectory
     executor.setStreamHandler(new PumpStreamHandler(stdout, stderr))
     debug(s"""executing command ${obfuscatedCommandString(command, obfuscate)}""")
+    executor.execute(cmdLine, (env ++ System.getenv().asScala).asJava)
+  }
+
+
+  /**
+    *
+    * Execute command within a shell. the shell used in /bin/sh.
+    * @param command arguments to the executable
+    * @param stdout standard output stream
+    * @param stderr standard error stream
+    * @param env environment variables to be used in addition to existing variables
+    * @param cwd current working directory
+    * @param obfuscate this specific argument while logging the command esp passwords.
+    * @return return code of the command
+    */
+  def executeShellCommand(command: String, stdout: OutputStream = System.out, stderr: OutputStream = System.err
+                          ,env: Map[String, String] = Map(), cwd: Option[File] = None, obfuscate: Seq[Int] = Nil) = {
+    val cmdLine = CommandLine.parse("/bin/sh")
+    cmdLine.addArguments(Array("-c", command), false)
+    val executor  = new DefaultExecutor()
+    cwd foreach executor.setWorkingDirectory
+    executor.setStreamHandler(new PumpStreamHandler(stdout, stderr))
+    debug(s"executing command: $command")
     executor.execute(cmdLine, (env ++ System.getenv().asScala).asJava)
   }
 
