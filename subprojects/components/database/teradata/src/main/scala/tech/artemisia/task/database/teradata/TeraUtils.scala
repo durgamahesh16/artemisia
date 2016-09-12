@@ -108,8 +108,7 @@ object TeraUtils {
     val rgx = s"$jobName-[\\d]+".r
     content.split(System.lineSeparator())
       .map(_.trim)
-      .map(rgx.findFirstMatchIn(_))
-      .filter(_.isDefined)
+      .filter(rgx.findFirstMatchIn(_).isDefined)
   }
 
 

@@ -13,7 +13,8 @@ import tech.artemisia.util.FileSystemUtil.{FileEnhancer, _}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future, Promise}
 
 
 /**
@@ -62,18 +63,33 @@ class TPTLoadFromFile(override val taskName: String
   }
 
   override protected[task] def work(): Config = {
-    val textCmd = s"cat $location > $dataPipe"
-    val tptCommand = Seq(tbuildBin, "-f", tptScriptFile.toString, "-h", "128M", "-j", tableName,"-r",
-      TaskContext.workingDir.toString, "-r", tptCheckpointDir, "-R", "0", "-z", "0")
-    val (writer, reader) = Future{executeShellCommand(textCmd)} -> Future{executeCmd(tptCommand)}
-    for(writerResult <- writer; readerResult <- reader)
-
+    val combinedFuture = TPTLoadFromFile.monitor(readerFuture, writerFuture)
+    Await.result(combinedFuture, Duration.Inf)
     ConfigFactory.empty()
   }
 
   override protected[task] def teardown(): Unit = {
     new File(dataPipe).delete()
   }
+
+
+  def readerFuture = {
+    val textCmd = s"cat $location > $dataPipe"
+    Future {
+      val ret = executeShellCommand(textCmd)
+      assert(ret == 0, s"command $textCmd failed with return code of $ret")
+    }
+  }
+
+  def writerFuture = {
+    val tptCommand = Seq(tbuildBin, "-f", tptScriptFile.toString, "-h", "128M", "-j", tableName,"-r",
+      TaskContext.workingDir.toString, "-r", tptCheckpointDir, "-R", "0", "-z", "0")
+    Future {
+      val ret = executeCmd(tptCommand)
+      assert(ret == 0, s"command ${tptCommand.mkString(" ")} failed with return code $ret")
+    }
+  }
+
 }
 
 object TPTLoadFromFile extends LoadTaskHelper {
@@ -107,5 +123,24 @@ object TPTLoadFromFile extends LoadTaskHelper {
   override def defaultPort: Int = 1025
 
   override def supportedModes: Seq[String] = Seq("fastload", "default", "auto")
+
+
+  /**
+    * takes in reader Future and writer Future and provides a new Future that holds the tuple
+    * of the reader and writer Future. this combined future fails fast. ie if either the reader
+    * or the writer future fails the resultant future also fails immediately and doesnt wait for the
+    * other future to resolve.
+    * @param readerFuture
+    * @param writerFuture
+    * @return
+    */
+  def monitor(readerFuture: Future[Unit], writerFuture: Future[Unit]): Future[(Unit,Unit)] = {
+    val promise = Promise[(Unit,Unit)]
+    readerFuture onFailure { case th if !promise.isCompleted =>  promise.failure(th) }
+    writerFuture onFailure { case th if !promise.isCompleted => promise.failure(th) }
+    val res = readerFuture zip writerFuture
+    promise.completeWith(res).future
+  }
+
 
 }

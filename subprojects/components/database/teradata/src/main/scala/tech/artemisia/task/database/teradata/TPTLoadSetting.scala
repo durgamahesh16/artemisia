@@ -1,10 +1,12 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.{Config, ConfigValue, ConfigValueFactory, ConfigValueType}
+import tech.artemisia.inventory.exceptions.InvalidSettingException
 import tech.artemisia.task.{ConfigurationNode, TaskContext}
 import tech.artemisia.task.database.BasicLoadSetting
 import tech.artemisia.task.settings.LoadSetting
 import tech.artemisia.util.HoconConfigUtil.Handler
+
 import scala.collection.JavaConverters._
 
 /**
@@ -66,6 +68,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
         case ConfigValueType.OBJECT =>
           val valueNode = node.as[Config](x)
           x -> (valueNode.as[String]("type") -> valueNode.as[String]("value"))
+        case _ => throw new InvalidSettingException(s"operator attributes $x can only either be a string or config object")
       }
     }
     map.toMap
