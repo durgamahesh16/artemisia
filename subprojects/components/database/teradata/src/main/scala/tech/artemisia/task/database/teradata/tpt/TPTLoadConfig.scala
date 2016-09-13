@@ -1,4 +1,4 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tpt
 
 /**
   * Created by chlr on 9/8/16.

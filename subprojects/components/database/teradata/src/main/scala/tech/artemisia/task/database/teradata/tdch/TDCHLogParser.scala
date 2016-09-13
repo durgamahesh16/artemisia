@@ -1,6 +1,7 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import java.io.OutputStream
+
 import tech.artemisia.inventory.io.OutputLogParser
 
 /**

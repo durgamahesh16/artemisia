@@ -1,4 +1,4 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import com.typesafe.config.Config
 import tech.artemisia.task.Task

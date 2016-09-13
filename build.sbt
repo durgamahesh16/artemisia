@@ -20,7 +20,9 @@ fork := true // This is required so that setting.file system property is properl
 
 javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
 
+stage in all <<= (stage in all) dependsOn refgen
 
+stage in all <<= (stage in all) dependsOn docgen
 
 javaOptions in Test ++= Seq(
     s"-Dsetting.file="+baseDirectory.value / "subprojects/commons/src/test/resources/settings.conf"

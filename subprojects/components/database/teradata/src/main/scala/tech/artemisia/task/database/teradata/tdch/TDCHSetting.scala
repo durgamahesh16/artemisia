@@ -1,4 +1,4 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import java.io.File
 import java.nio.file.Paths
@@ -6,8 +6,8 @@ import java.nio.file.Paths
 import com.typesafe.config.{Config, ConfigFactory}
 import tech.artemisia.task.ConfigurationNode
 import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.util.{CommandUtil, FileSystemUtil}
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.{CommandUtil, FileSystemUtil}
 
 
 /**

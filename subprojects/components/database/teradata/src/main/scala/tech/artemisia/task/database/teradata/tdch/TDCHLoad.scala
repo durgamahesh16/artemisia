@@ -1,8 +1,9 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import java.sql.SQLException
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue, ConfigValueFactory}
+import tech.artemisia.task.database.teradata._
 import tech.artemisia.task.database.{DBInterface, DBUtil}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskLike}
@@ -144,10 +145,7 @@ object TDCHLoad extends TaskLike {
     )
   }
 
-  override val info: String =
-    """
-      | Loads data from HDFS/Hive  into Teradata.
-    """.stripMargin
+  override val info: String = "Loads data from HDFS/Hive  into Teradata"
 
   override val desc: String =
     """

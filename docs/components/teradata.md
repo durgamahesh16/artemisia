@@ -5,18 +5,18 @@ Teradata
 
 This Component supports exporting loading and executing queries against Teradata database
 
-| Task          | Description                                             |
-|---------------|---------------------------------------------------------|
-| SQLExecute    | executes DML statements such as Insert/Update/Delete    |
-| SQLRead       | execute select queries and wraps the results in config  |
-| SQLLoad       | load a file into a table                                |
-| SQLExport     | export query results to a file                          |
-| ExportToHDFS  | Export database resultset to HDFS                       |
-| LoadFromHDFS  | Load Table from HDFS                                    |
-| TDCHLoad      | 
- Loads data from HDFS/Hive  into Teradata.
-            |
-| TDCHExtract   | Extract data from Teradata to HDFS/Hive                 |
+| Task             | Description                                             |
+|------------------|---------------------------------------------------------|
+| SQLExecute       | executes DML statements such as Insert/Update/Delete    |
+| SQLRead          | execute select queries and wraps the results in config  |
+| SQLLoad          | load a file into a table                                |
+| SQLExport        | export query results to a file                          |
+| ExportToHDFS     | Export database resultset to HDFS                       |
+| LoadFromHDFS     | Load Table from HDFS                                    |
+| TDCHLoad         | Loads data from HDFS/Hive  into Teradata                |
+| TDCHExtract      | Extract data from Teradata to HDFS/Hive                 |
+| TPTLoadFromFile  | Load data from Local file to Teradata using TPT         |
+| TPTLoadFromHDFS  | Load data to Teradata from HDFS                         |
 
      
 
@@ -568,6 +568,151 @@ The typical task SQLExport configuration is as shown below
  * split-by: defines how the source table/query is split. allowed values being hash, partition, amp
  * target-type: defines if the target is a HDFS path or a Hive table
  * source-type: source can be either a table or a sql query. this field is used define source type
+
+     
+
+
+
+
+### TPTLoadFromFile:
+
+
+#### Description:
+
+ 
+
+    
+
+#### Configuration Structure:
+
+
+      {
+        Component = "Teradata"
+        Task = "TPTLoadFromFile"
+        param =  {
+         destination-table = "target_table"
+         dsn_[1] = "my_conn @info(dsn name defined in connection node)"
+         dsn_[2] =   {
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
+        }
+         load =   {
+           batch-size = "200 @default(100)"
+           delimiter = "'|' @default(',') @type(char)"
+           error-file = "/var/path/error.txt @optional"
+           error-limit = "1000 @default(2000)"
+           error-tolerence = "0.57 @default(2) @type(double,0,1)"
+           escapechar = "\" @default(\\) @type(char)"
+           header = "no @default(false) @type(boolean)"
+           load-path = "/var/tmp/file.txt @required"
+           mode = "default @default(default) @type(string)"
+           quotechar = "\" @default('\"') @type(char)"
+           quoting = "no @default(false) @type(boolean)"
+           skip-lines = "0 @default(0) @type(int)"
+           truncate = "yes @type(boolean)"
+        }
+      }
+     }
+
+
+#### Field Description:
+
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * destination-table: destination table to load
+ * location: path pointing to the source file
+ * load:
+    * skip-lines: number of lines to skip in he table
+    * quotechar: character to be used for quoting
+    * truncate: truncate the target table before loading data
+    * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
+    * load-path: path to load from (eg: /var/tmp/input.txt)
+    * mode: mode of loading the table
+    * header: boolean field to enable/disable headers
+    * escapechar: escape character used in the file
+    * quoting: boolean field to indicate if the file is quoted.
+    * delimiter: delimiter of the file
+
+     
+
+
+
+
+### TPTLoadFromHDFS:
+
+
+#### Description:
+
+ 
+
+    
+
+#### Configuration Structure:
+
+
+      {
+        Component = "Teradata"
+        Task = "TPTLoadFromHDFS"
+        param =  {
+         destination-table = "target_table"
+         dsn_[1] = "my_conn @info(dsn name defined in connection node)"
+         dsn_[2] =   {
+           database = "db @required"
+           host = "db-host @required"
+           password = "password @required"
+           port = "1025 @default(1025)"
+           username = "username @required"
+        }
+         hdfs =   {
+           cli-binary = "hdfs @default(hadoop) @info(use either hadoop or hdfs)"
+           cli-mode = "yes @default(yes)"
+           codec = "gzip"
+           location = "/var/tmp/input.txt"
+        }
+         load =   {
+           batch-size = "200 @default(100)"
+           delimiter = "'|' @default(',') @type(char)"
+           error-file = "/var/path/error.txt @optional"
+           error-limit = "1000 @default(2000)"
+           error-tolerence = "0.57 @default(2) @type(double,0,1)"
+           escapechar = "\" @default(\\) @type(char)"
+           header = "no @default(false) @type(boolean)"
+           load-path = "/var/tmp/file.txt @required"
+           mode = "default @default(default) @type(string)"
+           quotechar = "\" @default('\"') @type(char)"
+           quoting = "no @default(false) @type(boolean)"
+           skip-lines = "0 @default(0) @type(int)"
+           truncate = "yes @type(boolean)"
+        }
+      }
+     }
+
+
+#### Field Description:
+
+ * dsn: either a name of the dsn or a config-object with username/password and other credentials
+ * destination-table: destination table to load
+ * load:
+    * skip-lines: number of lines to skip in he table
+    * quotechar: character to be used for quoting
+    * truncate: truncate the target table before loading data
+    * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
+    * load-path: path to load from (eg: /var/tmp/input.txt)
+    * mode: mode of loading the table
+    * header: boolean field to enable/disable headers
+    * escapechar: escape character used in the file
+    * quoting: boolean field to indicate if the file is quoted.
+    * delimiter: delimiter of the file
+ * hdfs:
+    * location: target HDFS path
+    * codec: compression format to use. This field is relevant only if local-cli is false. The allowed codecs are
+        * gzip
+        * bzip2
+        * default
+    * cli-mode: boolean field to indicate if the local installed hadoop shell utility should be used to read data
+    * cli-binary: hadoop binary to be used for reading. usually its either hadoop or hdfs. this field is relevant when cli-mode field is set to yes
 
      
 

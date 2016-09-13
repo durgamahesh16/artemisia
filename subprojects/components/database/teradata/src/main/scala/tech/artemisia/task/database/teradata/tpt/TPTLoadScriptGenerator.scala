@@ -1,4 +1,4 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tpt
 
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.DocStringProcessor.StringUtil
@@ -7,13 +7,12 @@ import tech.artemisia.util.DocStringProcessor.StringUtil
   * Created by chlr on 9/6/16.
   */
 
-class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadSetting, dbConnection: DBConnection) {
+class TPTLoadScriptGenerator(override val tptLoadConfig: TPTLoadConfig,
+                             override val loadSetting: TPTLoadSetting,
+                             override val dbConnection: DBConnection) extends TPTScriptGenerator {
 
-  protected val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
 
-  protected lazy val tableMetadata = TeraUtils.tableMetadata(tptLoadConfig.databaseName, tptLoadConfig.tableName, dbInterface)
-
-  private val loadOperAtts = Map(
+  override protected val loadOperAtts = Map(
     "TRACELEVEL" -> ("VARCHAR" -> "None"),
     "PACK" -> ("INTEGER" -> "2000"),
     "PACKMAXIMUM" -> ("VARCHAR" -> "No"),
@@ -27,7 +26,7 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
   )
 
 
-  private val dataConnAttrs = Map(
+  override protected val dataConnAttrs = Map(
     "OPENMODE" -> ("VARCHAR", "Read"),
     "TEXTDELIMITERHEX" -> ("VARCHAR" -> Integer.toHexString(loadSetting.delimiter.toInt)),
     "DIRECTORYPATH" -> ("VARCHAR" -> tptLoadConfig.directory),
@@ -41,7 +40,7 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
     "ROWERRFILENAME" -> ("VARCHAR", loadSetting.errorFile)
   )
 
-  def tptScript =
+  override lazy val tptScript =
     s"""
        |USING CHARACTER SET UTF8
        |DEFINE JOB load_${tptLoadConfig.databaseName}_${tptLoadConfig.tableName} (
@@ -113,37 +112,5 @@ class TPTLoadScriptGenerator(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadS
        |      );
        |   );
      """.stripMargin
-
-
-  def schemaDefinition = tableMetadata map { x => s""""${x._4}" VARCHAR(${x._3})""" } mkString "\n,"
-
-  def loadOperatorAttributes = {
-    loadOperAtts ++ loadSetting.loadOperatorAttrs map {
-      case (attrName, (attrType, attrValue))
-        if attrType.toUpperCase.trim == "VARCHAR" => s"VARCHAR $attrName = '$attrValue'"
-      case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
-    } mkString ",\n"
-  }
-
-  def dataConnectorAttributes = {
-    dataConnAttrs ++ loadSetting.dataConnectorAttrs map {
-      case (attrName, (attrType, attrValue))
-        if attrType.toUpperCase.trim == "VARCHAR" => s"VARCHAR $attrName = '$attrValue'"
-      case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
-    } mkString ",\n"
-  }
-
-  def insertColumnList = tableMetadata map { x => s""""${x._1}""""} mkString "\n,"
-
-  def valueColumnList = tableMetadata map { x => s":${x._4}"} mkString "\n,"
-
-  def selectColumnList = {
-      tableMetadata map { x => x._5.trim.toUpperCase flatMap {
-        case 'N' => s""""${x._4}" as "${x._4}""""
-        case _ =>
-          s"""CASE WHEN "${x._4}" ='<!N!>' THEN NULL ELSE "${x._4}" END as "${x._4}"""".stripMargin
-      }
-    } mkString ",\n"
-  }
 
 }

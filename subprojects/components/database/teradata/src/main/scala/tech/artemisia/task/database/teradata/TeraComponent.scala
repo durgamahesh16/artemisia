@@ -1,6 +1,8 @@
 package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.{Config, ConfigFactory}
+import tech.artemisia.task.database.teradata.tdch.{TDCHExtract, TDCHLoad}
+import tech.artemisia.task.database.teradata.tpt.{TPTLoadFromFile, TPTLoadFromHDFS}
 import tech.artemisia.task.{Component, TaskLike}
 
 /**
@@ -10,7 +12,7 @@ import tech.artemisia.task.{Component, TaskLike}
 class TeraComponent(name: String) extends Component(name: String) {
 
   override val tasks: Seq[TaskLike] = Seq(SQLExecute, SQLRead, LoadFromFile, ExportToFile, ExportToHDFS, LoadFromHDFS,
-    TDCHLoad, TDCHExtract, TPTLoadFromFile)
+    TDCHLoad, TDCHExtract, TPTLoadFromFile, TPTLoadFromHDFS)
 
   override val defaultConfig: Config = ConfigFactory parseString
     """

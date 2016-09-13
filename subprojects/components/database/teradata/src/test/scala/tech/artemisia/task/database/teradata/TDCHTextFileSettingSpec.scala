@@ -2,6 +2,7 @@ package tech.artemisia.task.database.teradata
 
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
+import tech.artemisia.task.database.teradata.tdch.TDCHTextSetting
 
 /**
   * Created by chlr on 8/31/16.

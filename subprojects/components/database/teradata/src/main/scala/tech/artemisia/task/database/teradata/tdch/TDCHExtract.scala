@@ -1,13 +1,13 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue, ConfigValueFactory}
+import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.database.DBUtil
 import tech.artemisia.task.hadoop.hive.HiveCLIInterface
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskLike}
-import tech.artemisia.util.{CommandUtil, Util}
 import tech.artemisia.util.HoconConfigUtil.Handler
-import tech.artemisia.core.AppLogger._
+import tech.artemisia.util.{CommandUtil, Util}
 
 /**
   * Created by chlr on 9/3/16.

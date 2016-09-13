@@ -2,6 +2,7 @@ package tech.artemisia.task.database.teradata
 
 import java.io.File
 import com.typesafe.config.ConfigFactory
+import tech.artemisia.task.database.teradata.tdch.{TDCHSetting, TDCHLogParser, TDCHExtract}
 import tech.artemisia.util.HoconConfigUtil.Handler
 import org.apache.commons.io.output.NullOutputStream
 import tech.artemisia.TestSpec
