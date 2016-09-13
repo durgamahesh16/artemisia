@@ -1,24 +1,21 @@
 package tech.artemisia.task.database.teradata
 
-import java.io.{OutputStream, PrintWriter}
-
-import org.apache.commons.exec.LogOutputStream
+import java.io.OutputStream
+import tech.artemisia.inventory.io.OutputLogParser
 
 /**
   * Created by chlr on 8/30/16.
   */
-class TDCHLogParser(stream: OutputStream) extends LogOutputStream {
+class TDCHLogParser(stream: OutputStream) extends OutputLogParser(stream) {
 
   var rowsLoaded = 0L
   val pattern = "^[\\s]*Map output records=(\\d+)[\\s]*$".r
-  val writer = new PrintWriter(stream, true)
 
-  override def processLine(line: String, logLevel: Int): Unit = {
+  override def parse(line: String) = {
     line match {
       case pattern(rows) => rowsLoaded = rows.toLong
       case _ => ()
     }
-    writer.println(line)
   }
 
 }

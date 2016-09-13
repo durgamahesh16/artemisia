@@ -112,4 +112,15 @@ object TeraUtils {
   }
 
 
+  /**
+   *
+   * @param twbKillBin path string for twbkill binary
+   * @param jobName
+   */
+  def killTPTJob(twbKillBin: String, jobName: String) = {
+    val cmd = Seq(twbKillBin, jobName)
+    executeCmd(cmd)
+  }
+
+
 }
