@@ -1,10 +1,10 @@
 package tech.artemisia.task.database.teradata
 
-import java.io.ByteArrayOutputStream
 import java.sql.SQLException
-import tech.artemisia.util.CommandUtil._
+
 import tech.artemisia.core.AppLogger._
 import tech.artemisia.task.database.{DBInterface, DBUtil}
+
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -94,33 +94,5 @@ object TeraUtils {
     }
     resultSetIterator.toList
   }
-
-  /**
-    *
-    * This is implemented by running twbstat command and parsing the output.
-    * @param jobName tpt job name
-    * @return
-    */
-  def detectTPTRun(jobName: String): Seq[String] = {
-    val stream = new ByteArrayOutputStream()
-    assert(executeCmd(Seq("twbstat"), stdout =stream) == 0, "twbstat command failed. ensure TPT is properly installed")
-    val content = new String(stream.toByteArray)
-    val rgx = s"$jobName-[\\d]+".r
-    content.split(System.lineSeparator())
-      .map(_.trim)
-      .filter(rgx.findFirstMatchIn(_).isDefined)
-  }
-
-
-  /**
-   *
-   * @param twbKillBin path string for twbkill binary
-   * @param jobName
-   */
-  def killTPTJob(twbKillBin: String, jobName: String) = {
-    val cmd = Seq(twbKillBin, jobName)
-    executeCmd(cmd)
-  }
-
 
 }

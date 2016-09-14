@@ -1,7 +1,8 @@
 package tech.artemisia.task.database.teradata.tpt
 
-import java.io.File
+import java.io.{ByteArrayOutputStream, File}
 import java.net.URI
+
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.apache.commons.io.FileUtils
 import tech.artemisia.core.AppLogger._
@@ -11,6 +12,7 @@ import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskContext}
 import tech.artemisia.util.CommandUtil._
 import tech.artemisia.util.FileSystemUtil._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future, Promise}
@@ -76,7 +78,7 @@ abstract class TPTLoad(override val taskName: String
    */
   protected lazy val writerFuture = {
     val tptCommand = Seq(tbuildBin, "-f", tptScriptFile.toString, "-h", "128M", "-j", tableName,"-r",
-      TaskContext.workingDir.toString, "-r", tptCheckpointDir, "-R", "0", "-z", "0")
+      TaskContext.workingDir.toString, "-r", tptCheckpointDir, "-R", "0", "-z", "0", "-o")
     Future {
       val ret = executeCmd(tptCommand, stdout = logParser)
       assert(ret == 0, s"command ${tptCommand.mkString(" ")} failed with return code $ret")
@@ -84,8 +86,8 @@ abstract class TPTLoad(override val taskName: String
   }
 
   override protected[task] def setup(): Unit = {
-    assert(TeraUtils.detectTPTRun(tableName) == Nil, s"detected TPT job(s) already running for the table " +
-      s"${TeraUtils.detectTPTRun(tableName).mkString(",")}. try again after sometime")
+    assert(TPTLoad.detectTPTRun(tableName) == Nil, s"detected TPT job(s) already running for the table " +
+      s"${TPTLoad.detectTPTRun(tableName).mkString(",")}. try again after sometime")
     if (loadSetting.truncate) {
       TeraUtils.truncateElseDrop(tableName)
     }
@@ -109,15 +111,27 @@ abstract class TPTLoad(override val taskName: String
 
   override protected[task] def teardown(): Unit = {
     if (logParser.jobId != null) {
-     TeraUtils.detectTPTRun(logParser.jobId) match {
+     TPTLoad.detectTPTRun(logParser.jobId) match {
        case jobId :: Nil =>
          debug(s"attempting to kill tpt job ${logParser.jobId}")
-         TeraUtils.killTPTJob(twbKillBin,logParser.jobId)
+         killTPTJob(logParser.jobId)
        case _ => ()
      }
     }
+    if (logParser.jobLogFile != null)
+      debug(s"run tlogview -l ${logParser.jobLogFile} to view job output")
     new File(dataPipe).delete()
   }
+
+  /**
+    *
+    * @param jobName
+    */
+  def killTPTJob(jobName: String) = {
+    val cmd = Seq(twbKillBin, jobName)
+    executeCmd(cmd)
+  }
+
 
 }
 
@@ -140,6 +154,23 @@ object TPTLoad {
     val res = readerFuture zip writerFuture
     promise.completeWith(res).future
   }
+
+  /**
+    *
+    * This is implemented by running twbstat command and parsing the output.
+    * @param jobName tpt job name
+    * @return
+    */
+  def detectTPTRun(jobName: String): Seq[String] = {
+    val stream = new ByteArrayOutputStream()
+    assert(executeCmd(Seq("twbstat"), stdout =stream) == 0, "twbstat command failed. ensure TPT is properly installed")
+    val content = new String(stream.toByteArray)
+    val rgx = s"$jobName-[\\d]+".r
+    content.split(System.lineSeparator())
+      .map(_.trim)
+      .filter(rgx.findFirstMatchIn(_).isDefined)
+  }
+
 
 }
 

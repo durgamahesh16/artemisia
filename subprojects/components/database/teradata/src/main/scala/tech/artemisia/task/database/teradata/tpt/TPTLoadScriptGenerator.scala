@@ -12,33 +12,6 @@ class TPTLoadScriptGenerator(override val tptLoadConfig: TPTLoadConfig,
                              override val dbConnection: DBConnection) extends TPTScriptGenerator {
 
 
-  override protected val loadOperAtts = Map(
-    "TRACELEVEL" -> ("VARCHAR" -> "None"),
-    "PACK" -> ("INTEGER" -> "2000"),
-    "PACKMAXIMUM" -> ("VARCHAR" -> "No"),
-    "ERRORLIMIT" -> ("INTEGER" -> "2000"),
-    "DropErrorTable" -> ("VARCHAR" -> "Yes"),
-    "ERRORTABLE1" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET"),
-    "ERRORTABLE2" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV"),
-    "WORKTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT"),
-    "TARGETTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}"),
-    "LOGTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG")
-  )
-
-
-  override protected val dataConnAttrs = Map(
-    "OPENMODE" -> ("VARCHAR", "Read"),
-    "TEXTDELIMITERHEX" -> ("VARCHAR" -> Integer.toHexString(loadSetting.delimiter.toInt)),
-    "DIRECTORYPATH" -> ("VARCHAR" -> tptLoadConfig.directory),
-    "NAMEDPIPETIMEOUT" -> ("INTEGER" -> "120"),
-    "FILENAME" -> ("VARCHAR" -> tptLoadConfig.fileName),
-    "REPLACEMENTUTF8CHAR" -> ("VARCHAR" -> " "),
-    "INDICATORMODE" -> ("VARCHAR","N"),
-    "FORMAT" -> ("VARCHAR", "DELIMITED"),
-    "VALIDUTF8" -> ("VARCHAR", "UTF8"),
-    "BUFFERSIZE" -> ("INTEGER", "524288"),
-    "ROWERRFILENAME" -> ("VARCHAR", loadSetting.errorFile)
-  )
 
   override lazy val tptScript =
     s"""

@@ -23,6 +23,7 @@ import tech.artemisia.inventory.io.OutputLogParser
 class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
 
   private val jobIdRgx = ".*Job id is (\\b[\\w]*.?[\\w]+-[\\d]+\\b),.*".r
+  private val jobLogFileRgx = s"Job log:[\\s]+(.+)".r
   private val rowsSentRgx = "tpt_writer: Total Rows Sent To RDBMS:[\\s]+(\\d+)".r
   private val rowsAppliedRgx = "tpt_writer: Total Rows Applied:[\\s]+(\\d+)".r
   private val rowsErr1Rgx = "tpt_writer: Total Rows in Error Table 1:[\\s]+(\\d+)".r
@@ -37,6 +38,7 @@ class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
   var rowsErr2: Long = 0
   var rowsDuplicate: Long = 0
   var errorFileRows: Long = 0
+  var jobLogFile: String = _
 
   override def parse(line: String): Unit = {
     line match {
@@ -47,6 +49,7 @@ class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
       case rowsErr2Rgx(x) => rowsErr2 = x.toLong
       case rowsDuplicateRgx(x) => rowsDuplicate = x.toLong
       case errorFileRowsRgx(x) => errorFileRows = x.toLong
+      case jobLogFileRgx(x) => jobLogFile = x
       case _ => ()
     }
   }
