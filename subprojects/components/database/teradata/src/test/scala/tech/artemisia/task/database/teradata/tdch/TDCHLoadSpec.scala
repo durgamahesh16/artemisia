@@ -1,4 +1,4 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import java.io.File
 
@@ -6,7 +6,6 @@ import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.output.NullOutputStream
 import tech.artemisia.TestSpec
 import tech.artemisia.task.database.TestDBInterFactory
-import tech.artemisia.task.database.teradata.tdch.{TDCHSetting, TDCHLogParser, TDCHLoad}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.HoconConfigUtil.Handler
 

@@ -1,13 +1,13 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import java.io.File
+
 import com.typesafe.config.ConfigFactory
-import tech.artemisia.task.database.teradata.tdch.{TDCHSetting, TDCHLogParser, TDCHExtract}
-import tech.artemisia.util.HoconConfigUtil.Handler
 import org.apache.commons.io.output.NullOutputStream
 import tech.artemisia.TestSpec
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.FileSystemUtil
+import tech.artemisia.util.HoconConfigUtil.Handler
 
 /**
   * Created by chlr on 9/4/16.

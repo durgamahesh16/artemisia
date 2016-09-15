@@ -36,6 +36,7 @@ abstract class TPTLoad(override val taskName: String
                      ,val connectionProfile: DBConnection
                      ,val loadSetting: TPTLoadSetting) extends Task(taskName) {
 
+
   implicit protected val dbInterface = DBInterfaceFactory.getInstance(connectionProfile)
 
   lazy protected val tbuildBin = getExecutableOrFail("tbuild")

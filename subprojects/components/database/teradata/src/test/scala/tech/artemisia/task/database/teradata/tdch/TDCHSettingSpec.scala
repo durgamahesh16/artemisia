@@ -1,11 +1,10 @@
-package tech.artemisia.task.database.teradata
+package tech.artemisia.task.database.teradata.tdch
 
 import java.io.File
 import java.nio.file.Paths
 
 import com.typesafe.config.ConfigFactory
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.teradata.tdch.TDCHSetting
 import tech.artemisia.util.FileSystemUtil._
 
 /**

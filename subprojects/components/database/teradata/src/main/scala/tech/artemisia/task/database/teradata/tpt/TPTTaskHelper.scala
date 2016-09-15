@@ -28,6 +28,10 @@ trait TPTTaskHelper extends TaskLike {
     "load" -> TPTLoadSetting.fieldDescription
   )
 
+}
+
+object TPTTaskHelper {
+
   def supportedModes: Seq[String] = Seq("fastload", "default", "auto")
 
 }

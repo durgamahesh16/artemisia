@@ -27,10 +27,14 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
                           dataConnectorAttrs: Map[String,(String,String)] = Map()) extends
   LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode ,batchSize, errorTolerance) {
 
+  require(TPTLoadSetting.supportedModes contains mode, s"$mode is not supported. supported modes are ${TPTLoadSetting.supportedModes.mkString(",")}")
+
   override def setting: String = ???
 }
 
 object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
+
+  val supportedModes = Seq("default", "fastload", "auto")
 
   override val structure = BasicLoadSetting.structure
     .withValue("error-limit", ConfigValueFactory.fromAnyRef("1000 @default(2000)"))
@@ -45,7 +49,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
   override def apply(config: Config): TPTLoadSetting = {
     val loadSetting = BasicLoadSetting(config)
     TPTLoadSetting(
-      loadSetting.skipRows,
+      skipRows = if (config.as[Int]("skip-lines") == 0) if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),
       loadSetting.delimiter,
       loadSetting.quoting,
       loadSetting.quotechar,

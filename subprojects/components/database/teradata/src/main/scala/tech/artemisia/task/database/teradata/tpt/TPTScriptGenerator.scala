@@ -21,10 +21,10 @@ trait TPTScriptGenerator {
 
   protected val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
 
-  protected lazy val tableMetadata = TeraUtils.tableMetadata(tptLoadConfig.databaseName, tptLoadConfig.tableName, dbInterface)
+  protected lazy val tableMetadata = TeraUtils.tableMetadata(
+    tptLoadConfig.databaseName, tptLoadConfig.tableName, dbInterface)
 
-  protected def loadOperAtts =
-    Map(
+  protected def loadOperAtts = Map(
       "TRACELEVEL" -> ("VARCHAR" -> "None"),
       "PACK" -> ("INTEGER" -> "2000"),
       "PACKMAXIMUM" -> ("VARCHAR" -> "No"),
@@ -37,20 +37,17 @@ trait TPTScriptGenerator {
       "LOGTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG")
     )
 
-
   /**
    * tpt script
    */
    val tptScript: String
-
-  protected def schemaDefinition = tableMetadata map { x => s""""${x._4}" VARCHAR(${x._3})""" } mkString "\n,"
 
   protected def dataConnAttrs = {
     val quoteSettings = loadSetting.quoting match {
       case false => Map[String, (String, String)]()
       case true => Map (
         "ESCAPEQUOTEDELIMITER" -> ("VARCHAR", loadSetting.escapechar.toString),
-        "OPENQUOTEMARK" -> ("VARCHAR", "\""),
+        "OPENQUOTEMARK" -> ("VARCHAR", loadSetting.quotechar.toString),
         "QUOTEDDATA" -> ("VARCHAR", "Optional")
       )
     }
@@ -75,7 +72,7 @@ trait TPTScriptGenerator {
       case (attrName, (attrType, attrValue))
         if attrType.toUpperCase.trim == "VARCHAR" => s"VARCHAR $attrName = '$attrValue'"
       case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
-    } mkString ",\n"
+    } mkString s",${System.lineSeparator}"
   }
 
   protected def dataConnectorAttributes = {
@@ -83,20 +80,22 @@ trait TPTScriptGenerator {
       case (attrName, (attrType, attrValue))
         if attrType.toUpperCase.trim == "VARCHAR" => s"VARCHAR $attrName = '$attrValue'"
       case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
-    } mkString ",\n"
+    } mkString s",${System.lineSeparator}"
   }
 
-  def insertColumnList = tableMetadata map { x => s""""${x._1}""""} mkString "\n,"
+  protected def schemaDefinition = tableMetadata map { x => s""""${x._4}" VARCHAR(${x._3})""" } mkString s"${System.lineSeparator},"
 
-  def valueColumnList = tableMetadata map { x => s":${x._4}"} mkString "\n,"
+  protected def insertColumnList = tableMetadata map { x => s""""${x._1}""""} mkString s"${System.lineSeparator},"
 
-  def selectColumnList = {
+  protected def valueColumnList = tableMetadata map { x => s":${x._4}"} mkString s"${System.lineSeparator},"
+
+  protected def selectColumnList = {
     tableMetadata map { x => x._5.trim.toUpperCase flatMap {
       case 'N' => s""""${x._4}" as "${x._4}""""
       case _ =>
         s"""CASE WHEN "${x._4}" ='<!N!>' THEN NULL ELSE "${x._4}" END as "${x._4}"""".stripMargin
-    }
-    } mkString ",\n"
+      }
+    } mkString s",${System.lineSeparator()}"
   }
 
 }

@@ -92,7 +92,7 @@ object TeraUtils {
         (resultSet.getString(2), resultSet.getString(3), resultSet.getShort(4), resultSet.getString(5), resultSet.getString(6))
       }
     }
-    resultSetIterator.toList
+    resultSetIterator.toSeq
   }
 
 }

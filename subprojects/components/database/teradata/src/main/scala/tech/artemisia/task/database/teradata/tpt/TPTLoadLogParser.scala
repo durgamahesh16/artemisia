@@ -18,6 +18,7 @@ import tech.artemisia.inventory.io.OutputLogParser
   * $ - rows in err2 table
   * $ - duplicate rows
   * $ - rows in error file
+  *
   * @param stream stream where data has to be relayed once it is parsed.
   */
 class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
@@ -29,7 +30,7 @@ class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
   private val rowsErr1Rgx = "tpt_writer: Total Rows in Error Table 1:[\\s]+(\\d+)".r
   private val rowsErr2Rgx = "tpt_writer: Total Rows in Error Table 2:[\\s]+(\\d+)".r
   private val rowsDuplicateRgx = "tpt_writer: Total Duplicate Rows:[\\s]+(\\d+)".r
-  private val errorFileRowsRgx = "tpt_reader:.+(\\d+).*error rows sent to error file.*".r
+  private val errorFileRowsRgx = "tpt_reader:.+\\b(\\d+)\\b.*error rows sent to error file.*".r
 
   var jobId: String  = _
   var rowsSent: Long = 0
