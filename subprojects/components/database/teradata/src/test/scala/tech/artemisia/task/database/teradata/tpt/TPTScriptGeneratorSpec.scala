@@ -116,8 +116,35 @@ class TPTScriptGeneratorSpec extends TestSpec {
     }
   }
 
-  it must "" in {
-    
+  it must "must generate select list" in {
+    new TPTScriptGenerator {
+      override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
+      override protected val dbConnection = DBConnection.getDummyConnection
+      override val tptScript = ""
+      override protected val loadSetting = TPTLoadSetting()
+      override protected lazy val tableMetadata = Seq(
+        ("col1", "I1", 25: Short, "col1_1", "N"),
+        ("col2", "I1", 25: Short, "col2_2", "Y")
+      )
+      selectColumnList must be (""""col1_1" as "col1_1",
+                                  |"col2_2" as "col2_2"""".stripMargin)
+    }
+  }
+
+
+  it must "must generate select list with custom null string" in {
+    new TPTScriptGenerator {
+      override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
+      override protected val dbConnection = DBConnection.getDummyConnection
+      override val tptScript = ""
+      override protected val loadSetting = TPTLoadSetting(nullString= Some("\\T"))
+      override protected lazy val tableMetadata = Seq(
+        ("col1", "I1", 25: Short, "col1_1", "N"),
+        ("col2", "I1", 25: Short, "col2_2", "Y")
+      )
+      selectColumnList must be (""""col1_1" as "col1_1",
+                                  |CASE WHEN "col2_2" ='\T' THEN NULL ELSE "col2_2" END as "col2_2"""".stripMargin)
+    }
   }
 
 }

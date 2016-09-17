@@ -19,7 +19,7 @@ trait TPTScriptGenerator {
 
   protected val dbConnection: DBConnection
 
-  protected val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
+  protected lazy val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
 
   protected lazy val tableMetadata = TeraUtils.tableMetadata(
     tptLoadConfig.databaseName, tptLoadConfig.tableName, dbInterface)
@@ -92,8 +92,9 @@ trait TPTScriptGenerator {
   protected def selectColumnList = {
     tableMetadata map { x => x._5.trim.toUpperCase flatMap {
       case 'N' => s""""${x._4}" as "${x._4}""""
+      case 'Y' if loadSetting.nullString.isEmpty => s""""${x._4}" as "${x._4}""""
       case _ =>
-        s"""CASE WHEN "${x._4}" ='<!N!>' THEN NULL ELSE "${x._4}" END as "${x._4}"""".stripMargin
+        s"""CASE WHEN "${x._4}" ='${loadSetting.nullString.get}' THEN NULL ELSE "${x._4}" END as "${x._4}""""
       }
     } mkString s",${System.lineSeparator()}"
   }

@@ -609,6 +609,7 @@ The typical task SQLExport configuration is as shown below
            header = "no @default(false) @type(boolean)"
            load-path = "/var/tmp/file.txt @required"
            mode = "default @default(default) @type(string)"
+           null-string = "\\N @optional @info(marker string for null)"
            quotechar = "\" @default('\"') @type(char)"
            quoting = "no @default(false) @type(boolean)"
            skip-lines = "0 @default(0) @type(int)"
@@ -626,14 +627,19 @@ The typical task SQLExport configuration is as shown below
  * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * error-file: location of the reject file
     * truncate: truncate the target table before loading data
+    * error-limit: maximum number of records allowed in error table
+    * dataconnector-attrs: miscellaneous data-connector operator attributes
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table
     * header: boolean field to enable/disable headers
     * escapechar: escape character used in the file
+    * null-string: marker string for null. default value is blank string
     * quoting: boolean field to indicate if the file is quoted.
     * delimiter: delimiter of the file
+    * load-attrs: miscellaneous load operator attributes
 
      
 
@@ -681,6 +687,7 @@ The typical task SQLExport configuration is as shown below
            header = "no @default(false) @type(boolean)"
            load-path = "/var/tmp/file.txt @required"
            mode = "default @default(default) @type(string)"
+           null-string = "\\N @optional @info(marker string for null)"
            quotechar = "\" @default('\"') @type(char)"
            quoting = "no @default(false) @type(boolean)"
            skip-lines = "0 @default(0) @type(int)"
@@ -697,14 +704,19 @@ The typical task SQLExport configuration is as shown below
  * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * error-file: location of the reject file
     * truncate: truncate the target table before loading data
+    * error-limit: maximum number of records allowed in error table
+    * dataconnector-attrs: miscellaneous data-connector operator attributes
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table
     * header: boolean field to enable/disable headers
     * escapechar: escape character used in the file
+    * null-string: marker string for null. default value is blank string
     * quoting: boolean field to indicate if the file is quoted.
     * delimiter: delimiter of the file
+    * load-attrs: miscellaneous load operator attributes
  * hdfs:
     * location: target HDFS path
     * codec: compression format to use. This field is relevant only if local-cli is false. The allowed codecs are

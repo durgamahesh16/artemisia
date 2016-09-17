@@ -30,7 +30,7 @@ class TPTLoadSettingSpec extends TestSpec {
          |           value = "9876543"
          |        }
          |    }
-         |    dataconnector-attrs = {
+         |    dtconn-attrs = {
          |        OPENMODE = WRITE
          |        BUFFERSIZE = {
          |           type = "INTEGER"

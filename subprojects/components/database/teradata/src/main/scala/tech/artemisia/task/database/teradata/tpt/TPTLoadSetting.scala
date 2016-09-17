@@ -21,6 +21,7 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
                           override val batchSize: Int = 100,
                           override val errorTolerance: Option[Double] = None,
                           override val mode: String = "default",
+                          nullString: Option[String] =  None,
                           errorLimit: Int = 2000,
                           errorFile: String = TaskContext.getTaskFile("error.txt").toString,
                           loadOperatorAttrs: Map[String,(String,String)] = Map(),
@@ -39,8 +40,16 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
   override val structure = BasicLoadSetting.structure
     .withValue("error-limit", ConfigValueFactory.fromAnyRef("1000 @default(2000)"))
     .withValue("error-file", ConfigValueFactory.fromAnyRef("/var/path/error.txt @optional"))
+    .withValue("null-string", ConfigValueFactory.fromAnyRef("\\N @optional @info(marker string for null)"))
 
-  override val fieldDescription = BasicLoadSetting.fieldDescription -- Seq("batch-size")
+  override val fieldDescription = BasicLoadSetting.fieldDescription ++
+    Map(
+      "null-string" -> "marker string for null. default value is blank string",
+      "error-limit" -> "maximum number of records allowed in error table",
+      "error-file" -> "location of the reject file",
+      "load-attrs" -> "miscellaneous load operator attributes",
+      "dtconn-attrs" -> "miscellaneous data-connector operator attributes"
+    ) -- Seq("batch-size")
 
   override val defaultConfig = BasicLoadSetting.defaultConfig
     .withValue("error-limit", ConfigValueFactory.fromAnyRef(2000))
@@ -58,10 +67,11 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
       loadSetting.batchSize,
       loadSetting.errorTolerance,
       loadSetting.mode,
+      config.getAs[String]("null-string"),
       config.as[Int]("error-limit"),
       config.getAs[String]("error-file").getOrElse(TaskContext.getTaskFile("error.txt").toString),
       parseAttributeNodes(config.as[Config]("load-attrs")),
-      parseAttributeNodes(config.as[Config]("dataconnector-attrs"))
+      parseAttributeNodes(config.as[Config]("dtconn-attrs"))
     )
   }
 
