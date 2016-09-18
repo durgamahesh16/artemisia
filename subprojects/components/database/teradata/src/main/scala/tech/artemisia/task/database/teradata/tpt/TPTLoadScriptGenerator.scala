@@ -9,7 +9,7 @@ import tech.artemisia.util.DocStringProcessor.StringUtil
 
 class TPTLoadScriptGenerator(override val tptLoadConfig: TPTLoadConfig,
                              override val loadSetting: TPTLoadSetting,
-                             override val dbConnection: DBConnection) extends TPTScriptGenerator {
+                             override implicit val dbConnection: DBConnection) extends TPTScriptGenerator {
 
 
 

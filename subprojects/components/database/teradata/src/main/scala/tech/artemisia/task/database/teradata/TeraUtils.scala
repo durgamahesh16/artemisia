@@ -52,7 +52,7 @@ object TeraUtils {
     * @param loadSetting input load setting
     * @return customized final load setting
     */
-  def overrideLoadSettings(loadSize: Long,loadSetting: TeraLoadSetting) = {
+  def overrideLoadSettings(loadSize: Long, loadSetting: TeraLoadSetting) = {
     if (loadSize > loadSetting.bulkLoadThreshold) {
       loadSetting.copy(batchSize = 80000, mode = "fastload")
     }
@@ -69,12 +69,11 @@ object TeraUtils {
     * @param dBInterface Teradata DBInterface instance
     * @return
     */
-  def tableMetadata(databaseName: String, tableName: String, dBInterface: DBInterface) = {
+  def tableMetadata(databaseName: String, tableName: String)(implicit dBInterface: DBInterface) = {
     val sql =
       s"""
         |SELECT
-        |ROW_NUMBER() over(order by ColumnId) as row_id
-        |,TRIM(ColumnName)
+        | TRIM(ColumnName)
         |,ColumnType
         |,(CASE
         |  WHEN Columntype = 'DA' THEN 15
@@ -82,17 +81,18 @@ object TeraUtils {
         |  WHEN ColumnType IN ('BV','PM','SZ') THEN ColumnLength
         |  WHEN ColumnType IN ('TS','TZ') THEN 35
         |  WHEN ColumnType IN ('I ','I2','I1','I8','F') THEN 25 ELSE ColumnLength END ) AS byteLength
-        |,TRIM(SUBSTR(ColumnName,1,23))||'_'||CAST(row_id as Varchar(5))||'_' as SafeColumnName
         |,Nullable
         |FROM DBC.Columns c WHERE DatabaseName = '$databaseName' AND TableName = '$tableName'  ORDER BY ColumnId
       """.stripMargin
     val rs = dBInterface.query(sql = sql, printSQL = false)
-    val resultSetIterator = new DBUtil.ResultSetIterator[(String, String, Short, String, String)](rs) {
-      override def generateRow: (String, String, Short, String, String) = {
-        (resultSet.getString(2), resultSet.getString(3), resultSet.getShort(4), resultSet.getString(5), resultSet.getString(6))
+    val resultSetIterator = new DBUtil.ResultSetIterator[(String, String, Short, String)](rs) {
+      override def generateRow: (String, String, Short, String) = {
+        (resultSet.getString(1), resultSet.getString(2), resultSet.getShort(3), resultSet.getString(4))
       }
+    }.toSeq
+    resultSetIterator zip (1 to resultSetIterator.size) map {
+      case (row, index) => (row._1,row._2,row._3,s"${row._1.take(23)}_${index}_",row._4)
     }
-    resultSetIterator.toSeq
   }
 
 }

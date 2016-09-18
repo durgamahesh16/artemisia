@@ -6,7 +6,7 @@ scala:
 branches:
   only:
   - master
-script: sbt fulltest
+script: sbt crosstest
 after_success:
 - sbt coveralls
 - sbt publish

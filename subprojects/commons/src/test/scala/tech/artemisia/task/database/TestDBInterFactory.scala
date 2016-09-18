@@ -9,12 +9,12 @@ import tech.artemisia.task.settings.DBConnection
 object TestDBInterFactory {
   
   
-  def withDefaultDataLoader(table: String, mode: Option[String] = None) = {
+  def withDefaultDataLoader(table: String, database: String = "test",mode: Option[String] = None, createTestTable: Boolean = true) = {
     val dbInterface: DBInterface = new DBInterface with DefaultDBBatchImporter with DefaultDBExporter  {
       override def getNewConnection: Connection = {
         val modeOption = (mode map { x => s"MODE=$x;" }).getOrElse("")
         Class.forName("org.h2.Driver")
-        DriverManager.getConnection(s"jdbc:h2:mem:test;${modeOption}DB_CLOSE_DELAY=-1","","")
+        DriverManager.getConnection(s"jdbc:h2:mem:$database;${modeOption}DB_CLOSE_DELAY=-1","","")
       }
     }
     processDbInterface(dbInterface, table)

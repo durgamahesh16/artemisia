@@ -19,7 +19,7 @@ class MySQLTaskSpec extends TestSpec {
     val table = "mysql_dummy_table1"
     val taskName = "SQLExecuteTest"
     val sqlExecute = new SQLExecute(taskName, s"delete from $table" ,DBConnection("","","","",10)) {
-        override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
+        override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,mode = Some("mysql"))
     }
     val result = sqlExecute.execute()
     result.getInt(s"$taskName.__stats__.updated") must be (2)
@@ -31,7 +31,7 @@ class MySQLTaskSpec extends TestSpec {
     FileSystemUtil.withTempFile(fileName = table) {
       file => {
         val task = new ExportToFile(taskName, s"select * from $table", file.toURI ,DBConnection("","","","",10), BasicExportSetting()) {
-          override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
+          override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,mode = Some("mysql"))
         }
         val result = task.execute()
         task.supportedModes must be === "default" :: "bulk" :: Nil
@@ -45,7 +45,7 @@ class MySQLTaskSpec extends TestSpec {
     val table = "mysql_dummy_table3"
     val taskName = "SQLReadTest"
     val sqlRead = new SQLRead(taskName, s"select col1 from $table where col2 = 'foo'" ,DBConnection("","","","",10)) {
-      override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,Some("mysql"))
+      override val dbInterface = TestDBInterFactory.withDefaultDataLoader(table,mode = Some("mysql"))
     }
     val result = sqlRead.execute()
     result.getInt("COL1") must be (1)

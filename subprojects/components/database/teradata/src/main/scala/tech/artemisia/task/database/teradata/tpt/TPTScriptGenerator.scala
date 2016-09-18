@@ -19,10 +19,9 @@ trait TPTScriptGenerator {
 
   protected val dbConnection: DBConnection
 
-  protected lazy val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
+  protected implicit lazy val dbInterface = DBInterfaceFactory.getInstance(dbConnection)
 
-  protected lazy val tableMetadata = TeraUtils.tableMetadata(
-    tptLoadConfig.databaseName, tptLoadConfig.tableName, dbInterface)
+  protected lazy val tableMetadata = TeraUtils.tableMetadata(tptLoadConfig.databaseName, tptLoadConfig.tableName)
 
   protected def loadOperAtts = Map(
       "TRACELEVEL" -> ("VARCHAR" -> "None"),
