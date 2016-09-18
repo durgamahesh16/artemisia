@@ -627,10 +627,10 @@ The typical task SQLExport configuration is as shown below
  * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * dtconn-attrs: miscellaneous data-connector operator attributes
     * error-file: location of the reject file
     * truncate: truncate the target table before loading data
     * error-limit: maximum number of records allowed in error table
-    * dataconnector-attrs: miscellaneous data-connector operator attributes
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table
@@ -704,10 +704,10 @@ The typical task SQLExport configuration is as shown below
  * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * dtconn-attrs: miscellaneous data-connector operator attributes
     * error-file: location of the reject file
     * truncate: truncate the target table before loading data
     * error-limit: maximum number of records allowed in error table
-    * dataconnector-attrs: miscellaneous data-connector operator attributes
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table

@@ -28,7 +28,7 @@ abstract class LoadFromFile(override val taskName: String, override val tableNam
                             location: URI, override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting)
   extends database.LoadFromFile(taskName, tableName, location, connectionProfile, loadSetting) {
 
-  override val supportedModes = "fastload" :: "default" :: "auto" :: Nil
+  override val supportedModes = LoadFromFile.supportedModes
 
   override implicit val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, loadSetting.mode)
 
@@ -66,7 +66,7 @@ object LoadFromFile extends LoadTaskHelper {
   def apply(taskName: String = Util.getUUID, tableName: String, location: URI, connectionProfile: DBConnection,
             loadSetting: TeraLoadSetting) = {
     lazy val (inputStream, loadSize) = FileSystemUtil.getPathForLoad(Paths.get(location.getPath))
-    val normalizedLoadSettings = TeraUtils.overrideLoadSettings(loadSize,loadSetting)
+    val normalizedLoadSettings = TeraUtils.autoTuneLoadSettings(loadSize,loadSetting)
     new LoadFromFile(taskName, tableName, location ,connectionProfile, normalizedLoadSettings) {
       override lazy val source = Left(inputStream)
     }
@@ -78,7 +78,7 @@ object LoadFromFile extends LoadTaskHelper {
 
   override val fieldDefinition = super.fieldDefinition ++ Map("load" -> TeraLoadSetting.fieldDescription )
 
-  override def supportedModes: Seq[String] = "fastload" :: "default" :: Nil
+  override def supportedModes: Seq[String] = "fastload" :: "default" :: "auto" :: Nil
 
 }
 

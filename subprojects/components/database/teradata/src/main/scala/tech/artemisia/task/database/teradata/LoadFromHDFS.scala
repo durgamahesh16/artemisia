@@ -59,7 +59,7 @@ object LoadFromHDFS extends LoadFromHDFSHelper {
   def apply(taskName: String, tableName: String, hdfsReadSetting: HDFSReadSetting,connectionProfile: DBConnection,
   loadSetting: TeraLoadSetting) = {
     lazy val (hdfsStream: InputStream, loadSize: Long) = hadoop.LoadFromHDFS.getPathForLoad(hdfsReadSetting)
-   val normalizedLoadSetting = TeraUtils.overrideLoadSettings(loadSize, loadSetting)
+   val normalizedLoadSetting = TeraUtils.autoTuneLoadSettings(loadSize, loadSetting)
     new LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, normalizedLoadSetting) {
       override lazy val source = Left(hdfsStream)
     }

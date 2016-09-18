@@ -22,7 +22,7 @@ class TPTLoadFromFile(override val taskName: String
     /**
       *  tpt script generator
       */
-    override val scriptGenerator = new TPTLoadScriptGenerator(tptLoadConfig, loadSetting, connectionProfile)
+    override val scriptGenerator = new TPTLoadOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
 
     /**
      * get reader Future. this Future will launch a thread

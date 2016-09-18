@@ -69,7 +69,7 @@ abstract class TPTLoad(override val taskName: String
   /**
    *
    */
-  protected val scriptGenerator: TPTScriptGenerator
+  protected val scriptGenerator: TPTLoadScriptGen
 
   /**
    * writer future. this is a Future of type Unit that launches the TPT script on a separate thread.

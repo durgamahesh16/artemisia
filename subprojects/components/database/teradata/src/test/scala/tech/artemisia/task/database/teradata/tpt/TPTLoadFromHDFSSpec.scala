@@ -99,7 +99,7 @@ class TPTLoadFromHDFSSpec extends TestSpec {
       override lazy val twbStat = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))
       override val logParser = new TPTLoadLogParser(new NullOutputStream())
       override lazy val readerFuture = Future.successful(())
-      override val scriptGenerator = new TPTLoadScriptGenerator(
+      override val scriptGenerator = new TPTLoadOperScrGen(
         TPTLoadConfig("database", "table", "/var/path", "input.pipe"),
         TPTLoadSetting(dataConnectorAttrs = Map("ROWERRFILENAME" -> ("VARCHAR","/var/path/errorfile"))),
         DBConnection("td_server", "voltron", "password", "dbc", 1025)

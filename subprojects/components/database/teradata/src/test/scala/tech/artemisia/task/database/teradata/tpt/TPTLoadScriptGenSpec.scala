@@ -9,7 +9,7 @@ import tech.artemisia.task.settings.DBConnection
 class TPTLoadScriptGenSpec extends TestSpec {
 
   "TPTLoadScriptGenerator" must "generate TPT scripts" in {
-    val generator = new TPTLoadScriptGenerator(
+    val generator = new TPTLoadOperScrGen(
       TPTLoadConfig("database", "table", "/var/path", "input.pipe"),
       TPTLoadSetting(dataConnectorAttrs = Map("ROWERRFILENAME" -> ("VARCHAR","/var/path/errorfile"))),
       DBConnection("td_server", "voltron", "password", "dbc", 1025)

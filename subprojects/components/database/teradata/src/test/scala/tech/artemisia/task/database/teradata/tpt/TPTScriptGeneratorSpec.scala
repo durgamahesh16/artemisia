@@ -11,7 +11,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
 
 
   "TPTScriptGenerator" must "generate load operator parameters" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val loadSetting = TPTLoadSetting(errorLimit = 1000)
       override protected val tptLoadConfig: TPTLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
@@ -31,7 +31,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
 
 
   it must "generate dataconnector operator parameters with no quoting" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val loadSetting = TPTLoadSetting(errorLimit = 1000, delimiter = '\t')
       override protected val tptLoadConfig: TPTLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
@@ -54,7 +54,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
   }
 
   it must "generate dataconnector operator parameters with quoting" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val loadSetting = TPTLoadSetting(errorLimit = 1000, delimiter = '|',
         quoting = true, quotechar = '~', escapechar = '-')
       override protected val tptLoadConfig: TPTLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
@@ -69,7 +69,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
 
 
   it must "must generate schema" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
       override val tptScript: String = ""
@@ -84,7 +84,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
   }
 
   it must "must generate insert column list" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
       override val tptScript: String = ""
@@ -100,7 +100,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
   }
 
   it must "must generate value column list" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
       override val tptScript: String = ""
@@ -117,7 +117,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
   }
 
   it must "must generate select list" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
       override val tptScript = ""
@@ -133,7 +133,7 @@ class TPTScriptGeneratorSpec extends TestSpec {
 
 
   it must "must generate select list with custom null string" in {
-    new TPTScriptGenerator {
+    new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
       override val tptScript = ""
