@@ -93,7 +93,7 @@ trait TPTLoadScriptGen {
       case (attrName, (attrType, attrValue)) => s"$attrType $attrName = $attrValue"
     } mkString s",${System.lineSeparator}"
   }
-  
+
   protected def schemaDefinition = tableMetadata map { x => s""""${x._4}" VARCHAR(${x._3})""" } mkString s"${System.lineSeparator},"
 
   protected def insertColumnList = tableMetadata map { x => s""""${x._1}""""} mkString s"${System.lineSeparator},"

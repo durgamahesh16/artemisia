@@ -52,14 +52,17 @@ object TeraUtils {
     * @param loadSetting input load setting
     * @return customized final load setting
     */
-  def autoTuneLoadSettings(loadSize: Long, loadSetting: TeraLoadSetting) = {
-    loadSetting.mode match {
-      case "auto" =>
-        if (loadSize > loadSetting.bulkLoadThreshold)
-          loadSetting.copy(batchSize = 80000, mode = "fastload")
-        else
-          loadSetting.copy(batchSize = 1000, mode = "default")
-      case x => loadSetting
+  def autoTuneLoadSettings[T <: BaseTeraLoadSetting](loadSize: Long, loadSetting: T) : T = {
+    def transform(x: T) = {
+     if (loadSize > x.bulkLoadThreshold)
+        x.create(batchSize = 80000, mode = "fastload")
+      else
+        x.create(batchSize = 4000, mode = "default")
+    }
+    if (loadSetting.mode == "auto") {
+      transform(loadSetting).asInstanceOf[T]
+    } else {
+      loadSetting
     }
   }
 

@@ -7,12 +7,10 @@ package tech.artemisia.task.database.teradata
 import java.io.{File, FileOutputStream, OutputStream}
 import java.net.URI
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
 import tech.artemisia.task.database
 import tech.artemisia.task.database.{DBInterface, ExportTaskHelper}
-import tech.artemisia.task.settings.DBConnection
-import tech.artemisia.util.FileSystemUtil
-import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.task.settings.{DBConnection, ExportSetting}
 
 /**
   * Created by chlr on 6/10/16.
@@ -20,10 +18,10 @@ import tech.artemisia.util.HoconConfigUtil.Handler
 
 
 class ExportToFile(override val name: String, override val sql: String, location: URI, override val connectionProfile: DBConnection
-                   ,override val exportSetting: TeraExportSetting)
+                   ,override val exportSetting: ExportSetting)
   extends database.ExportToFile(name: String, sql: String, location, connectionProfile: DBConnection ,exportSetting) {
 
-  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, mode = exportSetting.mode, exportSetting.session)
+  override val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile, mode = exportSetting.mode)
 
   override val target: Either[OutputStream, URI] = Left(new FileOutputStream(new File(location)))
 
@@ -34,24 +32,16 @@ class ExportToFile(override val name: String, override val sql: String, location
   override val supportedModes: Seq[String] = ExportToFile.supportedModes
 }
 
+
 object ExportToFile extends ExportTaskHelper {
 
-  override val defaultConfig = ConfigFactory.empty().withValue("export",TeraExportSetting.defaultConfig.root())
-
-  override def apply(name: String,config: Config) = {
-    val exportSettings = TeraExportSetting(config.as[Config]("export"))
-    val connectionProfile = DBConnection.parseConnectionProfile(config.getValue("dsn"))
-    val sql = config.asInlineOrFile("sql")
-    new ExportToFile(name, sql, FileSystemUtil.makeURI(config.as[String]("location")), connectionProfile, exportSettings)
-  }
-
-  override def paramConfigDoc = super.paramConfigDoc withValue ("export",TeraExportSetting.structure.root())
-
-  override def fieldDefinition = super.fieldDefinition + ("export" -> TeraExportSetting.fieldDescription)
-
-  override def supportedModes: Seq[String] = "default" :: "fastexport" :: Nil
+  override def apply(name: String,config: Config) = ExportTaskHelper.create[ExportToFile](name, config)
 
   override val defaultPort: Int = 1025
 
+  override def supportedModes: Seq[String] = "default" :: "fastexport" :: Nil
+
 }
+
+
 

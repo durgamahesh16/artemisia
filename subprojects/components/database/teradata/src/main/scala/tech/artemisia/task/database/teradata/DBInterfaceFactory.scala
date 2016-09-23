@@ -16,19 +16,19 @@ object DBInterfaceFactory {
     * @param mode mode can be either `default` or `native` to choose loader method
     * @return DbInterface
     */
-  def getInstance(connectionProfile: DBConnection, mode: String = "default", session: Int = 1) = {
+  def getInstance(connectionProfile: DBConnection, mode: String = "default") = {
     mode match {
-      case "default" => new DefaultDBInterface(connectionProfile, None, 1)
-      case "fastload" => new TeraDBInterface(connectionProfile, Some("fastload"), session)
-      case "fastexport" => new TeraDBInterface(connectionProfile, Some("fastexport"), session)
+      case "default" => new DefaultDBInterface(connectionProfile, None)
+      case "fastload" => new TeraDBInterface(connectionProfile, Some("fastload"))
+      case "fastexport" => new TeraDBInterface(connectionProfile, Some("fastexport"))
       case _ => throw new IllegalArgumentException(s"mode '$mode' is not supported")
     }
   }
 
-  class DefaultDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface
+  class DefaultDBInterface(connectionProfile: DBConnection, mode: Option[String]) extends DBInterface
       with DefaultDBBatchImporter with DefaultDBExporter {
     override def getNewConnection: Connection = {
-      getConnection(connectionProfile, mode, session)
+      getConnection(connectionProfile, mode)
     }
   }
 
@@ -37,17 +37,17 @@ object DBInterfaceFactory {
     *
     * @param connectionProfile ConnectionProfile object
     */
-  class TeraDBInterface(connectionProfile: DBConnection, mode: Option[String], session: Int) extends DBInterface with TeraDataTransporter {
+  class TeraDBInterface(connectionProfile: DBConnection, mode: Option[String]) extends DBInterface with TeraDataTransporter {
     override def getNewConnection: Connection = {
-        getConnection(connectionProfile, mode, session)
+        getConnection(connectionProfile, mode)
     }
   }
 
 
-  private def getConnection(connectionProfile: DBConnection, mode: Option[String], session: Int) = {
+  private def getConnection(connectionProfile: DBConnection, mode: Option[String]) = {
     DriverManager.getConnection(
       s"""jdbc:teradata://${connectionProfile.hostname}/${connectionProfile.default_database}," +
-      s"dbs_port=${connectionProfile.port}${mode.map(x => s",type=$x").getOrElse("")},SESSIONS=$session"""
+      s"dbs_port=${connectionProfile.port}${mode.map(x => s",type=$x").getOrElse("")}"""
       , connectionProfile.username
       , connectionProfile.password)
   }

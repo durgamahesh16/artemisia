@@ -16,10 +16,10 @@ class TPTStreamOperScrGen(override val tptLoadConfig: TPTLoadConfig,
   }
 
   override protected def targetAttributes: Map[String, (String, String)] = {
-    baseTargetAttributes ++ Map {
+    baseTargetAttributes ++ Map (
       "AppendErrorTable" -> ("VARCHAR", "Yes"),
       "ERRORTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET"),
       "DropErrorTable" -> ("VARCHAR","No")
-    }
+    )
   }
 }

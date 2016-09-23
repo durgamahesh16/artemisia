@@ -3,7 +3,7 @@ package tech.artemisia.task.database.teradata.tpt
 import com.typesafe.config.{Config, ConfigValue, ConfigValueFactory, ConfigValueType}
 import tech.artemisia.inventory.exceptions.InvalidSettingException
 import tech.artemisia.task.database.BasicLoadSetting
-import tech.artemisia.task.settings.LoadSetting
+import tech.artemisia.task.database.teradata.BaseTeraLoadSetting
 import tech.artemisia.task.{ConfigurationNode, TaskContext}
 import tech.artemisia.util.HoconConfigUtil.Handler
 
@@ -21,16 +21,28 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
                           override val batchSize: Int = 100,
                           override val errorTolerance: Option[Double] = None,
                           override val mode: String = "default",
+                          override val bulkLoadThreshold: Long = 104857600L,
                           nullString: Option[String] =  None,
                           errorLimit: Int = 2000,
                           errorFile: String = TaskContext.getTaskFile("error.txt").toString,
                           loadOperatorAttrs: Map[String,(String,String)] = Map(),
                           dataConnectorAttrs: Map[String,(String,String)] = Map()) extends
-  LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode ,batchSize, errorTolerance) {
+  BaseTeraLoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode ,batchSize, errorTolerance, bulkLoadThreshold) {
 
   require(TPTLoadSetting.supportedModes contains mode, s"$mode is not supported. supported modes are ${TPTLoadSetting.supportedModes.mkString(",")}")
 
   override def setting: String = ???
+
+  /**
+    *
+    * @param batchSize batch size
+    * @param mode      load mode
+    * @return
+    */
+  override def create(batchSize: Int, mode: String): BaseTeraLoadSetting = {
+    copy(batchSize = batchSize, mode = mode)
+  }
+
 }
 
 object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
@@ -39,6 +51,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
 
   override val structure = BasicLoadSetting.structure
     .withValue("error-limit", ConfigValueFactory.fromAnyRef("1000 @default(2000)"))
+    .withValue("bulk-threshold", ConfigValueFactory.fromAnyRef("100M @info()"))
     .withValue("error-file", ConfigValueFactory.fromAnyRef("/var/path/error.txt @optional"))
     .withValue("null-string", ConfigValueFactory.fromAnyRef("\\N @optional @info(marker string for null)"))
 
@@ -48,11 +61,14 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
       "error-limit" -> "maximum number of records allowed in error table",
       "error-file" -> "location of the reject file",
       "load-attrs" -> "miscellaneous load operator attributes",
-      "dtconn-attrs" -> "miscellaneous data-connector operator attributes"
+      "dtconn-attrs" -> "miscellaneous data-connector operator attributes",
+      "bulk-threshold" -> "size of the source file(s) above which fastload mode will be selected if auto mode is enabled"
     ) -- Seq("batch-size")
 
   override val defaultConfig = BasicLoadSetting.defaultConfig
     .withValue("error-limit", ConfigValueFactory.fromAnyRef(2000))
+    .withValue("bulk-threshold", ConfigValueFactory.fromAnyRef("100M"))
+
 
 
   override def apply(config: Config): TPTLoadSetting = {
@@ -67,6 +83,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
       loadSetting.batchSize,
       loadSetting.errorTolerance,
       loadSetting.mode,
+      config.as[Long]("bulk-threshold"),
       config.getAs[String]("null-string"),
       config.as[Int]("error-limit"),
       config.getAs[String]("error-file").getOrElse(TaskContext.getTaskFile("error.txt").toString),

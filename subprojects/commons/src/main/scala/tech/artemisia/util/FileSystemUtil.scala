@@ -180,7 +180,6 @@ object FileSystemUtil {
 
   /**
     * create named pipe. This is method is supported only in OSX and Linux
-    * @param directory
     * @param file
     * @return
     */

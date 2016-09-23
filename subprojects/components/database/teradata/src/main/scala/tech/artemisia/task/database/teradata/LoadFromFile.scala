@@ -36,10 +36,8 @@ abstract class LoadFromFile(override val taskName: String, override val tableNam
     * No operations are done in this phase
     */
   override protected[task] def setup(): Unit = {
-    if (loadSetting.recreateTable) {
-       TeraUtils.dropRecreateTable(tableName)
-    } else {
-      super.setup()
+    if (loadSetting.truncate) {
+      TeraUtils.truncateElseDrop(tableName)
     }
   }
 
