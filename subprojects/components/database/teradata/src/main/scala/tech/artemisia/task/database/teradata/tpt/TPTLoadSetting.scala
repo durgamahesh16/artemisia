@@ -6,6 +6,7 @@ import tech.artemisia.task.database.BasicLoadSetting
 import tech.artemisia.task.database.teradata.BaseTeraLoadSetting
 import tech.artemisia.task.{ConfigurationNode, TaskContext}
 import tech.artemisia.util.HoconConfigUtil.Handler
+import tech.artemisia.util.MemorySize
 
 import scala.collection.JavaConverters._
 
@@ -47,7 +48,7 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
 
 object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
 
-  val supportedModes = Seq("default", "fastload", "auto")
+  val supportedModes = Seq("stream", "fastload", "auto")
 
   override val structure = BasicLoadSetting.structure
     .withValue("error-limit", ConfigValueFactory.fromAnyRef("1000 @default(2000)"))
@@ -83,7 +84,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
       loadSetting.batchSize,
       loadSetting.errorTolerance,
       loadSetting.mode,
-      config.as[Long]("bulk-threshold"),
+      config.as[MemorySize]("bulk-threshold").toBytes,
       config.getAs[String]("null-string"),
       config.as[Int]("error-limit"),
       config.getAs[String]("error-file").getOrElse(TaskContext.getTaskFile("error.txt").toString),

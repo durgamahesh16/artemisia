@@ -78,7 +78,7 @@ object BasicLoadSetting extends ConfigurationNode[BasicLoadSetting] {
     quoting = config.as[Boolean]("quoting"),
     quotechar = config.as[Char]("quotechar"),
     escapechar = config.as[Char]("escapechar"),
-    mode = config.as[String]("mode"),
+    mode = config.as[String]("mode").toLowerCase,
     truncate = config.as[Boolean]("truncate"),
     errorTolerance = config.getAs[Double]("error-tolerence"),
     batchSize = config.as[Int]("batch-size")

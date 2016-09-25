@@ -12,20 +12,19 @@ class TPTLoadOperScrGen(override val tptLoadConfig: TPTLoadConfig,
 
   override protected val loadType: String = "LOAD"
 
-  override protected def preExecuteSQL: String = {
-    s"""|'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT;',
-        |'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET;',
-        |'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV;',
-        |'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG;'""".stripMargin
-  }
+  override protected val preExecuteSQLs = Seq(
+    s"drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT;",
+    s"drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET;",
+    s"drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV;",
+    s"drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG;"
+  )
 
-  override protected def targetAttributes: Map[String, (String, String)] = {
-    baseTargetAttributes ++ Map (
+  override protected val targetAttributes: Map[String, (String, String)] = Map(
       "ERRORTABLE1" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET"),
       "ERRORTABLE2" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_UV"),
       "WORKTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_WT"),
       "DropErrorTable" -> ("VARCHAR","Yes")
     )
-  }
+
 
 }

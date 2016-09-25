@@ -72,9 +72,11 @@ trait DBInterface {
    * @param sql Select query to be executed
    * @return Hocon Config object of the first record
    */
-  def queryOne(sql: String): Config = {
-    info("executing query")
-    info(Util.prettyPrintAsciiBanner(sql,"query"))
+  def queryOne(sql: String, printSQL: Boolean = true): Config = {
+    if (printSQL) {
+      info("executing query")
+      info(Util.prettyPrintAsciiBanner(sql, "query"))
+    }
     val stmt = connection.prepareStatement(sql)
     val rs = stmt.executeQuery()
     val result = DBUtil.resultSetToConfig(rs)

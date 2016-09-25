@@ -91,7 +91,7 @@ object DBUtil {
     override def hasNext: Boolean = {
       resultSet.next() match{
         case true => true
-        case false => resultSet.close(); println("result closed") ; false
+        case false => resultSet.close(); false
       }
     }
 

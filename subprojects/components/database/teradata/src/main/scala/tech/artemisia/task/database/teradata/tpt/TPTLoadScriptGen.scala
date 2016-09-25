@@ -1,6 +1,6 @@
 package tech.artemisia.task.database.teradata.tpt
 
-import tech.artemisia.task.database.teradata.{TeraUtils, DBInterfaceFactory}
+import tech.artemisia.task.database.teradata.{DBInterfaceFactory, TeraUtils}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.DocStringProcessor.StringUtil
 
@@ -33,23 +33,38 @@ trait TPTLoadScriptGen {
     "LOGTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG")
   )
 
+
+  /**
+    * customized target attributes
+    */
+  protected val targetAttributes: Map[String,(String, String)]
+
+
+  /**
+    * final computed target attribute
+    */
+  final lazy val computedTargetAttr = (baseTargetAttributes ++ targetAttributes).map(x => x._1.toUpperCase -> x._2)
+
+
   protected val loadType: String
 
   /**
     * pre job sqls goes here.
     * sqls to drop work, error, log tables goes here.
+ *
     * @return
     */
-  protected def preExecuteSQL: String
+  protected val preExecuteSQLs: Seq[String]
 
-  /**
-    * cutomized target attributes
-    * @return
-    */
-  protected def targetAttributes: Map[String,(String, String)]
+
+  final def ddlStepSQLs = {
+    require(preExecuteSQLs.nonEmpty, "DDL step sql cannot be empty. a minimum of one sql is required")
+    preExecuteSQLs map { x => s"'$x'" } mkString ","
+  }
 
   /**
     * Map of source data-connector attributes
+ *
     * @return
     */
   protected def sourceAttributes = {
@@ -127,7 +142,7 @@ trait TPTLoadScriptGen {
        |        VARCHAR UserName,
        |        VARCHAR UserPassword,
        |        VARCHAR TdpId,
-       |        ${renderAttributes(targetAttributes).ident(8)}
+       |        ${renderAttributes(computedTargetAttr).ident(8)}
        |    );
        |    DEFINE SCHEMA W_0_sc_load_${tptLoadConfig.databaseName}_${tptLoadConfig.tableName}_
        |    (
@@ -153,7 +168,7 @@ trait TPTLoadScriptGen {
        |    Step DROP_TABLE
        |    (
        |        APPLY
-       |        ${preExecuteSQL.ident(8)}
+       |        ${ddlStepSQLs.ident(8)}
        |        TO OPERATOR (DDL_OPERATOR);
        |    );
        |    Step LOAD_TABLE
@@ -185,6 +200,16 @@ trait TPTLoadScriptGen {
        |   );
      """.stripMargin
 
+}
 
+object TPTLoadScriptGen {
+
+  def create(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadSetting, connectionProfile: DBConnection) = {
+    loadSetting.mode match {
+      case "fastload" => new TPTLoadOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
+      case "stream" => new TPTStreamOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
+      case _ => throw new IllegalArgumentException(s"mode ${loadSetting.mode} is not supported")
+    }
+  }
 
 }

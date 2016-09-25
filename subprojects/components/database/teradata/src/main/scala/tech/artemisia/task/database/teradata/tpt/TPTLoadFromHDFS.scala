@@ -17,7 +17,8 @@ class TPTLoadFromHDFS(override val taskName: String
                       ,override val tableName: String
                       ,val hdfsReadSetting: HDFSReadSetting
                       ,override val connectionProfile: DBConnection
-                      ,override val loadSetting: TPTLoadSetting) extends TPTLoad(taskName, tableName, hdfsReadSetting.location, connectionProfile, loadSetting) {
+                      ,override val loadSetting: TPTLoadSetting) extends
+  TPTLoad(taskName, tableName, hdfsReadSetting.location, connectionProfile, loadSetting) {
 
 
   assert(hdfsReadSetting.cliMode, "cli mode must be true for this task. set cli-mode field to true in the task")
@@ -26,7 +27,7 @@ class TPTLoadFromHDFS(override val taskName: String
   /**
     *  tpt script generator
     */
-  override val scriptGenerator = new TPTLoadOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
+  override val scriptGenerator = TPTLoadScriptGen.create(tptLoadConfig, loadSetting, connectionProfile)
 
   /**
     * get reader Future. this Future will launch a thread

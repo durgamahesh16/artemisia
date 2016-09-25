@@ -5,21 +5,29 @@ import tech.artemisia.task.settings.DBConnection
 /**
   * Created by chlr on 9/18/16.
   */
+
+/**
+  * This class generates the TPT stream
+  *
+  * @param tptLoadConfig
+  * @param loadSetting
+  * @param dbConnection
+  */
 class TPTStreamOperScrGen(override val tptLoadConfig: TPTLoadConfig,
                           override val loadSetting: TPTLoadSetting,
                           override implicit val dbConnection: DBConnection) extends TPTLoadScriptGen {
 
   override protected val loadType: String = "STREAM"
 
-  override protected def preExecuteSQL: String = {
-    s"'drop table ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName};'"
-  }
+  override protected val preExecuteSQLs = Seq(s"DROP TABLE ${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET;")
 
-  override protected def targetAttributes: Map[String, (String, String)] = {
-    baseTargetAttributes ++ Map (
+  override protected val targetAttributes: Map[String, (String, String)] = Map(
       "AppendErrorTable" -> ("VARCHAR", "Yes"),
       "ERRORTABLE" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_ET"),
-      "DropErrorTable" -> ("VARCHAR","No")
+      "DropErrorTable" -> ("VARCHAR","Yes"),
+      "ArraySupport" -> ("VARCHAR", "On"),
+      "ErrorLimit" -> ("INTEGER", loadSetting.errorLimit.toString),
+      "LogTable" -> ("VARCHAR",s"${tptLoadConfig.databaseName}.${tptLoadConfig.tableName}_LG"),
+      "PackMaximum" -> ("VARCHAR","Yes")
     )
-  }
 }

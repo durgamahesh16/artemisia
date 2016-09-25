@@ -24,12 +24,14 @@ object CommandUtil {
     * @return return code of the command
     */
   def executeCmd(command: Seq[String], stdout: OutputStream = System.out, stderr: OutputStream = System.err
-                 ,env: Map[String, String] = Map(), cwd: Option[File] = None, obfuscate: Seq[Int] = Nil): Int = {
+                 ,env: Map[String, String] = Map(), cwd: Option[File] = None, obfuscate: Seq[Int] = Nil
+                ,validExitValues: Array[Int] = Array(0)): Int = {
     val cmdLine = new CommandLine(command.head)
     command.tail foreach cmdLine.addArgument
     val executor = new DefaultExecutor()
     cwd foreach executor.setWorkingDirectory
     executor.setStreamHandler(new PumpStreamHandler(stdout, stderr))
+    executor.setExitValues(validExitValues)
     debug(s"""executing command ${obfuscatedCommandString(command, obfuscate)}""")
     executor.execute(cmdLine, (env ++ System.getenv().asScala).asJava)
   }

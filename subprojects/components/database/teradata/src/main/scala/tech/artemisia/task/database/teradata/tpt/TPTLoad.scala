@@ -3,11 +3,11 @@ package tech.artemisia.task.database.teradata.tpt
 import java.io.{ByteArrayOutputStream, File}
 import java.net.URI
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.Config
 import org.apache.commons.io.FileUtils
 import tech.artemisia.core.AppLogger._
-import tech.artemisia.task.database.{DBInterface, DBUtil}
 import tech.artemisia.task.database.teradata._
+import tech.artemisia.task.database.{DBInterface, DBUtil}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskContext}
 import tech.artemisia.util.CommandUtil._
@@ -49,7 +49,10 @@ abstract class TPTLoad(override val taskName: String
 
   protected val tptScriptFile = this.getFileHandle("load.scr")
 
-  protected val logParser = new TPTLoadLogParser(System.out)
+  protected val logParser = TPTLoad.logParser(loadSetting.mode)
+
+  protected val errorLogger: TPTErrorLogger =
+    TPTErrorLogger.createErrorLogger(s"$tableName", loadSetting.errorFile, dbInterface, loadSetting.mode)
 
   private val tptCheckpointDir = {
     val dir = new File(joinPath(TaskContext.workingDir.toString, "tpt_checkpoint"))
@@ -83,8 +86,9 @@ abstract class TPTLoad(override val taskName: String
     val tptCommand = Seq(tbuildBin, "-f", tptScriptFile.toString, "-h", "128M", "-j", tableName,"-r",
       TaskContext.workingDir.toString, "-r", tptCheckpointDir, "-R", "0", "-z", "0", "-o")
     Future {
-      val ret = executeCmd(tptCommand, stdout = logParser)
-      assert(ret == 0, s"command ${tptCommand.mkString(" ")} failed with return code $ret")
+      val ret = executeCmd(tptCommand, stdout = logParser, validExitValues = Array(0,4))
+      assert(ret <= 4, s"command ${tptCommand.mkString(" ")} failed with return code $ret")
+      if (ret == 4) warn(s"TPT job completed with warning")
     }
   }
 
@@ -102,17 +106,17 @@ abstract class TPTLoad(override val taskName: String
     val combinedFuture = TPTLoad.monitor(readerFuture, writerFuture)
     Await.result(combinedFuture, Duration.Inf)
     wrapAsStats {
-      ConfigFactory.empty()
-        .withValue("sent", ConfigValueFactory.fromAnyRef(logParser.rowsSent))
-        .withValue("applied", ConfigValueFactory.fromAnyRef(logParser.rowsApplied))
-        .withValue("err_table1", ConfigValueFactory.fromAnyRef(logParser.rowsErr1))
-        .withValue("err_table2", ConfigValueFactory.fromAnyRef(logParser.rowsErr2))
-        .withValue("duplicate", ConfigValueFactory.fromAnyRef(logParser.rowsDuplicate))
-        .withValue("err_file", ConfigValueFactory.fromAnyRef(logParser.errorFileRows))
+      logParser match {
+        case x: TPTLoadLogParser => x.toConfig
+        case x: TPTStreamLogParser =>
+          x.updateErrorTableCount(tableName)
+          x.toConfig
+      }
     }
   }
 
   override protected[task] def teardown(): Unit = {
+    errorLogger.log()
     if (logParser.jobId != null) {
      detectTPTRun(logParser.jobId) match {
        case jobId :: Nil =>
@@ -172,6 +176,19 @@ object TPTLoad {
     writerFuture onFailure { case th if !promise.isCompleted => promise.failure(th) }
     val res = readerFuture zip writerFuture
     promise.completeWith(res).future
+  }
+
+  /**
+    * get appropriate log-parser
+    * @param mode
+    * @return
+    */
+  def logParser(mode: String) = {
+    mode match {
+      case "fastload" => new TPTLoadLogParser(System.out)
+      case "stream" => new TPTStreamLogParser(System.out)
+      case x => throw new RuntimeException(s"mode $x is not supported")
+    }
   }
 
 

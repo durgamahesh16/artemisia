@@ -28,4 +28,5 @@ abstract class OutputLogParser(stream: OutputStream) extends LogOutputStream {
     */
   def parse(line: String): Unit
 
+
 }

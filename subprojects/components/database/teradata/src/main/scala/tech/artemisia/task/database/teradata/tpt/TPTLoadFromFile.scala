@@ -17,12 +17,13 @@ class TPTLoadFromFile(override val taskName: String
                      ,override val tableName: String
                      ,override val location: URI
                      ,override val connectionProfile: DBConnection
-                     ,override val loadSetting: TPTLoadSetting) extends TPTLoad(taskName, tableName, location, connectionProfile, loadSetting) {
+                     ,override val loadSetting: TPTLoadSetting)
+  extends TPTLoad(taskName, tableName, location, connectionProfile, loadSetting) {
 
     /**
       *  tpt script generator
       */
-    override val scriptGenerator = new TPTLoadOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
+    override val scriptGenerator = TPTLoadScriptGen.create(tptLoadConfig, loadSetting, connectionProfile)
 
     /**
      * get reader Future. this Future will launch a thread

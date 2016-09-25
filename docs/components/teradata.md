@@ -137,8 +137,6 @@ the configuration object for this task is as shown below.
            mode = "default @default(default) @type(string)"
            quotechar = "\" @default('\"') @type(char)"
            quoting = "no @default(false) @type(boolean)"
-           recreate-table = "no @default(false)"
-           session = "\"x1 @default(small-load -> 1, fastload -> 10)\""
            skip-lines = "0 @default(0) @type(int)"
            truncate = "yes @type(boolean)"
         }
@@ -158,7 +156,6 @@ the configuration object for this task is as shown below.
     * bulk-threshold: size of the source file(s) above which fastload mode will be selected if auto mode is enabled
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
-    * session: no of sessions used for the load
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table. The allowed modes are
         * fastload
@@ -168,7 +165,6 @@ the configuration object for this task is as shown below.
     * escapechar: escape character used in the file
     * quoting: boolean field to indicate if the file is quoted.
     * delimiter: delimiter of the file
-    * recreate-table: drop and recreate the target table. This may be required for Fastload for restartablity
 
      
 
@@ -201,14 +197,13 @@ The typical task SQLExport configuration is as shown below
            username = "username @required"
         }
          export =   {
-           bulk-threshold = 1000000
-           delimiter = ","
-           escapechar = "\\"
-           header = false
-           mode = "default"
-           quotechar = "\""
-           quoting = "no"
-           session = 1
+           delimiter = "| @default(,) @type(char)"
+           escapechar = "'\\' @default(\\) @type(char)"
+           header = "yes @default(false) @type(boolean)"
+           mode = "default @default(default)"
+           quotechar = "'\"' @default(\") @type(char)"
+           quoting = "yes @default(false) @type(boolean)"
+           sql = "select * from table @required"
         }
          location = "/var/tmp/file.txt"
          sql = "SELECT * FROM TABLE @optional(either sql or sqlfile key is required)"
@@ -223,10 +218,9 @@ The typical task SQLExport configuration is as shown below
  * export:
     * sql: SQL query whose result-set will be exported.
     * quotechar: quotechar to use if quoting is enabled.
-    * session: number of sessions to use. this is applicable only for fastexport mode
-    * mode: export mode to be used
+    * mode: modes of export. supported modes are
         * default
-        * fastexport
+        * bulk
     * header: boolean literal to enable/disable header
     * sqlfile: used in place of sql key to pass the file containing the SQL
     * escapechar: escape character use for instance to escape delimiter values in field
@@ -262,14 +256,13 @@ The typical task SQLExport configuration is as shown below
            username = "username @required"
         }
          export =   {
-           bulk-threshold = 1000000
-           delimiter = ","
-           escapechar = "\\"
-           header = false
-           mode = "default"
-           quotechar = "\""
-           quoting = "no"
-           session = 1
+           delimiter = "| @default(,) @type(char)"
+           escapechar = "'\\' @default(\\) @type(char)"
+           header = "yes @default(false) @type(boolean)"
+           mode = "default @default(default)"
+           quotechar = "'\"' @default(\") @type(char)"
+           quoting = "yes @default(false) @type(boolean)"
+           sql = "select * from table @required"
         }
          hdfs =   {
            block-size = "120M"
@@ -290,10 +283,9 @@ The typical task SQLExport configuration is as shown below
  * export:
     * sql: SQL query whose result-set will be exported.
     * quotechar: quotechar to use if quoting is enabled.
-    * session: number of sessions to use. this is applicable only for fastexport mode
-    * mode: export mode to be used
+    * mode: modes of export. supported modes are
         * default
-        * fastexport
+        * bulk
     * header: boolean literal to enable/disable header
     * sqlfile: used in place of sql key to pass the file containing the SQL
     * escapechar: escape character use for instance to escape delimiter values in field
@@ -353,8 +345,6 @@ The typical task SQLExport configuration is as shown below
            mode = "default @default(default) @type(string)"
            quotechar = "\" @default('\"') @type(char)"
            quoting = "no @default(false) @type(boolean)"
-           recreate-table = "no @default(false)"
-           session = "\"x1 @default(small-load -> 1, fastload -> 10)\""
            skip-lines = "0 @default(0) @type(int)"
            truncate = "yes @type(boolean)"
         }
@@ -373,7 +363,6 @@ The typical task SQLExport configuration is as shown below
     * bulk-threshold: size of the source file(s) above which fastload mode will be selected if auto mode is enabled
     * truncate: truncate the target table before loading data
     * error-tolerance: % of data that is allowable to get rejected value ranges from (0.00 to 1.00)
-    * session: no of sessions used for the load
     * load-path: path to load from (eg: /var/tmp/input.txt)
     * mode: mode of loading the table. The allowed modes are
         * fastload
@@ -383,7 +372,6 @@ The typical task SQLExport configuration is as shown below
     * escapechar: escape character used in the file
     * quoting: boolean field to indicate if the file is quoted.
     * delimiter: delimiter of the file
-    * recreate-table: drop and recreate the target table. This may be required for Fastload for restartablity
  * hdfs:
     * location: target HDFS path
     * codec: compression format to use. This field is relevant only if local-cli is false. The allowed codecs are
@@ -601,6 +589,7 @@ The typical task SQLExport configuration is as shown below
         }
          load =   {
            batch-size = "200 @default(100)"
+           bulk-threshold = "100M @info()"
            delimiter = "'|' @default(',') @type(char)"
            error-file = "/var/path/error.txt @optional"
            error-limit = "1000 @default(2000)"
@@ -627,6 +616,7 @@ The typical task SQLExport configuration is as shown below
  * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * bulk-threshold: size of the source file(s) above which fastload mode will be selected if auto mode is enabled
     * dtconn-attrs: miscellaneous data-connector operator attributes
     * error-file: location of the reject file
     * truncate: truncate the target table before loading data
@@ -679,6 +669,7 @@ The typical task SQLExport configuration is as shown below
         }
          load =   {
            batch-size = "200 @default(100)"
+           bulk-threshold = "100M @info()"
            delimiter = "'|' @default(',') @type(char)"
            error-file = "/var/path/error.txt @optional"
            error-limit = "1000 @default(2000)"
@@ -704,6 +695,7 @@ The typical task SQLExport configuration is as shown below
  * load:
     * skip-lines: number of lines to skip in he table
     * quotechar: character to be used for quoting
+    * bulk-threshold: size of the source file(s) above which fastload mode will be selected if auto mode is enabled
     * dtconn-attrs: miscellaneous data-connector operator attributes
     * error-file: location of the reject file
     * truncate: truncate the target table before loading data

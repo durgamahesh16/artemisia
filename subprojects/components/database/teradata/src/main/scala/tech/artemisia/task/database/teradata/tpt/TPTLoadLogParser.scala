@@ -2,6 +2,7 @@ package tech.artemisia.task.database.teradata.tpt
 
 import java.io.OutputStream
 
+import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import tech.artemisia.inventory.io.OutputLogParser
 
 /**
@@ -21,7 +22,9 @@ import tech.artemisia.inventory.io.OutputLogParser
   *
   * @param stream stream where data has to be relayed once it is parsed.
   */
-class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
+class TPTLoadLogParser(stream: OutputStream)
+  extends OutputLogParser(stream)
+  with BaseTPTLogParser {
 
   private val jobIdRgx = ".*Job id is (\\b[\\w]*.?[\\w]+-[\\d]+\\b),.*".r
   private val jobLogFileRgx = s"Job log:[\\s]+(.+)".r
@@ -32,14 +35,15 @@ class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
   private val rowsDuplicateRgx = "tpt_writer: Total Duplicate Rows:[\\s]+(\\d+)".r
   private val errorFileRowsRgx = "tpt_reader:.+\\b(\\d+)\\b.*error rows sent to error file.*".r
 
-  var jobId: String  = _
+  override var jobId: String  = _
+  override var jobLogFile: String = _
   var rowsSent: Long = 0
   var rowsApplied: Long = 0
   var rowsErr1: Long = 0
   var rowsErr2: Long = 0
   var rowsDuplicate: Long = 0
   var errorFileRows: Long = 0
-  var jobLogFile: String = _
+
 
   override def parse(line: String): Unit = {
     line match {
@@ -53,6 +57,18 @@ class TPTLoadLogParser(stream: OutputStream) extends OutputLogParser(stream) {
       case jobLogFileRgx(x) => jobLogFile = x
       case _ => ()
     }
+  }
+
+  override def toConfig = {
+    ConfigFactory.empty()
+      .withValue("sent", ConfigValueFactory.fromAnyRef(rowsSent))
+      .withValue("applied", ConfigValueFactory.fromAnyRef(rowsApplied))
+      .withValue("err_table1", ConfigValueFactory.fromAnyRef(rowsErr1))
+      .withValue("err_table2", ConfigValueFactory.fromAnyRef(rowsErr2))
+      .withValue("duplicate", ConfigValueFactory.fromAnyRef(rowsDuplicate))
+      .withValue("err_file", ConfigValueFactory.fromAnyRef(errorFileRows))
+      .withValue("source", ConfigValueFactory.fromAnyRef(rowsSent + errorFileRows))
+      .withValue("rejected", ConfigValueFactory.fromAnyRef(rowsErr1 + rowsErr2 + rowsDuplicate + errorFileRows))
   }
 
 }
