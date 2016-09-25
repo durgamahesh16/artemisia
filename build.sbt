@@ -16,6 +16,8 @@ lazy val docgen = taskKey[Unit]("Generate Components documentation")
 
 lazy val refgen = taskKey[Unit]("Generate settings conf file")
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 fork := true // This is required so that setting.file system property is properly set by javaOptions
 
 javaOptions in Global += s"-Dsetting.file="+baseDirectory.value / "src/universal/conf/settings.conf"
