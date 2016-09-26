@@ -207,7 +207,7 @@ object TPTLoadScriptGen {
   def create(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadSetting, connectionProfile: DBConnection) = {
     loadSetting.mode match {
       case "fastload" => new TPTLoadOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
-      case "stream" => new TPTStreamOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
+      case "default" => new TPTStreamOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
       case _ => throw new IllegalArgumentException(s"mode ${loadSetting.mode} is not supported")
     }
   }

@@ -28,7 +28,6 @@ abstract class BaseTeraLoadSetting(override val skipRows: Int = 0,
                                    val bulkLoadThreshold: Long) extends
   LoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode, batchSize, errorTolerance)  {
 
-
   /**
     *
     * @param batchSize batch size

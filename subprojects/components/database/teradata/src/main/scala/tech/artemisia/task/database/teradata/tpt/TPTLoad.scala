@@ -45,6 +45,8 @@ abstract class TPTLoad(override val taskName: String
 
   lazy protected val twbStat = getExecutableOrFail("twbstat")
 
+  protected val loadDataSize: Long
+
   protected val dataPipe = joinPath(TaskContext.workingDir.toString, "input.pipe")
 
   protected val tptScriptFile = this.getFileHandle("load.scr")
@@ -53,6 +55,7 @@ abstract class TPTLoad(override val taskName: String
 
   protected val errorLogger: TPTErrorLogger =
     TPTErrorLogger.createErrorLogger(s"$tableName", loadSetting.errorFile, dbInterface, loadSetting.mode)
+
 
   private val tptCheckpointDir = {
     val dir = new File(joinPath(TaskContext.workingDir.toString, "tpt_checkpoint"))
@@ -93,41 +96,47 @@ abstract class TPTLoad(override val taskName: String
   }
 
   override protected[task] def setup(): Unit = {
-    assert(detectTPTRun(tableName) == Nil, s"detected TPT job(s) already running for the table " +
-      s"${detectTPTRun(tableName).mkString(",")}. try again after sometime")
-    if (loadSetting.truncate) {
-      TeraUtils.truncateElseDrop(tableName)
+    if (loadDataSize > 0) {
+      assert(detectTPTRun(tableName) == Nil, s"detected TPT job(s) already running for the table " +
+        s"${detectTPTRun(tableName).mkString(",")}. try again after sometime")
+      if (loadSetting.truncate) {
+        TeraUtils.truncateElseDrop(tableName)
+      }
+      createNamedPipe(dataPipe)
+      tptScriptFile <<= scriptGenerator.tptScript
     }
-    createNamedPipe(dataPipe)
-    tptScriptFile <<= scriptGenerator.tptScript
   }
 
   override protected[task] def work(): Config = {
-    val combinedFuture = TPTLoad.monitor(readerFuture, writerFuture)
-    Await.result(combinedFuture, Duration.Inf)
-    wrapAsStats {
-      logParser match {
-        case x: TPTLoadLogParser => x.toConfig
-        case x: TPTStreamLogParser =>
-          x.updateErrorTableCount(tableName)
-          x.toConfig
-      }
+    if (loadDataSize > 0) {
+      val combinedFuture = TPTLoad.monitor(readerFuture, writerFuture)
+      Await.result(combinedFuture, Duration.Inf)
     }
+      wrapAsStats {
+        logParser match {
+          case x: TPTLoadLogParser => x.toConfig
+          case x: TPTStreamLogParser =>
+            x.updateErrorTableCount(tableName)
+            x.toConfig
+        }
+      }
   }
 
   override protected[task] def teardown(): Unit = {
-    errorLogger.log()
-    if (logParser.jobId != null) {
-     detectTPTRun(logParser.jobId) match {
-       case jobId :: Nil =>
-         debug(s"attempting to kill tpt job ${logParser.jobId}")
-         killTPTJob(logParser.jobId)
-       case _ => ()
-     }
+    if (loadDataSize > 0) {
+      errorLogger.log()
+      if (logParser.jobId != null) {
+        detectTPTRun(logParser.jobId) match {
+          case jobId :: Nil =>
+            debug(s"attempting to kill tpt job ${logParser.jobId}")
+            killTPTJob(logParser.jobId)
+          case _ => ()
+        }
+      }
+      if (logParser.jobLogFile != null)
+        debug(s"run tlogview -l ${logParser.jobLogFile} to view job output")
+      new File(dataPipe).delete()
     }
-    if (logParser.jobLogFile != null)
-      debug(s"run tlogview -l ${logParser.jobLogFile} to view job output")
-    new File(dataPipe).delete()
   }
 
   /**
@@ -142,6 +151,7 @@ abstract class TPTLoad(override val taskName: String
   /**
     *
     * This is implemented by running twbstat command and parsing the output.
+    *
     * @param jobName tpt job name
     * @return
     */
@@ -180,13 +190,14 @@ object TPTLoad {
 
   /**
     * get appropriate log-parser
+    *
     * @param mode
     * @return
     */
   def logParser(mode: String) = {
     mode match {
       case "fastload" => new TPTLoadLogParser(System.out)
-      case "stream" => new TPTStreamLogParser(System.out)
+      case "default" => new TPTStreamLogParser(System.out)
       case x => throw new RuntimeException(s"mode $x is not supported")
     }
   }

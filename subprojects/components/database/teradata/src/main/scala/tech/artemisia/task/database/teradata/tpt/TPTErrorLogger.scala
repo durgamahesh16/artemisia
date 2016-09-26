@@ -58,7 +58,7 @@ object TPTErrorLogger {
                         dbInterface: DBInterface,
                         mode: String) = {
     mode match {
-      case "stream" => new TPTStreamOperErrLogger(tableName, errorFile, dbInterface)
+      case "default" => new TPTStreamOperErrLogger(tableName, errorFile, dbInterface)
       case "fastload" => new TPTLoadOperErrLogger(tableName, errorFile, dbInterface)
       case x => throw new RuntimeException(s"mode $x is not supported.")
     }

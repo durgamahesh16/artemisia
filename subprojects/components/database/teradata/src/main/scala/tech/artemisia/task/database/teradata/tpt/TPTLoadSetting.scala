@@ -10,8 +10,24 @@ import tech.artemisia.util.MemorySize
 
 import scala.collection.JavaConverters._
 
+
 /**
-  * Created by chlr on 9/6/16.
+  * case class for TPT Load Setting
+  * @param skipRows no of rows to skip in load file
+  * @param delimiter delimiter of the load file
+  * @param quoting is file quoted
+  * @param quotechar quote char used to enclose fields.
+  * @param escapechar escape character to escape special symbols
+  * @param truncate truncate target table
+  * @param batchSize size of batch insert
+  * @param errorTolerance tolerance factor records rejection during load
+  * @param mode mode of operation.
+  * @param bulkLoadThreshold threshold load size for fastload
+  * @param nullString replace occurences of these strings as NULL
+  * @param errorLimit fail this job if no of rejected records exceeds this number.
+  * @param errorFile location of the file where rejected records are written.
+  * @param loadOperatorAttrs
+  * @param dataConnectorAttrs
   */
 case class TPTLoadSetting(override val skipRows: Int = 0,
                           override val delimiter: Char = ',',
@@ -30,7 +46,8 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
                           dataConnectorAttrs: Map[String,(String,String)] = Map()) extends
   BaseTeraLoadSetting(skipRows, delimiter, quoting, quotechar, escapechar, truncate, mode ,batchSize, errorTolerance, bulkLoadThreshold) {
 
-  require(TPTLoadSetting.supportedModes contains mode, s"$mode is not supported. supported modes are ${TPTLoadSetting.supportedModes.mkString(",")}")
+  require(TPTLoadSetting.supportedModes contains mode,
+    s"$mode is not supported. supported modes are ${TPTLoadSetting.supportedModes.mkString(",")}")
 
   override def setting: String = ???
 
@@ -48,7 +65,7 @@ case class TPTLoadSetting(override val skipRows: Int = 0,
 
 object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
 
-  val supportedModes = Seq("stream", "fastload", "auto")
+  val supportedModes = Seq("default", "fastload", "auto")
 
   override val structure = BasicLoadSetting.structure
     .withValue("error-limit", ConfigValueFactory.fromAnyRef("1000 @default(2000)"))
@@ -63,7 +80,7 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
       "error-file" -> "location of the reject file",
       "load-attrs" -> "miscellaneous load operator attributes",
       "dtconn-attrs" -> "miscellaneous data-connector operator attributes",
-      "bulk-threshold" -> "size of the source file(s) above which fastload mode will be selected if auto mode is enabled"
+        "bulk-threshold" -> "size of the source file(s) above which fastload mode will be selected if auto mode is enabled"
     ) -- Seq("batch-size")
 
   override val defaultConfig = BasicLoadSetting.defaultConfig
@@ -75,7 +92,8 @@ object TPTLoadSetting extends ConfigurationNode[TPTLoadSetting] {
   override def apply(config: Config): TPTLoadSetting = {
     val loadSetting = BasicLoadSetting(config)
     TPTLoadSetting(
-      skipRows = if (config.as[Int]("skip-lines") == 0) if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),
+      skipRows = if (config.as[Int]("skip-lines") == 0)
+        if (config.as[Boolean]("header")) 1 else 0 else config.as[Int]("skip-lines"),
       loadSetting.delimiter,
       loadSetting.quoting,
       loadSetting.quotechar,

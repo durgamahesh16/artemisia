@@ -21,7 +21,7 @@ import tech.artemisia.util.HoconConfigUtil.Handler
   * @param connectionProfile database connection profile
   * @param loadSetting load setting
   */
-abstract class LoadFromHDFS(override val taskName: String, override val tableName: String, override val hdfsReadSetting: HDFSReadSetting,
+abstract class  LoadFromHDFS(override val taskName: String, override val tableName: String, override val hdfsReadSetting: HDFSReadSetting,
                    override val connectionProfile: DBConnection, override val loadSetting: TeraLoadSetting) extends
   hadoop.LoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile, loadSetting) {
 

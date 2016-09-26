@@ -23,10 +23,10 @@ class TPTStreamLogParser(stream: OutputStream)
   private val jobIdRgx = ".*Job id is (\\b[\\w]*.?[\\w]+-[\\d]+\\b),.*".r
   private val jobLogFileRgx = s"Job log:[\\s]+(.+)".r
 
-  var appliedRows: Long = _
-  var rejectedRows: Long = _
-  var errorTableRows: Long = _
-  var errorFileRows: Long = _
+  var appliedRows: Long = 0
+  var rejectedRows: Long = 0
+  var errorTableRows: Long = 0
+  var errorFileRows: Long = 0
   override var jobId: String = _
   override var jobLogFile: String = _
 

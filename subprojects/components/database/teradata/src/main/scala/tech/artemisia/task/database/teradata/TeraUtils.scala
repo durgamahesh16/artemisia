@@ -18,6 +18,7 @@ object TeraUtils {
 
   /**
     * utility method to drop and recreate a table
+    *
     * @param tableName name of the table
     * @param dbInterface implicit dbinterface object
     */
@@ -32,6 +33,7 @@ object TeraUtils {
 
   /**
     * truncate the table and if truncate fails due to fastload lock drop and re-create the table.
+    *
     * @param tableName name of the table.
     * @param dBInterface
     */
@@ -54,10 +56,14 @@ object TeraUtils {
     */
   def autoTuneLoadSettings[T <: BaseTeraLoadSetting](loadSize: Long, loadSetting: T) : T = {
     def transform(x: T) = {
-     if (loadSize > x.bulkLoadThreshold)
-        x.create(batchSize = 80000, mode = "fastload")
-      else
-        x.create(batchSize = 4000, mode = "default")
+     if (loadSize > x.bulkLoadThreshold) {
+       debug(s"target load size of $loadSize is greater than the threshold of ${x.bulkLoadThreshold}")
+       x.create(batchSize = 80000, mode = "fastload")
+     }
+     else {
+       debug(s"target load size of $loadSize is lesser than the threshold of ${x.bulkLoadThreshold}")
+       x.create(batchSize = 4000, mode = "default")
+     }
     }
     if (loadSetting.mode == "auto") {
       transform(loadSetting).asInstanceOf[T]
@@ -69,6 +75,7 @@ object TeraUtils {
 
   /**
     * fetch table column metadata details
+    *
     * @param databaseName databasename
     * @param tableName target table name
     * @param dBInterface Teradata DBInterface instance
