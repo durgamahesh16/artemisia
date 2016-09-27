@@ -9,9 +9,9 @@ import tech.artemisia.task.settings.DBConnection
 class TPTLoadScriptGenSpec extends TestSpec {
 
   "TPTLoadScriptGenerator" must "generate TPT scripts" in {
-    val generator = new TPTLoadOperScrGen(
+    val generator = new TPTFastLoadScrGen(
       TPTLoadConfig("database", "table", "/var/path", "input.pipe"),
-      TPTLoadSetting(dataConnectorAttrs = Map("ROWERRFILENAME" -> ("VARCHAR","/var/path/errorfile"))),
+      TPTLoadSetting(errorFile = "/var/path/errorfile"),
       DBConnection("td_server", "voltron", "password", "dbc", 1025)
     ) {
       override lazy val dbInterface = ???
@@ -46,17 +46,17 @@ object TPTLoadScriptGenSpec {
         |        VARCHAR ERRORTABLE2 = 'database.table_UV',
         |        VARCHAR WORKTABLE = 'database.table_WT',
         |        INTEGER ERRORLIMIT = 2000,
-        |        VARCHAR DropErrorTable = 'Yes',
-        |        VARCHAR PACKMAXIMUM = 'No'
+        |        VARCHAR PACKMAXIMUM = 'No',
+        |        VARCHAR DROPERRORTABLE = 'Yes'
         |    );
-        |    DEFINE SCHEMA W_0_sc_load_database_table
+        |    DEFINE SCHEMA W_0_sc_load_database_table_
         |    (
         |        "col1_1" VARCHAR(25)
         |        ,"col2_2" VARCHAR(25)
         |    );
         |    DEFINE OPERATOR tpt_reader
         |    TYPE DATACONNECTOR PRODUCER
-        |    SCHEMA W_0_sc_load_database_table
+        |    SCHEMA W_0_sc_load_database_table_
         |    ATTRIBUTES
         |    (
         |        VARCHAR VALIDUTF8 = 'UTF8',
@@ -85,9 +85,9 @@ object TPTLoadScriptGenSpec {
         |    Step DROP_TABLE
         |    (
         |        APPLY
-        |        'drop table database.table_WT;',
-        |        'drop table database.table_ET;',
-        |        'drop table database.table_UV;',
+        |        'drop table database.table_WT;'
+        |        'drop table database.table_ET;'
+        |        'drop table database.table_UV;'
         |        'drop table database.table_LG;'
         |        TO OPERATOR (DDL_OPERATOR);
         |    );

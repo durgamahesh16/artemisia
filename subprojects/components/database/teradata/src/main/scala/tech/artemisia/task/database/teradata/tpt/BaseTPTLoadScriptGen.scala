@@ -12,7 +12,7 @@ import tech.artemisia.util.DocStringProcessor.StringUtil
  * TPT Script generator interface.
  *
  */
-trait TPTLoadScriptGen {
+trait BaseTPTLoadScriptGen {
 
   protected val tptLoadConfig: TPTLoadConfig
 
@@ -59,7 +59,7 @@ trait TPTLoadScriptGen {
 
   final def ddlStepSQLs = {
     require(preExecuteSQLs.nonEmpty, "DDL step sql cannot be empty. a minimum of one sql is required")
-    preExecuteSQLs map { x => s"'$x'" } mkString ","
+    preExecuteSQLs map { x => s"'$x'" } mkString System.lineSeparator
   }
 
   /**
@@ -202,12 +202,12 @@ trait TPTLoadScriptGen {
 
 }
 
-object TPTLoadScriptGen {
+object BaseTPTLoadScriptGen {
 
   def create(tptLoadConfig: TPTLoadConfig, loadSetting: TPTLoadSetting, connectionProfile: DBConnection) = {
     loadSetting.mode match {
-      case "fastload" => new TPTLoadOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
-      case "default" => new TPTStreamOperScrGen(tptLoadConfig, loadSetting, connectionProfile)
+      case "fastload" => new TPTFastLoadScrGen(tptLoadConfig, loadSetting, connectionProfile)
+      case "default" => new TPTStreamScrGen(tptLoadConfig, loadSetting, connectionProfile)
       case _ => throw new IllegalArgumentException(s"mode ${loadSetting.mode} is not supported")
     }
   }

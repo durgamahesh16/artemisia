@@ -13,9 +13,9 @@ import tech.artemisia.task.settings.DBConnection
   * @param loadSetting
   * @param dbConnection
   */
-class TPTStreamOperScrGen(override val tptLoadConfig: TPTLoadConfig,
-                          override val loadSetting: TPTLoadSetting,
-                          override implicit val dbConnection: DBConnection) extends TPTLoadScriptGen {
+class TPTStreamScrGen(override val tptLoadConfig: TPTLoadConfig,
+                      override val loadSetting: TPTLoadSetting,
+                      override implicit val dbConnection: DBConnection) extends BaseTPTLoadScriptGen {
 
   override protected val loadType: String = "STREAM"
 

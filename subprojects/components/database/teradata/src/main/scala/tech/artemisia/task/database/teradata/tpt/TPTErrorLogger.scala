@@ -1,10 +1,10 @@
 package tech.artemisia.task.database.teradata.tpt
 
+import java.io.File
 import tech.artemisia.task.database.DBInterface
 import tech.artemisia.task.database.DBUtil.ResultSetIterator
 import tech.artemisia.core.AppLogger._
 import tech.artemisia.util.Util
-
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -45,7 +45,11 @@ trait TPTErrorLogger {
     * error file content.
     */
   protected lazy val errorFileContent = {
-    Source.fromFile(errorFile).getLines.take(10)
+    val file = new File(errorFile)
+    file.exists() match {
+      case true => Source.fromFile(errorFile).getLines.take(10)
+      case false => Nil
+    }
   }
 
 }

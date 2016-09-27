@@ -1,5 +1,7 @@
 package tech.artemisia.task.database.teradata.tpt
 
+import java.io.File
+
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.output.NullOutputStream
 import tech.artemisia.TestSpec
@@ -16,8 +18,10 @@ import scala.concurrent.Future
 class TPTLoadFromHDFSSpec extends TestSpec {
 
   "TPTLoadFromHDFS" must "construct itself from config" in {
+    val hdfs = new File(this.getClass.getResource("/executables/hdfs.sh").getFile)
+    hdfs.setExecutable(true)
     val config = ConfigFactory parseString
-      """
+      s"""
         |{
         |   dsn = {
         |      host = server-name
@@ -34,8 +38,9 @@ class TPTLoadFromHDFSSpec extends TestSpec {
         |      load-attrs = {}
         |      batch-size = 212312
         |      error-limit = 1234
-        |      quotechar = "\""
-        |      escapechar = "\\"
+        |      bulk-threshold = 1M
+        |      quotechar = "~"
+        |      escapechar = "&"
         |      mode = "fastload"
         |      skip-lines = 100
         |      dtconn-attrs = {
@@ -57,16 +62,17 @@ class TPTLoadFromHDFSSpec extends TestSpec {
         |   hdfs = {
         |     location = /home/chlr/artemisia/confs/load.txt
         |     cli-mode = yes
-        |     cli-binary = /usr/local/bin/hadoop
+        |     cli-binary = ${hdfs.toString}
         |   }
         | }
       """.stripMargin
     val task = TPTLoadFromHDFS("test_job", config).asInstanceOf[TPTLoadFromHDFS]
     task.loadSetting.nullString must be (None)
     task.loadSetting.mode must be ("fastload")
-    task.loadSetting.quotechar must be ('"')
+    task.loadSetting.quotechar must be ('~')
+    task.loadSetting.bulkLoadThreshold must be (1048576)
     task.loadSetting.batchSize must be (212312)
-    task.loadSetting.escapechar must be ('\\')
+    task.loadSetting.escapechar must be ('&')
     task.loadSetting.delimiter must be (',')
     task.loadSetting.errorLimit must be (1234)
     task.loadSetting.dataConnectorAttrs must be (Map(
@@ -83,7 +89,7 @@ class TPTLoadFromHDFSSpec extends TestSpec {
     task.tableName must be ("sandbox.chlr_test2")
     task.location.toString must be ("/home/chlr/artemisia/confs/load.txt")
     task.hdfsReadSetting.location.toString must be ("/home/chlr/artemisia/confs/load.txt")
-    task.hdfsReadSetting.cliBinary must be ("/usr/local/bin/hadoop")
+    task.hdfsReadSetting.cliBinary must be (hdfs.toString)
   }
 
 
@@ -93,25 +99,25 @@ class TPTLoadFromHDFSSpec extends TestSpec {
       ,HDFSReadSetting(this.getClass.getResource("/samplefiles/file.txt").toURI)
       ,DBConnection.getDummyConnection
       ,TPTLoadSetting()) {
-      override protected val loadDataSize: Long = 10L
-      override implicit val dbInterface = TestDBInterFactory.withDefaultDataLoader("test_table")
-      override lazy val tbuildBin = getExecutable(this.getClass.getResource("/executables/tbuild_load_from_file.sh"))
-      override lazy val twbKillBin = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))
-      override lazy val twbStat = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))
-      override val logParser = new TPTLoadLogParser(new NullOutputStream())
-      override lazy val readerFuture = Future.successful(())
-      override val scriptGenerator = new TPTLoadOperScrGen(
-        TPTLoadConfig("database", "table", "/var/path", "input.pipe"),
-        TPTLoadSetting(dataConnectorAttrs = Map("ROWERRFILENAME" -> ("VARCHAR","/var/path/errorfile"))),
-        DBConnection("td_server", "voltron", "password", "dbc", 1025)
-      ) {
-        override lazy val dbInterface = ???
-        override lazy val tableMetadata = Seq(
-          ("col1", "I1", 25: Short, "col1_1", "N"),
-          ("col2", "I1", 25: Short, "col2_2", "Y")
-        )
+          override protected val loadDataSize: Long = 10L
+          override implicit val dbInterface = TestDBInterFactory.withDefaultDataLoader("test_table")
+          override lazy val tbuildBin = getExecutable(this.getClass.getResource("/executables/tbuild_load_from_file.sh"))
+          override lazy val twbKillBin = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))
+          override lazy val twbStat = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))
+          override val logParser = new TPTLoadLogParser(new NullOutputStream())
+          override lazy val readerFuture = Future.successful(())
+          override val scriptGenerator = new TPTFastLoadScrGen(
+            TPTLoadConfig("database", "table", "/var/path", "input.pipe"),
+            TPTLoadSetting(dataConnectorAttrs = Map("ROWERRFILENAME" -> ("VARCHAR","/var/path/errorfile"))),
+            DBConnection("td_server", "voltron", "password", "dbc", 1025)
+        ) {
+          override lazy val dbInterface = ???
+          override lazy val tableMetadata = Seq(
+            ("col1", "I1", 25: Short, "col1_1", "N"),
+            ("col2", "I1", 25: Short, "col2_2", "Y")
+          )
+        }
       }
-    }
     val result = task.execute()
     result.getInt("test_load.__stats__.applied") must be (1000000)
     result.getInt("test_load.__stats__.sent") must be (1000000)

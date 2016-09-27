@@ -39,7 +39,7 @@ abstract class TPTLoad(override val taskName: String
 
   protected val loadDataSize: Long
 
-  protected val scriptGenerator: TPTLoadScriptGen
+  protected val scriptGenerator: BaseTPTLoadScriptGen
 
   protected val readerFuture: Future[Unit]
 

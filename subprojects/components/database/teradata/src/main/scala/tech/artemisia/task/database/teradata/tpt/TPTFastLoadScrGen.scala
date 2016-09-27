@@ -6,9 +6,9 @@ import tech.artemisia.task.settings.DBConnection
   * Created by chlr on 9/6/16.
   */
 
-class TPTLoadOperScrGen(override val tptLoadConfig: TPTLoadConfig,
+class TPTFastLoadScrGen(override val tptLoadConfig: TPTLoadConfig,
                         override val loadSetting: TPTLoadSetting,
-                        override implicit val dbConnection: DBConnection) extends TPTLoadScriptGen {
+                        override implicit val dbConnection: DBConnection) extends BaseTPTLoadScriptGen {
 
   override protected val loadType: String = "LOAD"
 

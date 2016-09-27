@@ -36,7 +36,7 @@ abstract class TPTLoadFromHDFS(override val taskName: String
   /**
     *  tpt script generator
     */
-  override val scriptGenerator = TPTLoadScriptGen.create(tptLoadConfig, loadSetting, connectionProfile)
+  override val scriptGenerator = BaseTPTLoadScriptGen.create(tptLoadConfig, loadSetting, connectionProfile)
 
   /**
     * get reader Future. this Future will launch a thread

@@ -7,6 +7,7 @@ import tech.artemisia.task.database.TestDBInterFactory
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.TestUtils._
 import scala.concurrent.Future
+import tech.artemisia.util.FileSystemUtil._
 
 /**
   * Created by chlr on 9/16/16.
@@ -14,9 +15,9 @@ import scala.concurrent.Future
 class TPTLoadFromFileSpec extends TestSpec {
 
   "TPTLoadFromFile" must "construct itself from config" in {
-
+    val location = joinPath(this.getClass.getResource("/samplefiles").getFile,"dir*/file*.txt")
     val config = ConfigFactory parseString
-       """
+       s"""
          |{
          |   dsn = {
          |      host = server-name
@@ -33,8 +34,9 @@ class TPTLoadFromFileSpec extends TestSpec {
          |      load-attrs = {}
          |      batch-size = 212312
          |      error-limit = 1234
-         |      quotechar = "\""
-         |      escapechar = "\\"
+         |      bulk-threshold = 1M
+         |      quotechar = "~"
+         |      escapechar = "&"
          |      mode = "fastload"
          |      skip-lines = 100
          |      dtconn-attrs = {
@@ -53,15 +55,16 @@ class TPTLoadFromFileSpec extends TestSpec {
          |      }
          |   }
          |   destination-table = sandbox.chlr_test2
-         |   location = /home/chlr/artemisia/confs/load.txt
+         |   location = "$location"
          | }
        """.stripMargin
     val task = TPTLoadFromFile("test_job", config).asInstanceOf[TPTLoadFromFile]
     task.loadSetting.nullString must be (None)
     task.loadSetting.mode must be ("fastload")
-    task.loadSetting.quotechar must be ('"')
+    task.loadSetting.quotechar must be ('~')
     task.loadSetting.batchSize must be (212312)
-    task.loadSetting.escapechar must be ('\\')
+    task.loadSetting.bulkLoadThreshold must be (1048576L)
+    task.loadSetting.escapechar must be ('&')
     task.loadSetting.delimiter must be (',')
     task.loadSetting.errorLimit must be (1234)
     task.loadSetting.dataConnectorAttrs must be (Map(
@@ -76,7 +79,7 @@ class TPTLoadFromFileSpec extends TestSpec {
     task.connectionProfile.default_database must be ("sandbox")
     task.connectionProfile.hostname must be ("server-name")
     task.tableName must be ("sandbox.chlr_test2")
-    task.location.toString must be ("/home/chlr/artemisia/confs/load.txt")
+    task.location.toString must be (location)
   }
 
   it must "execute the load task" in {
@@ -92,7 +95,7 @@ class TPTLoadFromFileSpec extends TestSpec {
       override lazy val twbStat = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))
       override val logParser = new TPTLoadLogParser(new NullOutputStream())
       override lazy val readerFuture = Future.successful(())
-      override val scriptGenerator = new TPTLoadOperScrGen(
+      override val scriptGenerator = new TPTFastLoadScrGen(
         TPTLoadConfig("database", "table", "/var/path", "input.pipe"),
         TPTLoadSetting(dataConnectorAttrs = Map("ROWERRFILENAME" -> ("VARCHAR","/var/path/errorfile"))),
         DBConnection("td_server", "voltron", "password", "dbc", 1025)

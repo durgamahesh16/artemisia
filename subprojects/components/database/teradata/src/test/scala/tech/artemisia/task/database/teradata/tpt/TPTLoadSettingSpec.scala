@@ -23,6 +23,7 @@ class TPTLoadSettingSpec extends TestSpec {
          |    error-limit = 200
          |    truncate = yes
          |    header = yes
+         |    bulk-threshold = 1K
          |    load-attrs = {
          |        OPENMODE = WRITE
          |        BUFFERSIZE = {
@@ -48,6 +49,7 @@ class TPTLoadSettingSpec extends TestSpec {
     setting.quotechar must be ('\'')
     setting.escapechar must be ('\\')
     setting.mode must be ("default")
+    setting.bulkLoadThreshold must be (1024)
     setting.batchSize must be (10000)
     setting.errorLimit must be (200)
     setting.truncate mustBe true

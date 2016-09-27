@@ -22,14 +22,15 @@ class TeraLoadSettingSpec extends TestSpec {
       |   escapechar = "\\"
       |   truncate = false
       |   batch-size = 100
+      |   bulk-threshold = 1K
       |   mode = default
       |}
     """.stripMargin withFallback TeraLoadSetting.defaultConfig
     val setting = TeraLoadSetting(config)
-    setting.bulkLoadThreshold mustBe true
-    setting.delimiter must be (",")
-    setting.quoting mustBe true
-    setting.quotechar must be ("\"")
+    setting.bulkLoadThreshold must be (1024)
+    setting.delimiter must be (',')
+    setting.quoting mustBe false
+    setting.quotechar must be ('\"')
   }
 
 }
