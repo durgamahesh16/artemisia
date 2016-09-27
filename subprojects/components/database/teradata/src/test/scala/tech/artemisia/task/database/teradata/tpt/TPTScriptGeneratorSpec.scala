@@ -15,17 +15,16 @@ class TPTScriptGeneratorSpec extends TestSpec {
       override protected val loadSetting = TPTLoadSetting(errorLimit = 1000)
       override protected val tptLoadConfig: TPTLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
-      override val tptScript: String = ""
-      loadOperAtts("ERRORTABLE1") must be("VARCHAR", "database.table_ET")
-      loadOperAtts("TARGETTABLE") must be("VARCHAR", "database.table")
-      loadOperAtts("TRACELEVEL") must be("VARCHAR", "None")
-      loadOperAtts("LOGTABLE") must be("VARCHAR", "database.table_LG")
-      loadOperAtts("PACK") must be("INTEGER", "2000")
-      loadOperAtts("ERRORTABLE2") must be("VARCHAR", "database.table_UV")
-      loadOperAtts("WORKTABLE") must be("VARCHAR", "database.table_WT")
-      loadOperAtts("ERRORLIMIT") must be("INTEGER", "1000")
-      loadOperAtts("DropErrorTable") must be("VARCHAR", "Yes")
-      loadOperAtts("PACKMAXIMUM") must be("VARCHAR", "No")
+      override protected val targetAttributes: Map[String, (String, String)] = Map(
+        "ERRORTABLE" -> ("VARCHAR", "database.table_ET"),
+        "ERRORLIMIT" -> ("INTEGER", "1000"),
+        "TARGETTABLE" -> ("VARCHAR", "database.table")
+      )
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
+      targetAttributes("ERRORTABLE") must be("VARCHAR", "database.table_ET")
+      targetAttributes("TARGETTABLE") must be("VARCHAR", "database.table")
+      targetAttributes("ERRORLIMIT") must be("INTEGER", "1000")
     }
   }
 
@@ -35,21 +34,23 @@ class TPTScriptGeneratorSpec extends TestSpec {
       override protected val loadSetting = TPTLoadSetting(errorLimit = 1000, delimiter = '\t')
       override protected val tptLoadConfig: TPTLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
-      override val tptScript: String = ""
-      dataConnAttrs("VALIDUTF8") must be("VARCHAR", "UTF8")
-      dataConnAttrs("NAMEDPIPETIMEOUT") must be("INTEGER", "120")
-      dataConnAttrs("REPLACEMENTUTF8CHAR") must be("VARCHAR", " ")
-      dataConnAttrs("FILENAME") must be("VARCHAR", "input.pipe")
-      dataConnAttrs("TEXTDELIMITERHEX") must be("VARCHAR", "9")
-      dataConnAttrs("INDICATORMODE") must be("VARCHAR", "N")
-      dataConnAttrs("OPENMODE") must be("VARCHAR", "Read")
-      dataConnAttrs("FORMAT") must be("VARCHAR", "DELIMITED")
-      dataConnAttrs("DIRECTORYPATH") must be("VARCHAR", "/var/path")
-      dataConnAttrs("SKIPROWS") must be("INTEGER", "0")
-      dataConnAttrs("BUFFERSIZE") must be("INTEGER", "524288")
-      dataConnAttrs must not contain "QUOTEDDATA"
-      dataConnAttrs must not contain "ESCAPEQUOTEDELIMITER"
-      dataConnAttrs must not contain "OPENQUOTEMARK"
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
+      sourceAttributes("VALIDUTF8") must be("VARCHAR", "UTF8")
+      sourceAttributes("NAMEDPIPETIMEOUT") must be("INTEGER", "120")
+      sourceAttributes("REPLACEMENTUTF8CHAR") must be("VARCHAR", " ")
+      sourceAttributes("FILENAME") must be("VARCHAR", "input.pipe")
+      sourceAttributes("TEXTDELIMITERHEX") must be("VARCHAR", "9")
+      sourceAttributes("INDICATORMODE") must be("VARCHAR", "N")
+      sourceAttributes("OPENMODE") must be("VARCHAR", "Read")
+      sourceAttributes("FORMAT") must be("VARCHAR", "DELIMITED")
+      sourceAttributes("DIRECTORYPATH") must be("VARCHAR", "/var/path")
+      sourceAttributes("SKIPROWS") must be("INTEGER", "0")
+      sourceAttributes("BUFFERSIZE") must be("INTEGER", "524288")
+      sourceAttributes must not contain "QUOTEDDATA"
+      sourceAttributes must not contain "ESCAPEQUOTEDELIMITER"
+      sourceAttributes must not contain "OPENQUOTEMARK"
     }
   }
 
@@ -59,11 +60,13 @@ class TPTScriptGeneratorSpec extends TestSpec {
         quoting = true, quotechar = '~', escapechar = '-')
       override protected val tptLoadConfig: TPTLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
-      override val tptScript: String = ""
-      dataConnAttrs("QUOTEDDATA") must be("VARCHAR", "Optional")
-      dataConnAttrs("ESCAPEQUOTEDELIMITER") must be("VARCHAR", "-")
-      dataConnAttrs("OPENQUOTEMARK") must be("VARCHAR", "~")
-      dataConnAttrs("TEXTDELIMITERHEX") must be("VARCHAR", "7c")
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
+      sourceAttributes("QUOTEDDATA") must be("VARCHAR", "Optional")
+      sourceAttributes("ESCAPEQUOTEDELIMITER") must be("VARCHAR", "-")
+      sourceAttributes("OPENQUOTEMARK") must be("VARCHAR", "~")
+      sourceAttributes("TEXTDELIMITERHEX") must be("VARCHAR", "7c")
     }
   }
 
@@ -72,8 +75,10 @@ class TPTScriptGeneratorSpec extends TestSpec {
     new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
-      override val tptScript: String = ""
       override protected val loadSetting = TPTLoadSetting()
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
       override protected lazy val tableMetadata = Seq(
         ("col1", "I1", 25: Short, "col1_1", "Y"),
         ("col2", "I1", 25: Short, "col2_2", "Y")
@@ -87,8 +92,10 @@ class TPTScriptGeneratorSpec extends TestSpec {
     new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
-      override val tptScript: String = ""
       override protected val loadSetting = TPTLoadSetting()
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
       override protected lazy val tableMetadata = Seq(
         ("col1", "I1", 25: Short, "col1_1", "Y"),
         ("col2", "I1", 25: Short, "col2_2", "Y")
@@ -103,8 +110,10 @@ class TPTScriptGeneratorSpec extends TestSpec {
     new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
-      override val tptScript: String = ""
       override protected val loadSetting = TPTLoadSetting()
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
       override protected lazy val tableMetadata = Seq(
         ("col1", "I1", 25: Short, "col1_1", "Y"),
         ("col2", "I1", 25: Short, "col2_2", "Y")
@@ -120,8 +129,10 @@ class TPTScriptGeneratorSpec extends TestSpec {
     new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
-      override val tptScript = ""
       override protected val loadSetting = TPTLoadSetting()
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
       override protected lazy val tableMetadata = Seq(
         ("col1", "I1", 25: Short, "col1_1", "N"),
         ("col2", "I1", 25: Short, "col2_2", "Y")
@@ -136,8 +147,10 @@ class TPTScriptGeneratorSpec extends TestSpec {
     new TPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
-      override val tptScript = ""
       override protected val loadSetting = TPTLoadSetting(nullString= Some("\\T"))
+      override protected val targetAttributes: Map[String, (String, String)] = Map()
+      override protected val loadType: String = "STREAM"
+      override protected val preExecuteSQLs: Seq[String] = Nil
       override protected lazy val tableMetadata = Seq(
         ("col1", "I1", 25: Short, "col1_1", "N"),
         ("col2", "I1", 25: Short, "col2_2", "Y")

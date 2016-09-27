@@ -23,13 +23,13 @@ class TeraLoadSettingSpec extends TestSpec {
       |   truncate = false
       |   batch-size = 100
       |   mode = default
-      |   session = 20
-      |   recreate-table = yes
       |}
     """.stripMargin withFallback TeraLoadSetting.defaultConfig
     val setting = TeraLoadSetting(config)
-    setting.recreateTable mustBe true
-    setting.sessions must be (20)
+    setting.bulkLoadThreshold mustBe true
+    setting.delimiter must be (",")
+    setting.quoting mustBe true
+    setting.quotechar must be ("\"")
   }
 
 }

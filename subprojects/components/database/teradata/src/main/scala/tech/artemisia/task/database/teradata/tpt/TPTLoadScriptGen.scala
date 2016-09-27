@@ -24,7 +24,7 @@ trait TPTLoadScriptGen {
 
   protected lazy val tableMetadata = TeraUtils.tableMetadata(tptLoadConfig.databaseName, tptLoadConfig.tableName)
 
-  final val baseTargetAttributes = Map(
+  final lazy val baseTargetAttributes = Map(
     "TRACELEVEL" -> ("VARCHAR" -> "None"),
     "PACK" -> ("INTEGER" -> "2000"),
     "PACKMAXIMUM" -> ("VARCHAR" -> "No"),

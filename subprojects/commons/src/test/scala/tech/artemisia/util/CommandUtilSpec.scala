@@ -1,6 +1,7 @@
 package tech.artemisia.util
 
 import java.io.{ByteArrayOutputStream, File}
+import CommandUtil._
 import tech.artemisia.TestSpec
 
 /**
@@ -31,6 +32,16 @@ class CommandUtilSpec extends TestSpec {
   it must "obsfucate commands when needed" in {
     val command = "binary" :: "-password" :: "bingo" :: Nil
     CommandUtil.obfuscatedCommandString(command, Seq(3)) must be ("binary -password *****")
+  }
+
+  it must "ignore non-zero return codes when requested" in {
+    val path = TestUtils.getExecutable(this.getClass.getResource("/executable/script_that_fails.sh"))
+    val command = Seq(path, "3")
+    executeCmd(command, validExitValues = Array(3))
+    val ex = intercept[org.apache.commons.exec.ExecuteException] {
+      executeCmd(command)
+    }
+    ex.getMessage must be ("Process exited with an error: 3 (Exit value: 3)")
   }
 
 

@@ -2,7 +2,7 @@ package tech.artemisia.task.database.teradata
 
 import org.scalatest.BeforeAndAfterAll
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.TestDBInterFactory
+import tech.artemisia.task.database.{BasicExportSetting, TestDBInterFactory}
 import tech.artemisia.task.hadoop.{HDFSReadSetting, HDFSUtil, HDFSWriteSetting, TestHDFSCluster}
 import tech.artemisia.task.settings.DBConnection
 
@@ -21,7 +21,7 @@ class HDFSTaskSpec extends TestSpec with BeforeAndAfterAll {
     val tableName = "mysqlExportHDFS"
     val task = new ExportToHDFS(tableName, s"SELECT * FROM $tableName",
       HDFSWriteSetting(cluster.pathToURI("/test/dir*/*.txt")), DBConnection("","","","",-1),
-      TeraExportSetting()) {
+      BasicExportSetting()) {
       override val dbInterface =  TestDBInterFactory.withDefaultDataLoader(tableName)
     }
     task.supportedModes must be === "default" :: "fastexport" :: Nil

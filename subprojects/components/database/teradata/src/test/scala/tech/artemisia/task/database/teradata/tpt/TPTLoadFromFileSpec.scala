@@ -85,6 +85,7 @@ class TPTLoadFromFileSpec extends TestSpec {
       ,this.getClass.getResource("/samplefiles/file.txt").toURI
       ,DBConnection.getDummyConnection
       ,TPTLoadSetting()) {
+      override protected val loadDataSize: Long = 10L
       override implicit val dbInterface = TestDBInterFactory.withDefaultDataLoader("test_table")
       override lazy val tbuildBin = getExecutable(this.getClass.getResource("/executables/tbuild_load_from_file.sh"))
       override lazy val twbKillBin = getExecutable(this.getClass.getResource("/executables/nop_execute.sh"))

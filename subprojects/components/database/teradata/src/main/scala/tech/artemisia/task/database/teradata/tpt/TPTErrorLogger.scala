@@ -58,8 +58,8 @@ object TPTErrorLogger {
                         dbInterface: DBInterface,
                         mode: String) = {
     mode match {
-      case "default" => new TPTStreamOperErrLogger(tableName, errorFile, dbInterface)
-      case "fastload" => new TPTLoadOperErrLogger(tableName, errorFile, dbInterface)
+      case "default" => new StreamOperErrLogger(tableName, errorFile, dbInterface)
+      case "fastload" => new LoadOperErrLogger(tableName, errorFile, dbInterface)
       case x => throw new RuntimeException(s"mode $x is not supported.")
     }
   }
@@ -70,23 +70,24 @@ object TPTErrorLogger {
     * @param tableName
     * @param errorFile
     */
-  class TPTLoadOperErrLogger(override protected val tableName: String
-                            ,override protected val errorFile: String
-                            ,override protected val dbInterface: DBInterface)
+  class LoadOperErrLogger(override protected val tableName: String
+                          , override protected val errorFile: String
+                          , override protected val dbInterface: DBInterface)
     extends TPTErrorLogger {
 
+    protected val errorSql =
+      s"""|LOCKING ROW FOR ACCESS
+          |SELECT
+          |ErrorFieldName as Fields,
+          |count(*) as cnt,
+          |ErrorText as ErrorMessage
+          |FROM ${tableName}_ET t0
+          |INNER JOIN dbc.errormsgs t1
+          |ON t0.ErrorCode = t1.ErrorCode
+          |GROUP BY 1,3;""".stripMargin
+
     protected lazy val etTableContent: Seq[(String, String, String)] = {
-      Seq(("FieldName", "Rowcount", "ErrorMessage")) ++ fetchData {
-        s"""|LOCKING ROW FOR ACCESS
-            |SELECT
-            |ErrorFieldName as Fields,
-            |count(*) as cnt,
-            |ErrorText as ErrorMessage
-            |FROM ${tableName}_ET t0
-            |INNER JOIN dbc.errormsgs t1
-            |ON t0.ErrorCode = t1.ErrorCode
-            |GROUP BY 1,3;""".stripMargin
-      }
+      Seq(("FieldName", "Rowcount", "ErrorMessage")) ++ fetchData(errorSql)
     }
 
     final def fetchData(query: String) = {
@@ -118,14 +119,14 @@ object TPTErrorLogger {
         info(s"$message\n")
       }
     }
+
   }
 
 
-  class TPTStreamOperErrLogger(override protected val tableName: String
-                               ,override protected val errorFile: String
-                               ,override protected val dbInterface: DBInterface)
+  class StreamOperErrLogger(override protected val tableName: String
+                            ,override protected val errorFile: String
+                            ,override protected val dbInterface: DBInterface)
     extends TPTErrorLogger {
-
 
     protected lazy val etTableContent: Seq[(String, String)] = {
       Seq(("ErrorMessage", "Rowcount")) ++ fetchData {
@@ -137,7 +138,6 @@ object TPTErrorLogger {
          """.stripMargin
       }
     }
-
 
     final def fetchData(query: String) = {
       Try(dbInterface.query(query, printSQL = false)) match {
@@ -151,7 +151,6 @@ object TPTErrorLogger {
           resultSetIterator.toSeq
       }
     }
-
 
     /**
       * log error

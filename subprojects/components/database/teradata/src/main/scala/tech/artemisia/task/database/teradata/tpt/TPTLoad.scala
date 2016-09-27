@@ -37,6 +37,12 @@ abstract class TPTLoad(override val taskName: String
                      ,val loadSetting: TPTLoadSetting) extends Task(taskName) {
 
 
+  protected val loadDataSize: Long
+
+  protected val scriptGenerator: TPTLoadScriptGen
+
+  protected val readerFuture: Future[Unit]
+
   implicit protected val dbInterface: DBInterface = DBInterfaceFactory.getInstance(connectionProfile)
 
   lazy protected val tbuildBin = getExecutableOrFail("tbuild")
@@ -44,8 +50,6 @@ abstract class TPTLoad(override val taskName: String
   lazy protected val twbKillBin = getExecutableOrFail("twbkill")
 
   lazy protected val twbStat = getExecutableOrFail("twbstat")
-
-  protected val loadDataSize: Long
 
   protected val dataPipe = joinPath(TaskContext.workingDir.toString, "input.pipe")
 
@@ -55,7 +59,6 @@ abstract class TPTLoad(override val taskName: String
 
   protected val errorLogger: TPTErrorLogger =
     TPTErrorLogger.createErrorLogger(s"$tableName", loadSetting.errorFile, dbInterface, loadSetting.mode)
-
 
   private val tptCheckpointDir = {
     val dir = new File(joinPath(TaskContext.workingDir.toString, "tpt_checkpoint"))
@@ -71,16 +74,6 @@ abstract class TPTLoad(override val taskName: String
     }
     TPTLoadConfig(database, table, TaskContext.workingDir.toString, "input.pipe")
   }
-
-  /**
-   *
-   */
-  protected val scriptGenerator: TPTLoadScriptGen
-
-  /**
-   * writer future. this is a Future of type Unit that launches the TPT script on a separate thread.
-   */
-  protected val readerFuture: Future[Unit]
 
   /**
    * writer future. this is a Future of type Unit that launches the TPT script on a separate thread.

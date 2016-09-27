@@ -15,7 +15,7 @@ object BashUtil {
     * expand path to a sequence of files
     * @param path
     */
-  def expandPath(path: String): Seq[String] = {
+  def listFiles(path: String): Seq[String] = {
     val byteStream = new ByteArrayOutputStream()
     executeShellCommand(s"ls -1 $path", stdout = byteStream)
     byteStream.toString.split(System.lineSeparator)
@@ -34,4 +34,6 @@ object BashUtil {
     debug(s"total size of $path is $size")
     size
   }
+
+
 }

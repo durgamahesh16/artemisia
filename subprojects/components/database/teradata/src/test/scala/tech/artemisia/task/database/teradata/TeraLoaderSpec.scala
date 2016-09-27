@@ -4,7 +4,7 @@ import java.io.{BufferedInputStream, FileInputStream, InputStream}
 import java.net.URI
 
 import tech.artemisia.TestSpec
-import tech.artemisia.task.database.TestDBInterFactory
+import tech.artemisia.task.database.{BasicExportSetting, TestDBInterFactory}
 import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.util.FileSystemUtil.{FileEnhancer, withTempFile}
 /**
@@ -41,7 +41,7 @@ class TeraLoaderSpec extends TestSpec {
       file =>
         val export = new ExportToFile(name = tableName, sql = s"SELECT * FROM $tableName", file.toURI
           , connectionProfile = DBConnection("", "", "", "", -1),
-          exportSetting = TeraExportSetting()) {
+          exportSetting = BasicExportSetting()) {
           override val dbInterface = TestDBInterFactory.withDefaultDataLoader(tableName)
         }
         export.supportedModes must be === "default" :: "fastexport"  :: Nil

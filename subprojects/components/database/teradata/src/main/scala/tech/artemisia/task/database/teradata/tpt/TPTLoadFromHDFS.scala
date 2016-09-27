@@ -75,12 +75,22 @@ object TPTLoadFromHDFS extends TPTTaskHelper {
     TPTLoadFromHDFS(name, destinationTable, location ,connectionProfile, loadSettings)
   }
 
-  def apply(taskName: String, tableName: String, location: HDFSReadSetting, connectionProfile: DBConnection,
+  /**
+    * creates an instance of TPTLoadFromHDFS.
+    *
+    * @param taskName name of the task
+    * @param tableName target table name
+    * @param hdfsReadSetting hdfs setting
+    * @param connectionProfile database connection profile
+    * @param loadSetting load settings
+    * @return
+    */
+  def apply(taskName: String, tableName: String, hdfsReadSetting: HDFSReadSetting, connectionProfile: DBConnection,
             loadSetting: TPTLoadSetting) = {
-    val cli = new HDFSCLIReader(location.cliBinary)
-    val loadSize = cli.getPathSize(location.location)
+    val cli = new HDFSCLIReader(hdfsReadSetting.cliBinary)
+    val loadSize = cli.getPathSize(hdfsReadSetting.location)
     val optimizedLoadSetting = TeraUtils.autoTuneLoadSettings(loadSize ,loadSetting)
-    new TPTLoadFromHDFS(taskName, tableName, location, connectionProfile ,optimizedLoadSetting) {
+    new TPTLoadFromHDFS(taskName, tableName, hdfsReadSetting, connectionProfile ,optimizedLoadSetting) {
       override protected val loadDataSize: Long = loadSize
     }
   }

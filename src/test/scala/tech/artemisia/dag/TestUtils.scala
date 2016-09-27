@@ -1,5 +1,7 @@
 package tech.artemisia.dag
 
+import java.io.File
+
 /**
   * Created by chlr on 8/20/16.
   */
@@ -42,5 +44,17 @@ object TestUtils {
        |
        |
      """.stripMargin
+
+
+  /**
+    *
+    * @param file executable file
+    * @return
+    */
+  def executable(file: String) = {
+    val executable = new File(file)
+    executable.setExecutable(true)
+    executable
+  }
 
 }
