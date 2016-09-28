@@ -7,7 +7,7 @@ import tech.artemisia.task.settings.DBConnection
   * Created by chlr on 9/14/16.
   */
 
-class TPTLoadScriptGeneratorSpec extends TestSpec {
+class BaseTPTLoadScriptGenSpec extends TestSpec {
 
 
   "LoadScriptGenerator" must "generate load operator parameters" in {
@@ -71,7 +71,7 @@ class TPTLoadScriptGeneratorSpec extends TestSpec {
   }
 
 
-  it must "must generate schema" in {
+  it must "generate schema" in {
     new BaseTPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection: DBConnection = DBConnection.getDummyConnection
@@ -88,7 +88,7 @@ class TPTLoadScriptGeneratorSpec extends TestSpec {
     }
   }
 
-  it must "must generate insert column list" in {
+  it must "generate insert column list" in {
     new BaseTPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
@@ -106,7 +106,7 @@ class TPTLoadScriptGeneratorSpec extends TestSpec {
     }
   }
 
-  it must "must generate value column list" in {
+  it must "generate value column list" in {
     new BaseTPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
@@ -125,7 +125,7 @@ class TPTLoadScriptGeneratorSpec extends TestSpec {
     }
   }
 
-  it must "must generate select list" in {
+  it must "generate select list" in {
     new BaseTPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection
@@ -143,7 +143,7 @@ class TPTLoadScriptGeneratorSpec extends TestSpec {
   }
 
 
-  it must "must generate select list with custom null string" in {
+  it must "generate select list with custom null string" in {
     new BaseTPTLoadScriptGen {
       override protected val tptLoadConfig = TPTLoadConfig("database", "table", "/var/path", "input.pipe")
       override protected val dbConnection = DBConnection.getDummyConnection

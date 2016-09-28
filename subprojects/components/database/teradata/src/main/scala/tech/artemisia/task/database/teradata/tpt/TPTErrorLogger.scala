@@ -47,7 +47,7 @@ trait TPTErrorLogger {
   protected lazy val errorFileContent = {
     val file = new File(errorFile)
     file.exists() match {
-      case true => Source.fromFile(errorFile).getLines.take(10)
+      case true => Source.fromFile(errorFile).getLines.take(10).toSeq
       case false => Nil
     }
   }
@@ -132,15 +132,13 @@ object TPTErrorLogger {
                             ,override protected val dbInterface: DBInterface)
     extends TPTErrorLogger {
 
+    protected val errorSql = s"""|SELECT ErrorMsg,count(*) AS cnt
+                                 |FROM ${tableName}_ET
+                                 |GROUP BY 1
+                                 |ORDER BY 2 desc;""".stripMargin
+
     protected lazy val etTableContent: Seq[(String, String)] = {
-      Seq(("ErrorMessage", "Rowcount")) ++ fetchData {
-        s"""
-           |SELECT ErrorMsg,count(*) AS cnt
-           |FROM ${tableName}_ET
-           |GROUP BY 1
-           |ORDER BY 2 desc;
-         """.stripMargin
-      }
+      Seq(("ErrorMessage", "Rowcount")) ++ fetchData(errorSql)
     }
 
     final def fetchData(query: String) = {
