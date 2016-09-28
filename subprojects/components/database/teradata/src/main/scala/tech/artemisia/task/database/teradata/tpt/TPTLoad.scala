@@ -12,7 +12,6 @@ import tech.artemisia.task.settings.DBConnection
 import tech.artemisia.task.{Task, TaskContext}
 import tech.artemisia.util.CommandUtil._
 import tech.artemisia.util.FileSystemUtil._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future, Promise}
