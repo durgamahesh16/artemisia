@@ -165,7 +165,9 @@ object TDCHExtract extends TaskLike {
     """
       | Extract data from Teradata to HDFS/Hive. The hadoop task nodes directly connect to Teradata nodes (AMPs)
       | and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
-      | them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata
+      | them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata.
+      |
+      | This requires TDCH library be installed on the local machine. This task supporr
     """.stripMargin
 
 }

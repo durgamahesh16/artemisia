@@ -17,6 +17,7 @@ import scala.concurrent.Future
   * This is abstract class. you can instantiate it using the apply method
   * as factory. This is because the TPTLoadSetting has to be preprocessed
   * when the mode is set to '''auto'''.
+  *
   * @param taskName name of the task
   * @param tableName target table name
   * @param hdfsReadSetting hdfs setting
@@ -99,7 +100,21 @@ object TPTLoadFromHDFS extends TPTTaskHelper {
 
   override val desc: String =
     """
+      | Load data from a HDFS filesystem to Teradata. This task is supported only in POSIX OS like Linux/Mac OS X.
+      |  This task also expects the TPT binary installed in the local machine. It supports two mode of operations.
       |
+      |  * **default**: This uses TPT Stream operator to load data.
+      |  * **fastload**: This uses TPT load operator to load data.
+      |
+      |  To use either of the modes set **load.mode** property to *default*, *fastload* or *auto*.
+      |  when the mode is set to *auto*, one of the two modes of *default* or *fastload* is automatically selected
+      |  depending on the size of the data to be loaded. The property **load.bulk-threshold** defines the threshold
+      |  for selecting the *default* and *fastload* mode. for eg if **load.bulk-threshold** is defined as 50M
+      |  (50 Megabytes) any file(s) whose total size is lesser than 50M will be loaded by *default* mode and any file(s)
+      |  larger than this threshold will be loaded via the *fastload* mode.
+      |
+      |  The truncate option internally tries to delete the target table but if the target table has a fastload lock
+      |  on the table the target table is dropped and re-created.
     """.stripMargin
 
 }

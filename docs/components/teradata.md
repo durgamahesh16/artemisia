@@ -15,7 +15,7 @@ This Component supports exporting loading and executing queries against Teradata
 | LoadFromHDFS     | Load Table from HDFS                                    |
 | TDCHLoad         | Loads data from HDFS/Hive  into Teradata                |
 | TDCHExtract      | Extract data from Teradata to HDFS/Hive                 |
-| TPTLoadFromFile  | Load data from Local file to Teradata using TPT         |
+| TPTLoadFromFile  | Load data from Local File-System to Teradata using TPT  |
 | TPTLoadFromHDFS  | Load data to Teradata from HDFS                         |
 
      
@@ -482,7 +482,9 @@ The typical task SQLExport configuration is as shown below
  
  Extract data from Teradata to HDFS/Hive. The hadoop task nodes directly connect to Teradata nodes (AMPs)
  and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
- them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata
+ them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata.
+
+ This requires TDCH library be installed on the local machine. This task supporr
     
 
 #### Configuration Structure:
@@ -568,6 +570,21 @@ The typical task SQLExport configuration is as shown below
 #### Description:
 
  
+ Load data from a local file system to Teradata. This task is supported only in POSIX OS like Linux/Mac OS X.
+  This task also expects the TPT binary installed in the local machine. It supports two mode of operations.
+
+  * **default**: This uses TPT Stream operator to load data.
+  * **fastload**: This uses TPT load operator to load data.
+
+  To use either of the modes set **load.mode** property to *default*, *fastload* or *auto*.
+  when the mode is set to *auto*, one of the two modes of *default* or *fastload* is automatically selected
+  depending on the size of the data to be loaded. The property **load.bulk-threshold** defines the threshold
+  for selecting the *default* and *fastload* mode. for eg if **load.bulk-threshold** is defined as 50M
+  (50 Megabytes) any file(s) whose total size is lesser than 50M will be loaded by *default* mode and any file(s)
+  larger than this threshold will be loaded via the *fastload* mode.
+
+  The truncate option internally tries to delete the target table but if the target table has a fastload lock
+  on the table the target table is dropped and re-created.
 
     
 
@@ -642,7 +659,21 @@ The typical task SQLExport configuration is as shown below
 #### Description:
 
  
+ Load data from a HDFS filesystem to Teradata. This task is supported only in POSIX OS like Linux/Mac OS X.
+  This task also expects the TPT binary installed in the local machine. It supports two mode of operations.
 
+  * **default**: This uses TPT Stream operator to load data.
+  * **fastload**: This uses TPT load operator to load data.
+
+  To use either of the modes set **load.mode** property to *default*, *fastload* or *auto*.
+  when the mode is set to *auto*, one of the two modes of *default* or *fastload* is automatically selected
+  depending on the size of the data to be loaded. The property **load.bulk-threshold** defines the threshold
+  for selecting the *default* and *fastload* mode. for eg if **load.bulk-threshold** is defined as 50M
+  (50 Megabytes) any file(s) whose total size is lesser than 50M will be loaded by *default* mode and any file(s)
+  larger than this threshold will be loaded via the *fastload* mode.
+
+  The truncate option internally tries to delete the target table but if the target table has a fastload lock
+  on the table the target table is dropped and re-created.
     
 
 #### Configuration Structure:
