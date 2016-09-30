@@ -392,9 +392,46 @@ The typical task SQLExport configuration is as shown below
 #### Description:
 
  
- Loads data from HDFS/Hive to Teradata. The hadoop task nodes directly connect to Teradata nodes (AMPs)
+ This task is used to load data to Teradata from HDFS/Hive. The hadoop task nodes directly connect to Teradata nodes (AMPs)
  and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
- them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata
+ them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata.
+
+ This requires TDCH library to be installed on the local machine. The **source-type** can be either *hive* or *hdfs.*
+ The data can loaded into Teradata in two modes.
+
+
+###### batch.insert:
+  Data is loaded via normal connections. No loader slots in Terdata are taken. This is ideal for loading few million
+  rows of data. The major dis-advantage of this mode is that this mode has zero tolerance for rejects. so even if
+  a single record is rejected the entire job fails.
+
+###### fastload:
+  Data is loaded via fastload protocol. This is ideal for loading several million records but these job occupy
+  loader slots. This load is tolerant of some kind of rejects and certain rejects are persisted via the
+  fastload error table such as _ET and _UV tables.
+
+To use hive as a target the field **tdch-settings.libjars** must be set with all the
+
+ * Hive conf dir
+ * Hive library jars (jars in lib directory of hive)
+
+ The **tdch-settings.libjars** field supports java style glob pattern. so for eg if hive lib path is located at
+  `/var/path/hive/lib` and to add all the jars in the lib directory to the **tdch-settings.libjars** field one can
+  use java style glob patterns such as `/var/path/hive/lib/*.jar`. so the most common value for **tdch-settings.libjars**
+  will be like `libjars = ["/var/path/hive/conf", "/var/path/hive/lib/*.jar"]`.
+
+
+ If you want to set any specific TDCH command line argument that is not available in this task param such as
+ `targettimestampformat`, `usexviews` etc, you can use the  **tdch-settings.misc-options** field to defined these
+ arguments and values. for eg the below config object would effectively result in arguments `--foo bar --hello world`
+ added to the TDCH CLI command.
+
+
+           misc-options = {
+              foo = bar,
+              hello = world
+           }
+
     
 
 #### Configuration Structure:
@@ -481,10 +518,37 @@ The typical task SQLExport configuration is as shown below
 
  
  Extract data from Teradata to HDFS/Hive. The hadoop task nodes directly connect to Teradata nodes (AMPs)
- and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
- them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata.
+ and the data from Teradata is loaded to HDFS/Hive with map reduce jobs processing the data in hadoop and extracting
+ them from Teradata. This is the preferred method of transferring large volume of data between Hadoop and Teradata.
 
- This requires TDCH library be installed on the local machine. This task supporr
+ This requires TDCH library to be installed on the local machine. The target can be either a random HDFS directory
+ or a Hive table. The source can be either a Teradata table or a query. The task sports a truncate option which will
+ delete the contents of target HDFS directory or truncate the data in the Hive table depending on the target-type
+ selected. The **split-by** fields decides how the data is distributed and parallelized. The default value for
+ this field is *hash*.
+
+ To use hive as a target the field **tdch-settings.libjars** must be set with all the
+
+ * Hive conf dir
+ * Hive library jars (jars in lib directory of hive)
+
+ The **tdch-settings.libjars** field supports java style glob pattern. so for eg if hive lib path is located at
+  `/var/path/hive/lib` and to add all the jars in the lib directory to the **tdch-settings.libjars** field one can
+  use java style glob patterns such as `/var/path/hive/lib/*.jar`. so the most common value for **tdch-settings.libjars**
+  will be like `libjars = ["/var/path/hive/conf", "/var/path/hive/lib/*.jar"]`.
+
+
+ If you want to set any specific TDCH command line argument that is not available in this task param such as
+ `targettimestampformat`, `usexviews` etc, you can use the  **tdch-settings.misc-options** field to defined these
+ arguments and values. for eg the below config object would effectively result in arguments `--foo bar --hello world`
+ added to the TDCH CLI command.
+
+
+           misc-options = {
+              foo = bar,
+              hello = world
+           }
+
     
 
 #### Configuration Structure:
@@ -557,7 +621,7 @@ The typical task SQLExport configuration is as shown below
  * truncate: if target is HDFS directory it is deleted. If target is a hive table it is dropped and recreated
  * split-by: defines how the source table/query is split. allowed values being hash, partition, amp
  * target-type: defines if the target is a HDFS path or a Hive table
- * source-type: source can be either a table or a sql query. this field is used define source type
+ * source-type: source can be either a table or a sql query. The allowed values for this field are (**table**, **query**)
 
      
 
@@ -569,8 +633,7 @@ The typical task SQLExport configuration is as shown below
 
 #### Description:
 
- 
- Load data from a local file system to Teradata. This task is supported only in POSIX OS like Linux/Mac OS X.
+  Load data from a local file system to Teradata. This task is supported only in POSIX OS like Linux/Mac OS X.
   This task also expects the TPT binary installed in the local machine. It supports two mode of operations.
 
   * **default**: This uses TPT Stream operator to load data.

@@ -149,9 +149,46 @@ object TDCHLoad extends TaskLike {
 
   override val desc: String =
     """
-      | Loads data from HDFS/Hive to Teradata. The hadoop task nodes directly connect to Teradata nodes (AMPs)
+      | This task is used to load data to Teradata from HDFS/Hive. The hadoop task nodes directly connect to Teradata nodes (AMPs)
       | and the data from hadoop is loaded to Teradata with map reduce jobs processing the data in hadoop and transferring
-      | them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata
+      | them over to Teradata. Preferred method of transferring large volume of data between Hadoop and Teradata.
+      |
+      | This requires TDCH library to be installed on the local machine. The **source-type** can be either *hive* or *hdfs.*
+      | The data can loaded into Teradata in two modes.
+      |
+      |
+      |###### batch.insert:
+      |  Data is loaded via normal connections. No loader slots in Terdata are taken. This is ideal for loading few million
+      |  rows of data. The major dis-advantage of this mode is that this mode has zero tolerance for rejects. so even if
+      |  a single record is rejected the entire job fails.
+      |
+      |###### fastload:
+      |  Data is loaded via fastload protocol. This is ideal for loading several million records but these job occupy
+      |  loader slots. This load is tolerant of some kind of rejects and certain rejects are persisted via the
+      |  fastload error table such as _ET and _UV tables.
+      |
+      |To use hive as a target the field **tdch-settings.libjars** must be set with all the
+      |
+      | * Hive conf dir
+      | * Hive library jars (jars in lib directory of hive)
+      |
+      | The **tdch-settings.libjars** field supports java style glob pattern. so for eg if hive lib path is located at
+      |  `/var/path/hive/lib` and to add all the jars in the lib directory to the **tdch-settings.libjars** field one can
+      |  use java style glob patterns such as `/var/path/hive/lib/*.jar`. so the most common value for **tdch-settings.libjars**
+      |  will be like `libjars = ["/var/path/hive/conf", "/var/path/hive/lib/*.jar"]`.
+      |
+      |
+      | If you want to set any specific TDCH command line argument that is not available in this task param such as
+      | `targettimestampformat`, `usexviews` etc, you can use the  **tdch-settings.misc-options** field to defined these
+      | arguments and values. for eg the below config object would effectively result in arguments `--foo bar --hello world`
+      | added to the TDCH CLI command.
+      |
+      |
+      |           misc-options = {
+      |              foo = bar,
+      |              hello = world
+      |           }
+      |
     """.stripMargin
 
 
