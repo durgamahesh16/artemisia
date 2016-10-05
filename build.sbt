@@ -5,6 +5,7 @@ import sbt.Keys._
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
 
+
 assemblySettings
 
 coverageEnabled.in(ThisBuild ,Test, test) := true
@@ -48,6 +49,18 @@ refgen := {
     toError(r.run("tech.artemisia.core.ReferenceGenerator", data(cp), Seq(input.toString), streams.value.log))
 }
 
+
+lazy val components = Seq(localhost, mysql, postgres, teradata, hive)
+
+lazy val customBuild = taskKey[Unit]("do a custom build") in all
+
+customBuild := {
+  components map {
+    (x: sbt.ProjectDefinition[_]) => x.settings(libraryDependencies <<= libraryDependencies map { (module) => module })
+  }
+}
+
+
 lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
   .settings(General.settings("artemisia"),
     bashScriptExtraDefines += """addJava "-Dsetting.file=${app_home}/../conf/settings.conf"""")
@@ -57,7 +70,8 @@ lazy val artemisia = (project in file(".")).enablePlugins(JavaAppPackaging)
                 "org.scala-lang" % "scala-compiler" % scalaVersion.value
             ),
           mainClass in Compile := Some("tech.artemisia.core.Main"))
-  .dependsOn(commons % "compile->compile;test->test", localhost, mysql, postgres, teradata, hive)
+  .dependsOn(commons % "compile->compile;test->test")
+  .dependsOn(components.flatMap(_.dependencies): _*)
 
 
 lazy val localhost = (project in General.componentBase / "localhost").enablePlugins(JavaAppPackaging)
@@ -93,7 +107,7 @@ lazy val hive = (project in General.componentBase / "hadoop" / "hive").enablePlu
   .dependsOn(commons  % "compile->compile;test->test")
 
 
-lazy val all = (project in file("all")).aggregate(artemisia ,commons,localhost, mysql, postgres, teradata, hive)
+lazy val all = (project in file("all")).aggregate((Seq(artemisia, commons) ++ components).map(x => x: ProjectReference): _*)
   .enablePlugins(JavaAppPackaging)
   .settings(General.settings("all", publishable = false))
   .settings(

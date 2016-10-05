@@ -11,4 +11,15 @@ object  Artemisia {
     "org.yaml" % "snakeyaml" % "1.17"
   )
 
+
+  val providedDependencies = Map {
+    "hive" -> Seq {
+      "org.apache.hive" % "hive-jdbc" % "0.10.0-cdh4.2.0"
+    }
+    "commons" -> Seq {
+      "org.apache.hadoop" % "hadoop-client" % "2.7.2"
+    }
+  }
+
+
 }
